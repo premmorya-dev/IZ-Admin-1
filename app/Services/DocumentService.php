@@ -147,7 +147,7 @@ abstract class DocumentService
             $taxText = $tax > 0 ? "{$item->tax}% <br> {$currencySymbol}{$tax}" : '-';
 
             $hsn = $item->hsn ?? '-';
-
+            $item->description = $item->description ?? '' ;
             $rows .= "<tr>
                 <td style='text-left:center;border: 1px solid #ddd; padding: 5px; width: 40%;'>{$item->name}<br><p style='font-size:10px;'>{$item->description}<p></td>
                 <td style='text-align:left;border: 1px solid #ddd; padding: 5px; width: 10%;'>{$hsn}</td>
