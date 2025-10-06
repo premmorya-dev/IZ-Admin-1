@@ -93,7 +93,7 @@
                     </span>
                     <span></span>
                     <div class="d-flex align-items-center flex-wrap gap-1">
-                        To:  <a href="#" client-code="{{ $estimate->client_code }}" class="edit-client" title="Client Detail"> {{ $estimate->company_name }} </a> 
+                        To:  <a href="#" client-code="{{ $estimate->client_code }}" class="edit-client" title="Client Detail"> {{ $estimate->company_name ?? $estimate->client_name }} </a> 
 
                         @php
                         $badgeClasses = [

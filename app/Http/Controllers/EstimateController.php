@@ -181,6 +181,7 @@ class EstimateController extends Controller
                 ->select(
                     'estimates.*',
                     'clients.company_name',
+                     'clients.client_name',
                     'clients.client_code',
 
                 )
