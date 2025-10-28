@@ -92,6 +92,10 @@ class InvoiceController extends Controller
                 $query->where('invoices.invoice_number', 'Like', "%" . $request->input('invoice_number') . "%");
             }
 
+              if ($request->filled('client_name')) {
+                $query->where('clients.client_name', 'Like', "%" . $request->input('client_name') . "%");
+            }
+
             if ($request->filled('company_name')) {
                 $query->where('clients.company_name', 'Like', "%" . $request->input('company_name') . "%");
             }
@@ -404,9 +408,8 @@ class InvoiceController extends Controller
 
         $data['client_details_html'] = '';
 
-        if (!empty($data['invoice']->company_name)) {
-            $data['client_details_html'] .= $data['invoice']->company_name . '<br>' ?? $data['invoice']->client_name . '<br>';
-        }
+        $data['client_details_html'] .= !empty($data['invoice']->company_name ) ? $data['invoice']->company_name . '<br>' : $data['invoice']->client_name . '<br>';
+
         if (!empty($data['invoice']->address_1)) {
             $data['client_details_html'] .= $data['invoice']->address_1 . '<br>';
         }

@@ -60,7 +60,7 @@
                 <div class="d-flex flex-column align-item_categories-start text-start">
                     <span class="fw-bold">                    
 
-                         <span class="item-category-name" item-category-code="{{  $item_categories->item_category_code }}"> <a href="#"> {{ $item_categories->item_category_name  }}</a></span>
+                         <span class="item-category-name" item-category-code="{{  $item_categories->item_category_code }}"> <a href="#"> @if( $item_categories->user_id == '1' )<i title="System Category cannot be edit and delete" class=" text-primary fa-solid fa-desktop"></i>@endif {{ $item_categories->item_category_name  }}</a></span>
 
                     </span>
                 

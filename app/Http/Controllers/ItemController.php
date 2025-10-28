@@ -201,6 +201,7 @@ class ItemController extends Controller
 
         $data['item_categories'] = \DB::table('item_categories')
             ->where('user_id',  Auth::id())
+             ->orWhere('user_id', 1)
             ->orderBy('item_category_name', 'ASC')->get();
 
         return view('pages/item.add', compact('data'));
@@ -310,6 +311,7 @@ class ItemController extends Controller
 
         $data['item_categories'] = \DB::table('item_categories')
             ->where('user_id',  Auth::id())
+             ->orWhere('user_id', 1)
             ->orderBy('item_category_name', 'ASC')->get();
 
         return view('pages/item.edit', compact('data'));

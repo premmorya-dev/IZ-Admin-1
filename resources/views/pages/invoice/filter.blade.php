@@ -20,33 +20,20 @@
                 <div class="accordion-body">
                     <div class="accordion-body">
                         <form action="" method="GET" class="row g-3 mb-4">
-                            <div class="col-md-3">
-                                <label for="select_invoice_param" class="form-label">Invoice Parameter</label>
-                                <select id="select_invoice_param" name="select_invoice_param" class="form-select">                                  
-                                    <option value="invoice_number_is" {{ request('select_invoice_param') ==   'invoice_number_is' ? 'selected' : '' }}>Invoice # IS</option>                                  
-                                    <option value="invoice_number_multiline" {{ request('select_invoice_param') ==   'invoice_number_multiline' ? 'selected' : '' }}>Invoice # IN (Multi Line)</option>
-                                </select>
-                            </div>
 
-                            <div class="col-md-3 " id="invoice-id-section">
-                                <label for="invoice_id" class="form-label">Invoice Id</label>
-                                <input type="text" name="invoice_id" value="{{ request('invoice_id') }}" id="invoice_id" placeholder="Registration Id" class="form-control">
-                            </div>
 
-                            <div class="col-md-3 " id="invoice-id-multiline-section">
-                                <label for="invoice_id_multiline" class="form-label">Invoice Id</label>
-                                <textarea name="invoice_id_multiline" id="invoice_id_multiline" class="form-control">{{ request('invoice_id_multiline') }}</textarea>
-                            </div>
 
-                            <div class="col-md-3 " id="invoice-number-section">
+                            <div class="col-md-3 ">
                                 <label for="invoice_number" class="form-label">Invoice Number</label>
-                                <input type="text" name="invoice_number" value="{{ request('invoice_number') }}" id="invoice_number" placeholder="Registration Id" class="form-control">
+                                <input type="text" name="invoice_number" value="{{ request('invoice_number') }}" id="invoice_number" placeholder="Invoice Number" class="form-control">
                             </div>
 
-                            <div class="col-md-3 " id="invoice-number-multiline-section">
-                                <label for="invoice_number_multiline" class="form-label">Invoice Number</label>
-                                <textarea name="invoice_number_multiline" id="invoice_number_multiline" class="form-control">{{ request('invoice_number_multiline') }}</textarea>
+                            <div class="col-md-3 ">
+                                <label for="client_name" class="form-label">Client Name</label>
+                                <input type="text" name="client_name" value="{{ request('client_name') }}" id="client_name" placeholder="Client" class="form-control">
                             </div>
+
+
 
                             <div class="col-md-3">
                                 <label for="status" class="form-label">Status</label>
@@ -141,7 +128,7 @@
             collapseInstance.hide();
         } else {
             collapseInstance.show();
-           
+
         }
     }
 </script>
@@ -151,70 +138,6 @@
 
 
 
-<script>
-
-$(document).ready(function() {
-
-    function refreshSelectCustomerParam(select_invoice_param) {
-            if (select_invoice_param == 'invoice_id_is') {
-                $('#invoice_id').attr('placeholder', '12345')
-            } else if (select_invoice_param == 'invoice_id_in') {
-                $('#invoice_id').attr('placeholder', '12345,1265')
-            } else if (select_invoice_param == 'invoice_id_multiline') {
-                $('#invoice_id_multiline').attr('placeholder', '12345\n1265')
-            } else if (select_invoice_param == 'invoice_number_is') {
-                $('#invoice_number').attr('placeholder', 'INV-2023')
-            } else if (select_invoice_param == 'invoice_number_in') {
-                $('#invoice_number').attr('placeholder', 'INV-2023,INV-20232')
-            } else if (select_invoice_param == 'invoice_number_multiline') {
-                $('#invoice_number_multiline').attr('placeholder', 'INV-2023\nINV-20232')
-            }
-        }
-
-        function refreshCustomerParam(select_invoice_param) {
-            if (select_invoice_param == 'invoice_id_is' || select_invoice_param == 'invoice_id_in') {
-                $('#invoice-id-section').show();
-                $('#invoice-number-section').hide();             
-                $('#invoice-id-multiline-section').hide();
-                $('#invoice-number-multiline-section').hide();
-            } else if (select_invoice_param == 'invoice_id_multiline') {
-                $('#invoice-id-multiline-section').show();
-                $('#invoice-id-section').hide();
-                $('#invoice-number-section').hide();            
-                $('#invoice-number-multiline-section').hide();
-            } else if (select_invoice_param == 'invoice_number_is' || select_invoice_param == 'invoice_number_in') {
-                $('#invoice-id-section').hide();
-                $('#invoice-number-section').show();              
-                $('#invoice-id-multiline-section').hide();
-                $('#invoice-number-multiline-section').hide();
-            } else if (select_invoice_param == 'invoice_number_multiline') {
-                $('#invoice-number-multiline-section').show();
-                $('#invoice-id-multiline-section').hide();
-                $('#invoice-id-section').hide();
-                $('#invoice-number-section').hide();
-            
-
-            }else {
-                $('#invoice-id-section').show();
-                $('#invoice-number-section').hide();           
-                $('#invoice-id-multiline-section').hide();
-                $('#invoice-number-multiline-section').hide();
-            }
-        }
-
-        let select_invoice_param = $('#select_invoice_param').val();
-        refreshCustomerParam(select_invoice_param);
-        refreshSelectCustomerParam(select_invoice_param)
-
-        $('#select_invoice_param').change(function() {
-            let customer_param = this.value;
-            refreshCustomerParam(customer_param);
-            refreshSelectCustomerParam(customer_param)
-
-        });
-
-})
-</script>
 
 <script>
     $(document).ready(function() {
@@ -231,30 +154,29 @@ $(document).ready(function() {
             }
 
             // Handle select elements
-            addParam('select_invoice_param', 'select');   
-            addParam('pagination_per_page', 'select');     
-          
-           
+            addParam('select_invoice_param', 'select');
+            addParam('pagination_per_page', 'select');
+
+
 
             // Handle input elements
-            addParam('invoice_id');
-            addParam('invoice_id_multiline','textarea');
+
             addParam('invoice_number');
-            addParam('invoice_number_multiline','textarea');
+            addParam('client_name');
             addParam('sub_total');
             addParam('tax_total');
             addParam('discount');
             addParam('total');
             addParam('issue_date');
             addParam('due_date');
-           
-     
+
+
 
             var status = $('select[name=\'status\']').val();
 
             if (status) {
                 url += '&status=' + encodeURIComponent(status);
-            }   
+            }
 
 
 
@@ -267,9 +189,6 @@ $(document).ready(function() {
 </script>
 
 <script>
- 
-
-
     $("#issue_date").daterangepicker({
         timePicker: true,
         timePicker24Hour: true,
@@ -312,8 +231,4 @@ $(document).ready(function() {
     $('#due_date').on('cancel.daterangepicker', function(ev, picker) {
         $(this).val('');
     });
-
-
-
-
 </script>

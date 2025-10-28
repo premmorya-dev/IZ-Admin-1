@@ -52,12 +52,12 @@ class ItemCategoryController extends Controller
 
         ];
 
-        $order_by = $request->input('direction', 'desc');
+        $order_by = $request->input('direction', 'asc');
 
         if (!empty($request->input('sort')) && array_key_exists($request->input('sort'), $sort_by)) {
             $sort = $sort_by[$request->input('sort')];
         } else {
-            $sort = 'item_categories.item_category_id';
+            $sort = 'item_categories.item_category_name';
         }
         // sorting
 
@@ -74,23 +74,24 @@ class ItemCategoryController extends Controller
 
 
             $query->where('item_categories.user_id',  Auth::id());
+            $query->orWhere('item_categories.user_id', 1);
 
 
             // **Applying Filters**
 
 
 
-           
+
 
             if ($request->filled('item_category_name')) {
                 $query->where('item_categories.item_category_name', 'LIKE', '%' . $request->input('item_category_name') . '%');
             }
 
-        
 
 
 
-           
+
+
 
             $result =  $query;
 
@@ -109,11 +110,13 @@ class ItemCategoryController extends Controller
         } else {
 
             $query = DB::table('item_categories')
+
                 ->select(
                     'item_categories.item_category_id',
                 );
 
             $query->where('item_categories.user_id',  Auth::id());
+            $query->orWhere('item_categories.user_id', 1);
             $data['totalRecords'] =  $query->count();
             $data['totalPages'] = ceil($data['totalRecords'] / $data['perPage']);
 
@@ -139,6 +142,7 @@ class ItemCategoryController extends Controller
                     'item_categories.*',
                 )
                 ->where('item_categories.user_id',  Auth::id())
+                ->orWhere('item_categories.user_id', 1)
                 ->whereIn('item_categories.item_category_id', $data['item_categories'])
                 ->orderBy($sort, $order_by)
                 ->get();
@@ -182,7 +186,7 @@ class ItemCategoryController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                 'item_category_name' => 'required|string|max:100',
+                'item_category_name' => 'required|string|max:100',
 
             ], []);
 
@@ -199,7 +203,7 @@ class ItemCategoryController extends Controller
                 'item_category_name'   => $request->input('item_category_name'),
                 'user_id'     => Auth::id(),
                 'item_category_code'   => $this->generateUniqueItemCategoryCode(),
-               
+
             ]);
 
 
@@ -237,14 +241,16 @@ class ItemCategoryController extends Controller
         $data = [];
 
         $data['item_categories'] = ItemCategoryModel::where('user_id', Auth::id())
-            ->where('item_category_code',$request->input('item_category_code') )
+            ->where('item_category_code', $request->input('item_category_code'))
             ->first();
 
-        if (empty($data['item_categories'])) {
-            return abort(404);
+           
+
+        if (empty($data['item_categories'])) { 
+            return response()->json(['error' => 1 ]);
         }
-       
-    
+
+
 
         return view('pages/item_category.edit', compact('data'));
     }
@@ -260,7 +266,7 @@ class ItemCategoryController extends Controller
 
             $validator = Validator::make($request->all(), [
                 'item_category_name' => 'required|string|max:100',
-              
+
             ], []);
 
             if ($validator->fails()) {
@@ -274,10 +280,10 @@ class ItemCategoryController extends Controller
 
             DB::table('item_categories')
                 ->where('item_category_code',  $request->input('item_category_code'))
-                 ->where('user_id',  Auth::id() )
+                ->where('user_id',  Auth::id())
                 ->update([
                     'item_category_name'   => $request->input('item_category_name'),
-                   
+
                 ]);
 
             return response()->json([
@@ -309,9 +315,9 @@ class ItemCategoryController extends Controller
                 ->whereIn('item_category_code', $ids)
                 ->delete();
         } elseif (is_numeric($ids)) {
-            
 
-            
+
+
             ItemCategoryModel::where('user_id', Auth::id())
                 ->where('item_category_code', $ids) // only if $ids is a single ID
                 ->delete();
@@ -339,7 +345,7 @@ class ItemCategoryController extends Controller
     }
 
 
-    
+
     public function parseDateRange($dateTimeRange)
     {
         // Split the range into start and end parts

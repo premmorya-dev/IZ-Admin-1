@@ -181,7 +181,7 @@ class EstimateController extends Controller
                 ->select(
                     'estimates.*',
                     'clients.company_name',
-                     'clients.client_name',
+                    'clients.client_name',
                     'clients.client_code',
 
                 )
@@ -285,12 +285,10 @@ class EstimateController extends Controller
 
 
 
-
         $data['client_details_html'] = '';
 
-        if (!empty($data['estimate']->company_name)) {
-            $data['client_details_html'] .= $data['estimate']->company_name . '<br>' ?? $data['estimate']->client_name . '<br>';
-        }
+        $data['client_details_html'] .=  !empty($data['estimate']->company_name) ? $data['estimate']->company_name . '<br>' : $data['estimate']->client_name . '<br>';
+
         if (!empty($data['estimate']->address_1)) {
             $data['client_details_html'] .= $data['estimate']->address_1 . '<br>';
         }

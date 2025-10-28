@@ -231,6 +231,18 @@
                             <div class="col-6 col-md-4">
                                 <input type="text" name="item[{{ $itemCount }}][amount]" value="{{ $item['amount'] }}" class="form-control form-control-sm amount" readonly>
                             </div>
+
+                              <!-- Description (New Field) -->
+                            <div class="w-100 mt-2">
+                                <textarea
+                                    class="id_description"
+                                    name="item[{{ $itemCount }}][description]"
+                                    class="form-control form-control-sm"
+                                    placeholder="Item Description"
+                                    rows="2">{{ $item['description'] ?? '' }}</textarea>
+                            </div>
+
+
                         </div>
                         <div class="col-12">
                             <button type="button" class="btn btn-outline btn-sm btn-outline-danger w-100" onclick="removeRow(this)"><i data-lucide="minus"></i> Remove</button>
@@ -476,6 +488,16 @@
                 ]
             });
 
+             $('.id_description').summernote({
+                placeholder: 'Enter Description...',
+                height: 120,
+                toolbar: [
+                    ['style', ['bold', 'italic', 'underline']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['view', ['codeview']]
+                ]
+            });
+            
             $('.update-estimate').on('click', function(e) {
                 e.preventDefault();
 
@@ -816,6 +838,7 @@
         <div class="input-group input-group-sm w-100">
           <select name="item[${itemCount}][discount]" class="form-select discount-select flex-grow-1" onchange="calculateestimate()">
             ${discountOptions}
+             <option value="new">➕ Add New Discount</option>
           </select>
           <span class="input-group-text discount-amount">−${currencySymbol}0.00</span>
         </div>
@@ -825,6 +848,7 @@
 <div class="input-group input-group-sm w-100">
     <select name="item[${itemCount}][tax]" class="form-select tax-select flex-grow-1" onchange="calculateestimate()">
         ${taxOptions}
+        <option value="new">➕ Add New Tax</option>
     </select>
     <span class="input-group-text tax-amount">+${currencySymbol}0.00</span>
 </div>
@@ -833,6 +857,17 @@
           <input type="text" name="item[${itemCount}][amount]" placeholder="Amount" class="form-control form-control-sm amount" readonly>
         </div>
       </div>
+
+         <div class="w-100 mt-2">
+                                <textarea
+                                        class="id_description"
+                                        name="item[${itemCount}][description]"
+                                        class="form-control form-control-sm"
+                                        placeholder="Item Description"
+                                        rows="2"></textarea>
+                            </div>
+
+
       <div class="col-12">
         <button type="button" class="btn btn-outline btn-sm btn-outline-danger w-100" onclick="removeRow(this)"><i data-lucide="minus"></i> Remove</button>
       </div>
@@ -840,6 +875,16 @@
 
             formContainer.appendChild(itemRow);
             lucide.createIcons();
+
+             $('.id_description').summernote({
+                placeholder: 'Enter Description...',
+                height: 120,
+                toolbar: [
+                    ['style', ['bold', 'italic', 'underline']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['view', ['codeview']]
+                ]
+            });
         }
 
         function calculateestimate() {
