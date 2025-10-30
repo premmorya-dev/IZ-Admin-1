@@ -61,9 +61,9 @@
                     <div class="input-group">
                         <span class="input-group-text" id="country_code_prefix">+--</span>
                         <input type="text" name="mobile_no" id="mobile_no" class="form-control @error('mobile_no') is-invalid @enderror" value="{{ old('mobile_no',  Auth::user()->mobile_no ?? '') }}">
-                      @error('mobile_no')<div class="invalid-feedback">{{ $message }}</div>@enderror
+                        @error('mobile_no')<div class="invalid-feedback">{{ $message }}</div>@enderror
                     </div>
-                  
+
                 </div>
 
 
@@ -263,7 +263,7 @@
                                 style="max-height: 150px; display: {{ $showLogo ? 'block' : 'none' }}" alt="Uploaded Logo">
                             <span style="display: none;">Click to upload<br>or drag & drop</span>
 
-                             @error('logo_path')<div class="text-danger">{{ $message }}</div>@enderror
+                            @error('logo_path')<div class="text-danger">{{ $message }}</div>@enderror
                         </label>
 
                         @if ($showLogo)
@@ -271,7 +271,7 @@
                         <input type="hidden" name="remove_logo_path" id="remove_logo_path" value="0">
                         @endif
 
-                       
+
                     </div>
 
                     <div class="col-md-6 mt-3">
@@ -333,11 +333,34 @@
                     </span>
                 </label>
                 <select name="reminder_before_due_days" id="reminder_before_due_days" class="form-select">
+                    <option value="0">Disable</option>
                     @for ($i = 1; $i <= 30; $i++)
                         <option value="{{ $i }}" {{ old('reminder_before_due_days', $data['setting']->reminder_before_due_days ?? '') == $i ? 'selected' : '' }}>{{ $i }} day{{ $i > 1 ? 's' : '' }}</option>
                         @endfor
                 </select>
             </div>
+
+
+            <!-- After Due Days -->
+            <div class="col-md-6 mt-3">
+                <label for="enable_reminder" class="form-label">
+                    Every Day Invoice Payment Reminder
+                    <span
+                        data-bs-toggle="tooltip"
+                        title="If enabled, all invoices that are already past their due date will receive a reminder notification every day until they are paid.">
+                        <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+                    </span>
+                </label>
+
+
+                <div class="form-check form-switch">
+                    <input class="form-check-input" type="checkbox" id="everyday_reminder_after_due_day" name="everyday_reminder_after_due_day"
+                        {{ !empty($data['setting']->everyday_reminder_after_due_day) && $data['setting']->everyday_reminder_after_due_day == 'Y'  ? 'checked' : '' }}>
+                    <label class="form-check-label" for="everyday_reminder_after_due_day">Send reminder after due date</label>
+                </div>
+            </div>
+
+
 
         </fieldset>
 
@@ -347,7 +370,7 @@
 
     <script>
         document.addEventListener("DOMContentLoaded", function() {
-         $('#id_notes').summernote({
+            $('#id_notes').summernote({
                 placeholder: 'Enter notes...',
                 height: 120,
                 toolbar: [

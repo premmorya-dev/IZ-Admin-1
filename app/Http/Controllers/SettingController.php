@@ -257,7 +257,6 @@ class SettingController extends Controller
             }
         }
 
-
         SettingModel::where('user_id', $id)->update([
             'logo_path' => $data['logo_path'],
             'signature' => $data['signature'],
@@ -279,7 +278,8 @@ class SettingController extends Controller
             'pincode' => $data['pincode'] ?? null,
             'date_format' =>  $request->input('date_format') ?? 'd-m-Y',
             'invoice_payment_reminder_status' => $request->input('invoice_payment_reminder_status'),
-            'reminder_before_due_days' => $request->input('reminder_before_due_days'),
+            'reminder_before_due_days' => empty( $request->input('reminder_before_due_days') ) ||  $request->input('reminder_before_due_days') == '0' ?  Null :  $request->input('reminder_before_due_days') ,
+            'everyday_reminder_after_due_day' => $request->input('everyday_reminder_after_due_day') == 'on' ? 'Y' : 'N',
         ]);
 
 

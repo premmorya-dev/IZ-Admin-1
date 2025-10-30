@@ -39,13 +39,17 @@ class Kernel extends ConsoleKernel
             ->everyMinute()
             ->appendOutputTo(storage_path('logs/send_estimate_email.log'));
 
-        $schedule->command('invoices:dashboard-summary ')
-            ->everyMinute()
+        $schedule->command('invoices:dashboard-summary')
+            ->everyTenMinutes()
             ->appendOutputTo(storage_path('logs/cron_dashboard_summary.log'));
 
-        $schedule->command('app:send-invoice-reminders')
+        $schedule->command('app:send-invoice-reminders-before-due-date')
+            ->dailyAt('10:00')
+            ->appendOutputTo(storage_path('logs/send_invoice_reminders_before_due_date.log'));
+
+        $schedule->command('app:send-invoice-reminders-after-due-date')
             ->dailyAt('11:00')
-            ->appendOutputTo(storage_path('logs/send_invoice_reminders.log'));
+            ->appendOutputTo(storage_path('logs/send_invoice_reminders_after_due_date.log'));
     }
 
 

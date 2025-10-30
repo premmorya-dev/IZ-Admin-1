@@ -47,6 +47,7 @@ class SettingModel extends Model
         'user_gst_number',
         'invoice_payment_reminder_status',
         'reminder_before_due_days',
+        'everyday_reminder_after_due_day',
     ];
 
     public $sortable = [];
