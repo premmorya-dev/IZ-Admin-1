@@ -342,37 +342,16 @@ class ExpenseController extends Controller
             return abort(404);
         }
 
+
+        // Check if image exists and file is present in public folder
+        if ($data['expense']->expense_image && file_exists(public_path($data['expense']->expense_image))) {
+            $data['storedLogo'] = asset($data['expense']->expense_image);
+            $data['showLogo'] = true;
+        } else {
+            $data['storedLogo'] = asset('no-image.png'); // fallback placeholder
+            $data['showLogo'] = false;
+        }
         $data['items'] = json_decode($data['expense']->item_json, true);
-
-
-
-
-
-
-        // $data['client_details_html'] = '';
-
-        // if (!empty($data['expense']->company_name)) {
-        //     $data['client_details_html'] .= $data['expense']->company_name . '<br>';
-        // }
-        // if (!empty($data['expense']->address_1)) {
-        //     $data['client_details_html'] .= $data['expense']->address_1 . '<br>';
-        // }
-        // if (!empty($data['expense']->address_2)) {
-        //     $data['client_details_html'] .= $data['expense']->address_2 . '<br>';
-        // }
-        // if (!empty($data['expense']->city)) {
-        //     $data['client_details_html'] .= $data['expense']->city . '<br>';
-        // }
-        // if (!empty($data['expense']->state_name)) {
-        //     $data['client_details_html'] .= $data['expense']->state_name . ', ';
-        // }
-        // if (!empty($data['expense']->country_name)) {
-        //     $data['client_details_html'] .= $data['expense']->country_name . ' ';
-        // }
-        // if (!empty($data['expense']->zip)) {
-        //     $data['client_details_html'] .= $data['expense']->zip;
-        // }
-
 
 
         $data['currencies'] = \DB::table('currencies')->orderBy('currency_name', 'ASC')->get();
@@ -391,11 +370,6 @@ class ExpenseController extends Controller
 
 
         $data['setting'] = \DB::table('settings')->where('user_id', Auth::id())->first();
-
-        // if (!empty($data['setting'])) {
-        //     $data['setting']->country = \DB::table('countries')->where('country_id',  $data['setting']->country_id)->first();
-        //     $data['setting']->state = \DB::table('country_states')->where('state_id',  $data['setting']->state_id)->first();
-        // }
 
 
         $data['recurring'] = \DB::table('recurring_expenses')
@@ -501,12 +475,13 @@ class ExpenseController extends Controller
 
             // dd($request->all());
             // Update expense fields
+
             $expense->update([
                 // 'client_id'        => $request->input('client_id'),             
                 'expense_date'     => $request->input('expense_date'),
                 'expense_image'     => $data['upload'],
                 'payment_mode'     => $request->input('payment_mode'),
-                'is_paid'     => $request->has('is_paid')  && $request->input('is_paid') == '1'  ? 'Y' : 'N',
+                'is_paid'     =>     $request->has('is_paid')  && $request->input('is_paid') == 'Y'  ? 'Y' : 'N',
                 'sub_total'        => $request->input('hidden_sub_total'),
                 'total_tax'        => $request->input('hidden_total_tax'),
                 'total_discount'   => $request->input('hidden_total_discount'),
@@ -659,7 +634,7 @@ class ExpenseController extends Controller
                 'user_id' => Auth::id(),
                 // 'client_id' => $clientId,
                 'expense_number' =>  $request->input('expense_number'),
-                'is_paid'     => $request->has('is_paid')  && $request->input('is_paid') == '1'  ? 'Y' : 'N',
+                'is_paid'     => $request->has('is_paid')  && $request->input('is_paid') == 'Y'  ? 'Y' : 'N',
                 'expense_date' => $request->input('expense_date'),
                 'expense_date' => $request->input('expense_date'),
                 'expense_image'     => $data['upload'],
@@ -712,7 +687,7 @@ class ExpenseController extends Controller
                 "message" => "Expense Saved Successfully!"
             ]);
         } catch (ValidationException $e) {
-
+            dd($e->getMessage());
             Log::channel('admin')->error('error while preparing expense: ' . $e->getMessage());
 
             return response()->json([

@@ -22,8 +22,8 @@ class InvoiceModel extends Model
      *
      * @var array<int, string>
      */
-     // The attributes that are mass assignable.
-     protected $fillable = [
+    // The attributes that are mass assignable.
+    protected $fillable = [
         'user_id',
         'client_id',
         'invoice_number',
@@ -34,6 +34,7 @@ class InvoiceModel extends Model
         'total_tax',
         'total_discount',
         'grand_total',
+        'round_off',
         'advance_payment',
         'total_due',
         'notes',
@@ -79,8 +80,6 @@ class InvoiceModel extends Model
         'notes',
         'terms',
         'currency_code',
-        
-    ];
 
-  
+    ];
 }

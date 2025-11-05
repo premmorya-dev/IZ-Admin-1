@@ -180,6 +180,7 @@ if (!function_exists('getShortcode')) {
             '{{' . $type . '_total_tax}}' => $doc->total_tax,
             '{{' . $type . '_total_discount}}' => $doc->total_discount,
             '{{' . $type . '_grand_total}}' => $doc->grand_total,
+             '{{' . $type . '_round_off}}' => $doc->round_off,
             '{{invoice_advance_payment}}' => $doc->advance_payment ?? 0,
 
             '{{' . $type . '_total_due}}' => $doc->total_due ?? 0,

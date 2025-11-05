@@ -297,6 +297,12 @@
                         <div class="col-4 col-md-5 text-end" id="grand-total">$0.00</div>
                     </div>
 
+                    <div class="row">
+                        <div class="col-8 col-md-7 col-label">Round Off:</div>
+                        <div class="col-4 col-md-5 text-end" id="round-off">$0.00</div>
+                    </div>
+
+
                     <!-- Advance Payment -->
                     <div class="row">
                         <div class="col-8 col-md-10 col-label">Partial Payment:</div>
@@ -319,6 +325,7 @@
                 <input type="hidden" name="hidden_total_discount" value="" id="hidden_total_discount">
                 <input type="hidden" name="hidden_total_tax" value="" id="hidden_total_tax">
                 <input type="hidden" name="hidden_grand_total" value="" id="hidden_grand_total">
+                <input type="hidden" name="hidden_round_off" value="" id="hidden_round_off">
                 <input type="hidden" name="hidden_advance_payment" value="" id="hidden_advance_payment">
                 <input type="hidden" name="hidden_total_due" value="" id="hidden_total_due">
 
@@ -655,7 +662,7 @@
                 const isCustom = $("#invoiceModeSwitch").is(":checked");
 
                 if (isCustom) {
-                     let prefix = "{{ setting('invoice_prefix') }}";
+                    let prefix = "{{ setting('invoice_prefix') }}";
                     $("#invoice_number")
                         .val(prefix)
                         .prop("readonly", false)
@@ -1218,9 +1225,14 @@
             const grandTotal = subtotal - totalDiscount + totalTax;
             document.getElementById('grand-total').innerText = `${currencySymbol}${grandTotal.toFixed(2)}`;
 
+            let roundedTotal = Math.round(grandTotal);
+            let roundOff = (roundedTotal - grandTotal).toFixed(2);
+            document.getElementById('round-off').innerText = `${currencySymbol}${roundOff}`;
+
+
             // Advance payment & balance
             const advancePayment = parseFloat(document.getElementById('advance-payment').value || 0);
-            const remainingBalance = grandTotal - advancePayment;
+            const remainingBalance = roundedTotal - advancePayment;
             document.getElementById('remaining-balance').innerText = `${currencySymbol}${remainingBalance.toFixed(2)}`;
 
 
@@ -1230,6 +1242,7 @@
             $("#hidden_grand_total").val(grandTotal.toFixed(2));
             $("#hidden_advance_payment").val(advancePayment);
             $("#hidden_total_due").val(remainingBalance.toFixed(2));
+            $("#hidden_round_off").val(roundOff);
 
 
         }
@@ -1294,7 +1307,7 @@
                 const rateVal = $(this).data('unit_price'); // unit price
                 const taxIdVal = $(this).data('tax_id'); // tax ID
                 const discountIdVal = $(this).data('discount_id');
-                 const description = $(this).data('description');
+                const description = $(this).data('description');
 
                 // c) Set the input value (the <input id="item-3">) to the product name:
                 $(`#item-${rowIdx}`).val(itemName);
@@ -1306,7 +1319,7 @@
                 const $row = $(`#item-${rowIdx}`).closest('[data-item-id]');
 
                 // f) Auto-fill HSN, Rate, and set the correct tax-select
-                  $row.find('.id_description').summernote('code', description);
+                $row.find('.id_description').summernote('code', description);
                 $row.find('.hsn').val(hsnVal);
                 $row.find('.quantity').val(1);
                 $row.find('.rate').val(rateVal).trigger('input');

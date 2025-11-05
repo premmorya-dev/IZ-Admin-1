@@ -190,7 +190,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('list', [ExpenseItemController::class, 'index'])->name('expense.item.list');
         Route::get('add', [ExpenseItemController::class, 'create'])->name('expense.item.add');
         Route::post('store', [ExpenseItemController::class, 'store'])->name('expense.item.store');
-        Route::get('edit/{expense_item_code}', [ExpenseItemController::class, 'edit'])->name('expense.item.edit');
+        Route::post('edit', [ExpenseItemController::class, 'edit'])->name('expense.item.edit');
         Route::post('update', [ExpenseItemController::class, 'update'])->name('expense.item.update');
         Route::post('destroy', [ExpenseItemController::class, 'destroy'])->name('expense.item.destroy');
     });

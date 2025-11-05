@@ -67,7 +67,7 @@
             <div class="col-md-5">
                 <div class="col-md-12 text-center">
                     @php
-                    $storedLogo = $data['expense']->expense_image ? asset($data['expense']->expense_image) : '';
+                    $storedLogo = $data['expense']->expense_image ? asset($data['expense']->expense_image) :  asset('no-image.png') ;
                     $showLogo = $storedLogo && !str_contains($storedLogo, 'no-image.png');
                     @endphp
 
@@ -77,12 +77,12 @@
                         <input type="file" class="image-upload form-control" name="upload" accept="image/*"
                             data-preview="preview-upload" data-upload-box="upload-box-logo" data-clear-btn="clear-upload"
                             onchange="previewImage(event)">
-                        <img id="preview-upload" src="{{ $showLogo ? $storedLogo : '' }}"
-                            style="max-height: 150px; display: {{ $showLogo ? 'block' : 'none' }}" alt="Uploaded Logo">
+                        <img id="preview-upload" src="{{ $data['storedLogo'] }}"
+                            style="max-height: 150px;" alt="Uploaded Logo">
                         <span style="display: none;">Click to upload<br>or drag & drop</span>
                     </label>
 
-                    @if ($showLogo)
+                    @if ($data['showLogo'])
                     <button type="button" class="btn btn-lg mt-2" onclick="removeSavedImage('upload')">X</button>
                     <input type="hidden" name="remove_upload" id="remove_upload" value="0">
                     @endif
@@ -181,7 +181,7 @@
                             <input class="form-check-input" type="checkbox" id="is_recurring" name="is_recurring"
                                 {{ old('is_recurring', !empty($data['recurring']) ? 'checked' : '') }}>
 
-                            <label class="form-check-label" for="is_recurring">Enable Recurring Invoice</label>
+                            <label class="form-check-label" for="is_recurring">Enable Recurring Expense</label>
                         </div>
 
 
@@ -195,8 +195,8 @@
                                 type="checkbox"
                                 id="is_paid"
                                 name="is_paid"
-                                value="1"
-                                {{ old('is_paid', $data['expense']->is_paid) ? 'checked' : '' }}>
+                                value="Y"
+                                {{ old('is_paid', $data['expense']->is_paid) == 'Y' ? 'checked' : '' }}>
                             <label class="form-check-label" for="is_paid">
                                 Paid
                             </label>
@@ -553,30 +553,11 @@
         const editors = {};
 
         document.addEventListener("DOMContentLoaded", function() {
-            const ids = ['notes'];
-
-            ids.forEach(function(id) {
-                const element = document.getElementById(id);
-                if (element) {
-                    ClassicEditor
-                        .create(element)
-                        .then(editor => {
-                            editors[id] = editor;
-                        })
-                        .catch(error => {
-                            console.error(`CKEditor init failed for ${id}`, error);
-                        });
-                }
-            });
+          
 
             $('#update-expense').on('click', function(e) {
                 e.preventDefault();
-                // 🛠️ Update textarea values before creating FormData
-                Object.keys(editors).forEach(id => {
-                    const data = editors[id].getData();
-                    document.getElementById(id).value = data;
-                });
-
+            
                 let formData = new FormData(document.getElementById('expense-generate'));
 
                 Swal.fire({

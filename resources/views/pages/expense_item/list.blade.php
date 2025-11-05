@@ -13,8 +13,8 @@
             <i data-lucide="trash-2"></i> Delete
         </a>
         <!-- Add Button -->
-        <a class="btn btn-outline-primary btn-sm px-4 py-2 shadow-sm fw-semibold text-uppercase d-flex align-expense_items-center gap-2"
-            id="add-action" href="{{ route('expense.item.add') }}"> <i data-lucide="plus-circle"></i> Add New</a>
+        <a class="btn btn-outline-primary btn-sm px-4 py-2 shadow-sm fw-semibold text-uppercase d-flex align-expense_items-center gap-2 new-expense-item"
+            id="add-action" href="#" > <i data-lucide="plus-circle"></i> Add New</a>
 
     </div>
 
@@ -64,13 +64,13 @@
                 <!-- Align status and due badge to the right -->
                 <div class="d-flex flex-column align-expense_items-start text-start">
                     <span class="fw-bold">
-                        <a href="{{ route('expense.item.edit',['expense_item_code' => $expense_item->expense_item_code ]) }}">{{ $expense_item->expense_item_name }}</a>
+                        <a href="#"  class="expense-item-name" expense-item-code="{{  $expense_item->expense_item_code }}" >{{ $expense_item->expense_item_name }}</a>
                     </span>
                     <span></span>
                     <div class="d-flex align-expense_items-center flex-wrap gap-1">
                         <i class="fas fa-folder"></i>
-                        @if( !empty( $expense_item->expense_item_category_code ) )
-                        <a href="{{ route('expense.item.category.edit',['expense_item_category_code' => $expense_item->expense_item_category_code ]) }}" target="__blank">{{ $expense_item->expense_item_category_name ?? 'N/A' }}</a>
+                        @if( !empty( $expense_item->expense_category_code ) )
+                        <a href="{{ route('expense.category.edit',['expense_category_code' => $expense_item->expense_category_code ]) }}" target="__blank">{{ $expense_item->expense_category_name ?? 'N/A' }}</a>
                         @else
                         N/A
                         @endif
@@ -206,7 +206,7 @@
 
     <!-- Bootstrap 5 Delete Confirm Modal -->
     <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-dialog  modal-md modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal-header bg-danger text-white rounded-top-3">
                     <h5 class="modal-title" id="deleteConfirmModalLabel">Confirm Deletion</h5>
@@ -224,6 +224,116 @@
     </div>
 
 
+    <!-- Add Expense Item Model -->
+    <div class="modal fade" id="expenseItem-modal" tabindex="-1" aria-labelledby="expenseItemModalLabel" aria-hidden="true">
+        <div class="modal-dialog  modal-md modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white rounded-top-3">
+                    <h4 class="modal-title" id="expenseItemModalLabel">Add Expense Item</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="expenseItem-modal-body py-3 px-3">
+
+                </div>
+                <div class="modal-footer">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Edit Expense Item Model -->
+    <div class="modal fade" id="editExpenseItem-modal" tabindex="-1" aria-labelledby="editExpenseItemModalLabel" aria-hidden="true">
+        <div class="modal-dialog   modal-md modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white rounded-top-3">
+                    <h4 class="modal-title" id="editExpenseItemModalLabel">Edit Expense Item</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="editExpenseItem-modal-body py-3 px-3">
+
+                </div>
+                <div class="modal-footer">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).on('click', '.edit-expense-item, .expense-item-name', function(e) {
+            e.preventDefault();
+            $('.editExpenseItem-modal-body').empty();
+
+            var expense_item_code = $(this).attr('expense-item-code');
+
+            try {
+
+                var editors = {}; // store editors globally so they are not reinitialized
+
+                $.ajax({
+                    url: "{{ route('expense.item.edit') }}",
+                    data: {
+                        expense_item_code: expense_item_code
+                    },
+                    type: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    beforeSend: function() {
+                      
+                    },
+                    success: function(response) {
+
+                        $('.editExpenseItem-modal-body').html(response);
+                        $('#editExpenseItem-modal').modal('show');
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error:', error);
+            }
+
+
+        });
+    </script>
+
+    <script>
+        $(document).on('click', '.new-expense-item', function(e) {
+            e.preventDefault();
+            $('.expenseItem-modal-body').empty();
+          
+
+            try {
+
+                var editors = {}; // store editors globally so they are not reinitialized
+
+                $.ajax({
+                    url: "{{ route('expense.item.add') }}",                 
+                    type: 'GET',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    beforeSend: function() {
+
+                    },
+                    success: function(response) {
+
+                        $('.expenseItem-modal-body').html(response);
+                        $('#expenseItem-modal').modal('show');
+
+
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error:', error);
+            }
+
+
+        });
+    </script>
 
     <script>
         $(document).ready(function() {

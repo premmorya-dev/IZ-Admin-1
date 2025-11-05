@@ -78,7 +78,8 @@
                         <span style="display: none;">Click to upload<br>or drag & drop</span>
                     </label>
 
-
+ <button type="button" class="btn btn-lg mt-2" onclick="removeSavedImage('upload')">X</button>
+                    <input type="hidden" name="remove_upload" id="remove_upload" value="0">
 
                     @error('upload')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
@@ -86,7 +87,7 @@
 
             <div class="col-md-7">
                 <div class="row">
-                    <!-- expense Number with Mode -->
+                    <!-- expense Number with Mode -->   
                     <div class="col-md-4 mt-3">
                         <label for="expense_number" class="form-label d-flex justify-content-between align-items-center">
                             <span>Expense Number</span>
@@ -179,7 +180,7 @@
                             <input class="form-check-input" type="checkbox" id="is_recurring" name="is_recurring"
                                 >
 
-                            <label class="form-check-label" for="is_recurring">Enable Recurring Invoice</label>
+                            <label class="form-check-label" for="is_recurring">Enable Recurring Expense</label>
                         </div>
 
 
@@ -193,8 +194,8 @@
                                 type="checkbox"
                                 id="is_paid"
                                 name="is_paid"
-                                value="1"
-                                {{ old('is_paid') ? 'checked' : '' }}>
+                                value="Y"
+                                 {{ old('is_paid') == 'Y' ? 'checked' : '' }}>
                             <label class="form-check-label" for="is_paid">
                                 Paid
                             </label>
@@ -560,29 +561,10 @@
         const editors = {};
 
         document.addEventListener("DOMContentLoaded", function() {
-            const ids = ['notes'];
-
-            ids.forEach(function(id) {
-                const element = document.getElementById(id);
-                if (element) {
-                    ClassicEditor
-                        .create(element)
-                        .then(editor => {
-                            editors[id] = editor;
-                        })
-                        .catch(error => {
-                            console.error(`CKEditor init failed for ${id}`, error);
-                        });
-                }
-            });
+           
 
             $('#add-expense').on('click', function(e) {
-                e.preventDefault();
-                // 🛠️ Update textarea values before creating FormData
-                Object.keys(editors).forEach(id => {
-                    const data = editors[id].getData();
-                    document.getElementById(id).value = data;
-                });
+                e.preventDefault();        
 
                 let formData = new FormData(document.getElementById('expense-generate'));
 

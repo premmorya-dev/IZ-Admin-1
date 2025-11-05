@@ -92,7 +92,7 @@ class InvoiceController extends Controller
                 $query->where('invoices.invoice_number', 'Like', "%" . $request->input('invoice_number') . "%");
             }
 
-              if ($request->filled('client_name')) {
+            if ($request->filled('client_name')) {
                 $query->where('clients.client_name', 'Like', "%" . $request->input('client_name') . "%");
             }
 
@@ -408,7 +408,7 @@ class InvoiceController extends Controller
 
         $data['client_details_html'] = '';
 
-        $data['client_details_html'] .= !empty($data['invoice']->company_name ) ? $data['invoice']->company_name . '<br>' : $data['invoice']->client_name . '<br>';
+        $data['client_details_html'] .= !empty($data['invoice']->company_name) ? $data['invoice']->company_name . '<br>' : $data['invoice']->client_name . '<br>';
 
         if (!empty($data['invoice']->address_1)) {
             $data['client_details_html'] .= $data['invoice']->address_1 . '<br>';
@@ -541,6 +541,7 @@ class InvoiceController extends Controller
                 'total_tax'        => $request->input('hidden_total_tax'),
                 'total_discount'   => $request->input('hidden_total_discount'),
                 'grand_total'      => $request->input('hidden_grand_total'),
+                'round_off'      => $request->input('hidden_round_off'),
                 'advance_payment'  => $request->input('hidden_advance_payment'),
                 'total_due'        => $request->input('hidden_total_due'),
                 'notes'            => $request->input('notes'),
@@ -732,6 +733,7 @@ class InvoiceController extends Controller
                 'total_tax' => $totalTax,
                 'total_discount' => $totalDiscount,
                 'grand_total' => $grandTotal,
+                'round_off'      => $request->input('hidden_round_off'),
                 'advance_payment' => $advancePayment,
                 'total_due' => $totalDue,
                 'notes' => $notes,

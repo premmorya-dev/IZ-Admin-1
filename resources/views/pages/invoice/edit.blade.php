@@ -449,6 +449,11 @@
                         <div class="col-4 col-md-5 text-end" id="grand-total">$0.00</div>
                     </div>
 
+                    <div class="row">
+                        <div class="col-8 col-md-7 col-label">Round Off:</div>
+                        <div class="col-4 col-md-5 text-end" id="round-off">$0.00</div>
+                    </div>
+
                     <!-- Advance Payment -->
                     <div class="row">
                         <div class="col-8 col-md-10 col-label">Partial Payment:</div>
@@ -472,6 +477,7 @@
                 <input type="hidden" name="hidden_total_tax" value="" id="hidden_total_tax">
                 <input type="hidden" name="hidden_grand_total" value="" id="hidden_grand_total">
                 <input type="hidden" name="hidden_advance_payment" value="" id="hidden_advance_payment">
+                <input type="hidden" name="hidden_round_off" value="" id="hidden_round_off">
                 <input type="hidden" name="hidden_total_due" value="" id="hidden_total_due">
 
                 <input type="hidden" name="invoice_code" value="{{ $data['invoice']->invoice_code }}" id="invoice_code">
@@ -1355,9 +1361,19 @@
             const grandTotal = subtotal - totalDiscount + totalTax;
             document.getElementById('grand-total').innerText = `${currencySymbol}${grandTotal.toFixed(2)}`;
 
+            // Round to nearest rupee
+            let roundedTotal = Math.round(grandTotal);
+
+
+
+            // Calculate round-off difference
+            let roundOff = (roundedTotal - grandTotal).toFixed(2);
+
+            document.getElementById('round-off').innerText = `${currencySymbol}${roundOff}`;
+
             // Advance payment & balance
             const advancePayment = parseFloat(document.getElementById('advance-payment').value || 0);
-            const remainingBalance = grandTotal - advancePayment;
+            const remainingBalance = roundedTotal - advancePayment;
             document.getElementById('remaining-balance').innerText = `${currencySymbol}${remainingBalance.toFixed(2)}`;
 
 
@@ -1367,6 +1383,7 @@
             $("#hidden_grand_total").val(grandTotal.toFixed(2));
             $("#hidden_advance_payment").val(advancePayment);
             $("#hidden_total_due").val(remainingBalance.toFixed(2));
+            $("#hidden_round_off").val(roundOff);
 
 
         }

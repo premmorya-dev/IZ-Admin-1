@@ -48,7 +48,7 @@ class ExpenseItemController extends Controller
         // sorting
         $sort_by = [
             'expense_item_id' => 'expense_items.expense_item_id',
-            'expense_item_name' => 'expense_items.expense_item_name',          
+            'expense_item_name' => 'expense_items.expense_item_name',
             'status' => 'expense_items.status',
 
 
@@ -90,7 +90,7 @@ class ExpenseItemController extends Controller
                 $query->where('expense_items.expense_item_name', 'LIKE', '%' . $request->input('expense_item_name') . '%');
             }
 
-          
+
             if ($request->filled('hsn_sac')) {
                 $query->where('expense_items.hsn_sac', '=',  $request->input('hsn_sac'));
             }
@@ -141,10 +141,15 @@ class ExpenseItemController extends Controller
 
         if (!empty($data['expense_items'])) {
 
+
+
             $data['expense_items'] = DB::table('expense_items')
+                ->leftJoin('expense_categories', 'expense_items.expense_category_id', 'expense_categories.expense_category_id')
                 ->select(
                     'expense_items.*',
-                  
+                    'expense_categories.expense_category_name',
+                    'expense_categories.expense_category_code'
+
                 )
                 ->where('expense_items.user_id',  Auth::id())
                 ->whereIn('expense_items.expense_item_id', $data['expense_items'])
@@ -174,11 +179,13 @@ class ExpenseItemController extends Controller
             ->where('user_id',  Auth::id())
             ->orderBy('name', 'ASC')->get();
 
-
-
         $data['taxes'] = \DB::table('taxes')
             ->where('user_id',  Auth::id())
             ->orderBy('name', 'ASC')->get();
+
+        $data['expense_categories'] = \DB::table('expense_categories')
+            ->where('user_id',  Auth::id())
+            ->orderBy('expense_category_name', 'ASC')->get();
 
 
         return view('pages/expense_item.add', compact('data'));
@@ -188,11 +195,11 @@ class ExpenseItemController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'expense_item_name' => 'required|string|max:100',           
-             
+                'expense_item_name' => 'required|string|max:100',
+
                 'hsn_sac' => 'required',
                 'expense_item_type' => 'required',
-                'unit_price' => 'required',              
+                'unit_price' => 'required',
                 'status' => 'required',
                 'tax_id' => 'required',
                 'discount_id' => 'required',
@@ -211,16 +218,16 @@ class ExpenseItemController extends Controller
             $expense_item_id =  DB::table('expense_items')->insertGetId([
                 'expense_item_name'   => $request->input('expense_item_name'),
                 'user_id'     => Auth::id(),
-                'expense_item_code'   => $this->generateUniqueexpense_itemCode(),              
-              
+                'expense_item_code'   => $this->generateUniqueexpense_itemCode(),
+                'expense_category_id'   => $request->input('expense_category_id'),
                 'hsn_sac'     => $request->input('hsn_sac') ?? '',
                 'expense_item_type'   => $request->input('expense_item_type'),
                 'unit_price'  => $request->input('unit_price') ?? 0,
-               
+
                 'status'      => $request->input('status') ?? 'Y',
                 'tax_id'      => $request->input('tax_id') ?? null,
                 'discount_id' => $request->input('discount_id') ?? null,
-                           ]);
+            ]);
 
 
             return response()->json([
@@ -250,15 +257,17 @@ class ExpenseItemController extends Controller
 
 
 
-    public function edit(Request $request, $expense_item_code)
+    public function edit(Request $request)
     {
 
 
         $data = [];
 
         $data['expense_item'] = ExpenseItemModel::where('user_id', Auth::id())
-            ->where('expense_item_code', $expense_item_code)
+            ->where('expense_item_code', $request->expense_item_code)
             ->first();
+
+
 
         if (empty($data['expense_item'])) {
             return abort(404);
@@ -275,7 +284,12 @@ class ExpenseItemController extends Controller
             ->where('user_id',  Auth::id())
             ->orderBy('name', 'ASC')->get();
 
-      
+
+        $data['expense_categories'] = \DB::table('expense_categories')
+            ->where('user_id',  Auth::id())
+            ->orderBy('expense_category_name', 'ASC')->get();
+
+
 
         return view('pages/expense_item.edit', compact('data'));
     }
@@ -291,10 +305,10 @@ class ExpenseItemController extends Controller
 
             $validator = Validator::make($request->all(), [
                 'expense_item_name' => 'required|string|max:100',
-                'hsn_sac' => 'required',              
+                'hsn_sac' => 'required',
                 'expense_item_type' => 'required',
                 'unit_price' => 'required',
-              
+
                 'status' => 'required',
                 'tax_id' => 'required',
                 'discount_id' => 'required',
@@ -314,13 +328,14 @@ class ExpenseItemController extends Controller
                 ->where('expense_item_code',  $request->input('expense_item_code'))
                 ->update([
                     'expense_item_name'   => $request->input('expense_item_name'),
-                   
+                    'expense_category_id'   => $request->input('expense_category_id'),
+
                     'user_id'     => Auth::id(),
-                   
+
                     'hsn_sac'     => $request->input('hsn_sac') ?? '',
                     'expense_item_type'   => $request->input('expense_item_type'),
                     'unit_price'  => $request->input('unit_price') ?? 0,
-                  
+
                     'status'      => $request->input('status') ?? 'Y',
                     'tax_id'      => $request->input('tax_id') ?? null,
                     'discount_id' => $request->input('discount_id') ?? null,
@@ -393,7 +408,7 @@ class ExpenseItemController extends Controller
                 $q->where('expense_item_name', 'LIKE', "%{$query}%")
                     ->orWhere('expense_item_code', 'LIKE', "%{$query}%");
             })
-            ->select('expense_item_id', 'expense_item_name', 'expense_item_code', 'hsn_sac', 'unit_price', 'tax_id','discount_id' )
+            ->select('expense_item_id', 'expense_item_name', 'expense_item_code', 'hsn_sac', 'unit_price', 'tax_id', 'discount_id')
 
             ->take(20)
             ->get();
