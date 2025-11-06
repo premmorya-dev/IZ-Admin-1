@@ -13,6 +13,9 @@ use App\Models\User;
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
 
+use Illuminate\Support\Facades\Storage;
+use Barryvdh\DomPDF\Facade\Pdf;
+
 class SendEstimateEmails extends Command
 {
   protected $signature = 'send-estimate-email  {--notification_id=0}  {--limit=0}';
@@ -103,10 +106,13 @@ class SendEstimateEmails extends Command
         'clients.*',
         'clients.email as client_email',
         'estimates.template_id as template_id',
+        'users.first_name',
+        'users.last_name',
 
       )
       ->leftJoin('settings', 'settings.user_id', 'estimates.user_id')
       ->leftJoin('clients', 'clients.client_id', 'estimates.client_id')
+      ->leftJoin('users', 'users.user_id', 'estimates.user_id')
       ->where('estimates.estimate_id', $notification->estimate_id)
       ->where('estimates.user_id', $notification->user_id)
       ->first();
@@ -148,7 +154,7 @@ class SendEstimateEmails extends Command
       $mail->Port       = $smtp_data->smtp_port;; // TCP port to connect to
 
       // Recipients
-      $mail->setFrom($email_templates_config->email_template_from_email, $email_templates_config->email_template_from_name);
+      $mail->setFrom($email_templates_config->email_template_from_email,  $estimate_data->company_name ?? $estimate_data->first_name . " " . $estimate_data->last_name);
       $mail->addAddress($estimate_data->client_email, $estimate_data->client_name); // Add a recipient
 
 
@@ -157,12 +163,34 @@ class SendEstimateEmails extends Command
       // $mail->addAttachment('/tmp/image.jpg', 'new.jpg'); // Optional name
 
       // Content
-      $message =  shortcode('estimate', $estimate_data->estimate_code, $email_templates_data->content, $estimate_data->user_id);
+      $estimate_html =  shortcode('estimate', $estimate_data->estimate_code, $email_templates_data->content, $estimate_data->user_id);
 
+      $pdf = Pdf::loadHTML($estimate_html)
+        ->setPaper('a4', 'portrait')
+        ->setWarnings(false)
+        ->setOptions([
+          'isHtml5ParserEnabled' => true,
+          'isRemoteEnabled' => true, // allows external CSS/images
+        ]);
+      // Define temp folder path
+      $tempFolder = storage_path('app/temp');
+
+      // Ensure temp folder exists and has correct permissions
+      if (!is_dir($tempFolder)) {
+        mkdir($tempFolder, 0775, true);
+        chmod($tempFolder, 0775);
+      }
+      // Define PDF path
+      $pdfPath = $tempFolder . '/estimate_' . $estimate_data->estimate_number . '.pdf';
+
+      // Save PDF
+      $pdf->save($pdfPath);
+      // Attach PDF
+      $mail->addAttachment($pdfPath, 'estimate_' . $estimate_data->estimate_number . '.pdf');
 
 
       $subject = shortcode('estimate', $estimate_data->estimate_code, $email_templates_data->email_template_subject, $estimate_data->user_id);
-
+      $message = shortcode('estimate', $estimate_data->estimate_code, $email_templates_config->estimate_email_message_template, $estimate_data->user_id);
 
       //$message = appendUTM($message, $email_templates_data['email_template_link_utm']);
 
@@ -182,7 +210,11 @@ class SendEstimateEmails extends Command
 
 
 
-      $mail->send();
+      if ($mail->send()) {
+        if (file_exists($pdfPath)) {
+          unlink($pdfPath);
+        }
+      }
 
 
       $log =  "\Notification id: {$notification->notification_id} | User Id: {$notification->user_id} | Type: {$notification->notification_type} | Email: {$estimate_data->client_email}  | Status: Email sent successfully";

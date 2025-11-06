@@ -105,11 +105,15 @@ class SendInvoiceEmails extends Command
         'invoices.*',
         'settings.*',
         'clients.*',
+        'users.user_id',
         'clients.email as client_email',
+        'users.first_name as first_name',
+        'users.last_name as last_name',
 
       )
       ->leftJoin('settings', 'settings.user_id', 'invoices.user_id')
       ->leftJoin('clients', 'clients.client_id', 'invoices.client_id')
+      ->leftJoin('users', 'users.user_id', 'invoices.user_id')
       ->where('invoices.invoice_id', $notification->invoice_id)
       ->where('invoices.user_id', $notification->user_id)
       ->first();
@@ -148,7 +152,7 @@ class SendInvoiceEmails extends Command
       $mail->Port       = $smtp_data->smtp_port;; // TCP port to connect to
 
       // Recipients
-      $mail->setFrom($email_templates_config->email_template_from_email, $email_templates_config->email_template_from_name);
+      $mail->setFrom($email_templates_config->email_template_from_email,  $invoice_data->company_name ?? $invoice_data->first_name . " " . $invoice_data->last_name);
       $mail->addAddress($invoice_data->client_email, $invoice_data->client_name); // Add a recipient
 
 
