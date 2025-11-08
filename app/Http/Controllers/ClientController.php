@@ -25,8 +25,8 @@ class ClientController extends Controller
 
 
         $clients = DB::table('clients')
-        ->leftJoin('countries','countries.country_id','clients.country_id')
-        ->leftJoin('country_states','country_states.state_id','clients.state_id')
+            ->leftJoin('countries', 'countries.country_id', 'clients.country_id')
+            ->leftJoin('country_states', 'country_states.state_id', 'clients.state_id')
             ->where('clients.user_id', auth()->id())
             ->where('status', 'active')
             ->where(function ($q) use ($query) {
@@ -38,9 +38,9 @@ class ClientController extends Controller
             })
             ->select(
                 'clients.*',
-                 'countries.country_name',
-                 'country_states.state_name',
-             
+                'countries.country_name',
+                'country_states.state_name',
+
 
             )
             ->take(5)
@@ -287,33 +287,53 @@ class ClientController extends Controller
         }
 
 
-        return view('pages/client.client_form', compact('data'));
+        return view('pages/client.add', compact('data'));
     }
 
     public function store(Request $request)
     {
 
+        $data_validation = [
+            'client_name' => 'required|string|max:100',
+            'company_name' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'phone' => 'nullable|string|max:20',
+            'gst_number' => 'nullable|string|max:50',
+            'address_1' => 'required|string',
+            'address_2' => 'nullable|string',
+            'city' => 'nullable|string|max:100',
+            'state_id' => 'required|integer',
+            'country_id' => 'required|integer',
+            'currency_code' => 'required',
+            'zip' => 'nullable|string|max:20',
+            'notes' => 'nullable|string',
+            'terms' => 'nullable|string',
+            'status' => 'nullable|in:active,deactive',
+        ];
+
+        if (!empty($request->new_shipping_address) && $request->new_shipping_address == 'on') {
+            $shipping_validation = [
+                'shipping_client_name' => 'required|string|max:100',
+                'shipping_address_1' => 'required|string',
+                'shipping_address_2' => 'nullable|string',
+                'shipping_city' => 'nullable|string|max:100',
+                'shipping_state_id' => 'required|integer',
+                'shipping_country_id' => 'required|integer',
+                'shipping_zip' => 'nullable|string|max:20',
+                'shipping_phone' => 'nullable|string|max:20',
+            ];
+
+            // ✅ Merge both arrays
+            $data_validation = array_merge($data_validation, $shipping_validation);
+        }
+
 
         try {
-            $validator = Validator::make($request->all(), [
-                'client_name' => 'required|string|max:100',
-                'company_name' => 'nullable|string|max:255',
-                'email' => 'required|email|max:255',
-                'phone' => 'required|string|max:20',
-                'gst_number' => 'nullable|string|max:50',
-                'address_1' => 'required|string',
-                'address_2' => 'nullable|string',
-                'city' => 'nullable|string|max:100',
-                'state_id' => 'required|integer',
-                'country_id' => 'required|integer',
-                'currency_code' => 'required',
-                'zip' => 'nullable|string|max:20',
-                'notes' => 'nullable|string',
-                'terms' => 'nullable|string',
-                'status' => 'nullable|in:active,deactive',
-            ], [
+            $validator = Validator::make($request->all(),  $data_validation, [
                 'client_name.required' => 'Client name is required.',
                 'client_name.max' => 'Client name should not exceed 100 characters.',
+                'shipping_client_name.required' => 'Shipping Client name is required.',
+                'shipping_client_name.max' => 'Shipping Client name should not exceed 100 characters.',
                 'company_name.max' => 'Company name should not exceed 255 characters.',
                 'email.email' => 'Please enter a valid email address.',
                 'email.max' => 'Email should not exceed 255 characters.',
@@ -336,6 +356,27 @@ class ClientController extends Controller
             $userId = Auth::id(); // Get currently authenticated user ID
 
             // Create client
+
+            if (!empty($request->new_shipping_address) && $request->new_shipping_address == 'on') {
+                $shipping_client_name = $request->shipping_client_name ??  $request->client_name;
+                $shipping_address_1 = $request->shipping_address_1 ??  $request->address_1;
+                $shipping_address_2 = $request->shipping_address_2 ??  $request->address_2;
+                $shipping_city = $request->shipping_city ??  $request->city;
+                $shipping_state_id = $request->shipping_state_id ??  $request->state_id;
+                $shipping_country_id = $request->shipping_country_id ??  $request->country_id;
+                $shipping_zip = $request->shipping_zip ??  $request->zip;
+                $shipping_phone = $request->shipping_phone ??  $request->zip;
+            } else {
+                $shipping_client_name = $request->client_name ?? null;
+                $shipping_address_1 = $request->address_1 ?? null;
+                $shipping_address_2 =  $request->address_2 ?? null;
+                $shipping_city = $request->city ?? null;
+                $shipping_state_id =  $request->state_id ?? null;
+                $shipping_country_id =  $request->country_id ?? null;
+                $shipping_zip =   $request->zip ?? null;
+                $shipping_phone =   $request->phone ?? null;
+            }
+
             $client = ClientModel::create([
                 'user_id' => $userId,
                 'client_name' => $data['client_name'] ? ucfirst($data['client_name']) : null,
@@ -354,6 +395,17 @@ class ClientController extends Controller
                 'notes' => $data['notes'] ?? null,
                 'terms' => $data['terms'] ?? null,
                 'status' => $data['status'] ?? 'active', // default 'active'
+
+
+                'shipping_client_name' =>  $shipping_client_name,
+                'shipping_address_1' =>  $shipping_address_1,
+                'shipping_address_2' => $shipping_address_2,
+                'shipping_city' => $shipping_city,
+                'shipping_state_id' => $shipping_state_id,
+                'shipping_country_id' => $shipping_country_id,
+                'shipping_zip' => $shipping_zip,
+                'shipping_phone' => $shipping_phone,
+
             ]);
 
             return response()->json([
@@ -392,6 +444,11 @@ class ClientController extends Controller
             return abort(404);
         }
 
+        if (empty($data['client']->shipping_address_1)) {
+            $data['show_shipping'] = false;
+        } else {
+            $data['show_shipping'] = true;
+        }
 
 
         $data['currencies'] = \DB::table('currencies')->orderBy('currency_name', 'ASC')->get();
@@ -401,7 +458,7 @@ class ClientController extends Controller
         $data['countries'] = \DB::table('countries')->orderBy('country_name', 'ASC')->get();
         $data['states'] = \DB::table('country_states')->orderBy('state_name', 'ASC')->get();
 
-        return view('pages/client.client_form_edit', compact('data'));
+        return view('pages/client.edit', compact('data'));
     }
 
 
@@ -409,26 +466,49 @@ class ClientController extends Controller
 
     public function update(Request $request)
     {
+
+
+
+        $data_validation = [
+            'client_name' => 'required|string|max:100',
+            'company_name' => 'nullable|string|max:255',
+            'email' => 'nullable|email|max:255',
+            'phone' => 'nullable|string|max:20',
+            'gst_number' => 'nullable|string|max:50',
+            'address_1' => 'required|string',
+            'address_2' => 'nullable|string',
+            'city' => 'nullable|string|max:100',
+            'state_id' => 'required|integer',
+            'country_id' => 'required|integer',
+            'currency_code' => 'required',
+            'zip' => 'nullable|string|max:20',
+            'notes' => 'nullable|string',
+            'terms' => 'nullable|string',
+            'status' => 'nullable|in:active,deactive',
+        ];
+
+        if (!empty($request->edit_shipping_address) && $request->edit_shipping_address == 'on') {
+            $shipping_validation = [
+                'shipping_client_name' => 'required|string|max:100',
+                'shipping_address_1' => 'required|string',
+                'shipping_address_2' => 'nullable|string',
+                'shipping_city' => 'nullable|string|max:100',
+                'shipping_state_id' => 'required|integer',
+                'shipping_country_id' => 'required|integer',
+                'shipping_zip' => 'nullable|string|max:20',
+                'shipping_phone' => 'nullable|string|max:20',
+            ];
+
+            // ✅ Merge both arrays
+            $data_validation = array_merge($data_validation, $shipping_validation);
+        }
+
         try {
-            $validator = Validator::make($request->all(), [
-                'client_name' => 'required|string|max:100',
-                'company_name' => 'nullable|string|max:255',
-                'email' => 'required|email|max:255',
-                'phone' => 'required|string|max:20',
-                'gst_number' => 'nullable|string|max:50',
-                'address_1' => 'required|string',
-                'address_2' => 'nullable|string',
-                'city' => 'nullable|string|max:100',
-                'state_id' => 'required|integer',
-                'country_id' => 'required|integer',
-                'currency_code' => 'required',
-                'zip' => 'nullable|string|max:20',
-                'notes' => 'nullable|string',
-                'terms' => 'nullable|string',
-                'status' => 'nullable|in:active,deactive',
-            ], [
+            $validator = Validator::make($request->all(), $data_validation, [
                 'client_name.required' => 'Client name is required.',
                 'client_name.max' => 'Client name should not exceed 100 characters.',
+                'shipping_client_name.required' => 'Shipping Client name is required.',
+                'shipping_client_name.max' => 'Shipping Client name should not exceed 100 characters.',
                 'company_name.max' => 'Company name should not exceed 255 characters.',
                 'email.email' => 'Please enter a valid email address.',
                 'email.max' => 'Email should not exceed 255 characters.',
@@ -451,6 +531,28 @@ class ClientController extends Controller
             $client = ClientModel::where('client_code', $request->client_code)->firstOrFail();
 
 
+            if (!empty($request->edit_shipping_address) && $request->edit_shipping_address == 'on') {
+                $shipping_client_name = $request->shipping_client_name ??  $request->client_name;
+                $shipping_address_1 = $request->shipping_address_1 ??  $request->address_1;
+                $shipping_address_2 = $request->shipping_address_2 ??  $request->address_2;
+                $shipping_city = $request->shipping_city ??  $request->city;
+                $shipping_state_id = $request->shipping_state_id ??  $request->state_id;
+                $shipping_country_id = $request->shipping_country_id ??  $request->country_id;
+                $shipping_zip = $request->shipping_zip ??  $request->zip;
+                $shipping_phone = $request->shipping_phone ??  $request->phone;
+            } else {
+                $shipping_client_name = $request->client_name ?? null;
+                $shipping_address_1 = $request->address_1 ?? null;
+                $shipping_address_2 =  $request->address_2 ?? null;
+                $shipping_city = $request->city ?? null;
+                $shipping_state_id =  $request->state_id ?? null;
+                $shipping_country_id =  $request->country_id ?? null;
+                $shipping_zip =   $request->zip ?? null;
+                $shipping_phone =   $request->phone ?? null;
+            }
+
+
+
             $client->update([
                 'client_name' => $data['client_name'] ? ucfirst($data['client_name']) : null,
                 'company_name' => $data['company_name'] ? ucfirst($data['company_name']) : null,
@@ -467,6 +569,18 @@ class ClientController extends Controller
                 'notes' => $data['notes'] ?? null,
                 'terms' => $data['terms'] ?? null,
                 'status' => $data['status'] ?? 'active',
+
+                'shipping_client_name' =>  $shipping_client_name,
+                'shipping_address_1' =>  $shipping_address_1,
+                'shipping_address_2' => $shipping_address_2,
+                'shipping_city' => $shipping_city,
+                'shipping_state_id' => $shipping_state_id,
+                'shipping_country_id' => $shipping_country_id,
+                'shipping_zip' => $shipping_zip,
+                'shipping_phone' => $shipping_phone,
+
+
+
             ]);
 
             return response()->json([
@@ -475,6 +589,8 @@ class ClientController extends Controller
                 'client_code' => $request->client_code
             ]);
         } catch (\Exception $e) {
+
+            dd($e->getMessage());
             \Log::channel('info')->error('error while updating client: ' . $e->getMessage());
 
             return response()->json([

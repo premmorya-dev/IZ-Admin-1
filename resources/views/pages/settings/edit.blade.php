@@ -241,6 +241,31 @@
                 </div>
 
 
+                <div class="col-md-6 mt-3">
+                    <label for="shipping_status" class="form-label fw-semibold">
+                        Display Shipping Address
+                    </label>
+                    <span data-bs-toggle="tooltip" title="Enable this option to display the shipping address on invoices and estimates.">
+                        <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+                    </span>
+
+                    <select name="shipping_status" id="shipping_status" class="form-select @error('shipping_status') is-invalid @enderror">
+                        <option value="N" {{ old('shipping_status', $data['setting']->shipping_status ?? '') == 'N' ? 'selected' : '' }}>
+                            Hide from Invoice & Estimate
+                        </option>
+                        <option value="Y" {{ old('shipping_status', $data['setting']->shipping_status ?? '') == 'Y' ? 'selected' : '' }}>
+                            Show on Invoice & Estimate
+                        </option>
+
+                    </select>
+
+                    @error('shipping_status')
+                    <div class="invalid-feedback">{{ $message }}</div>
+                    @enderror
+                </div>
+
+
+
 
                 <div class="row">
 

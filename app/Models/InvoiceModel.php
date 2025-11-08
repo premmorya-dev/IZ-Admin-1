@@ -46,6 +46,7 @@ class InvoiceModel extends Model
         'terms',
         'invoice_code',
         'template_id',
+        'display_shipping_status',
     ];
 
     // The attributes that should be hidden for arrays.
@@ -80,6 +81,7 @@ class InvoiceModel extends Model
         'notes',
         'terms',
         'currency_code',
+
 
     ];
 }

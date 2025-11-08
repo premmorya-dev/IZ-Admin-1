@@ -34,7 +34,8 @@ abstract class DocumentService
                 'users.*',
                 'mobile_country_list.country_code',
 
-
+                "{$this->table}.notes",
+                "{$this->table}.terms",
 
                 'clients.company_name as client_company_name',
                 'clients.email as client_email',
@@ -55,6 +56,7 @@ abstract class DocumentService
 
 
 
+
             )
             ->leftJoin('settings', 'settings.user_id', "{$this->table}.user_id")
             ->leftJoin('clients', 'clients.client_id', "{$this->table}.client_id")
@@ -64,6 +66,8 @@ abstract class DocumentService
             ->where('users.user_id', $userId)
             ->first();
 
+
+
         if (!$document) {
             return null;
         }
@@ -71,6 +75,9 @@ abstract class DocumentService
         // Fetch country and state names
         $document->client_country = optional(DB::table('countries')->where('country_id', $document->client_country_id)->first())->country_name ?? '';
         $document->client_state = optional(DB::table('country_states')->where('state_id', $document->client_state_id)->first())->state_name ?? '';
+
+        $document->client_shipping_country = optional(DB::table('countries')->where('country_id', $document->shipping_country_id)->first())->country_name ?? '';
+        $document->client_shipping_state = optional(DB::table('country_states')->where('state_id', $document->shipping_state_id)->first())->state_name ?? '';
 
         $document->user_country = optional(DB::table('countries')->where('country_id', $document->user_country_id)->first())->country_name ?? '';
         $document->user_state = optional(DB::table('country_states')->where('state_id', $document->user_state_id)->first())->state_name ?? '';
@@ -147,7 +154,7 @@ abstract class DocumentService
             $taxText = $tax > 0 ? "{$item->tax}% <br> {$currencySymbol}{$tax}" : '-';
 
             $hsn = $item->hsn ?? '-';
-            $item->description = $item->description ?? '' ;
+            $item->description = $item->description ?? '';
             $rows .= "<tr>
                 <td style='text-left:center;border: 1px solid #ddd; padding: 5px; width: 40%;'>{$item->name}<br><p style='font-size:10px;'>{$item->description}<p></td>
                 <td style='text-align:left;border: 1px solid #ddd; padding: 5px; width: 10%;'>{$hsn}</td>

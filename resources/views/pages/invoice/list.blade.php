@@ -438,6 +438,7 @@
         $(document).on('click', '.edit-client', function(e) {
             e.preventDefault();
             $('.client-modal-body').empty();
+            $('.editClient-modal-body').empty();
 
             var client_code = $(this).attr('client-code');
 
@@ -465,7 +466,7 @@
                         $('#editClient-modal').on('shown.bs.modal', function() {
                             // Initialize Choices.js (always safe to re-init)
 
-                            ['#id_country_id', '#id_state_id', '#id_currency_code'].forEach(function(selector) {
+                            ['#id_country_id', '#id_state_id', '#id_currency_code' ,'#id_shipping_state_id', '#id_shipping_country_id'].forEach(function(selector) {
                                 const el = document.querySelector(selector);
                                 if (!el) return; // skip if element not found
 

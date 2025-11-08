@@ -147,13 +147,25 @@
 
             <div class="col-md-6">
 
+                <div class="row">
+                    <div class="col-md-6 mt-3">
+                        <div class="form-check form-switch">
+                            <input class="form-check-input" type="checkbox" id="display_shipping_status" name="display_shipping_status"
+                                {{ old('display_shipping_status',setting('shipping_status')) == 'Y' ? 'checked' : '' }}>
+
+                            <label class="form-check-label" for="display_shipping_status">Show Shipping</label>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <div class="mt-3">
+                            <!-- Recurring switch -->
+                            <div class="form-check form-switch">
+                                <input class="form-check-input" type="checkbox" id="is_recurring" name="is_recurring">
+                                <label class="form-check-label" for="is_recurring">Enable Recurring Invoice</label>
+                            </div>
 
 
-                <div class="mt-3">
-                    <!-- Recurring switch -->
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="is_recurring" name="is_recurring">
-                        <label class="form-check-label" for="is_recurring">Enable Recurring Invoice</label>
+                        </div>
                     </div>
 
                     <!-- Recurring options wrapper -->
@@ -223,6 +235,7 @@
                         </div>
                     </div>
                 </div>
+
 
 
                 <div class="mt-3">
@@ -942,10 +955,10 @@
                                <i class="bi bi-geo-alt me-1"></i> ${client.address_1 ?? ''}, ${client.city ?? ''}
                            </p>
                            <p class="mb-0 text-muted small">
-                               <i class="bi bi-envelope me-1"></i> ${client.email ?? ''}
+                               <i class="bi bi-envelope me-1"></i> ${client.email ?? 'N/A'}
                            </p>
                            <p class="mb-0 text-muted small">
-                               <i class="bi bi-telephone me-1"></i> ${client.phone ?? ''}
+                               <i class="bi bi-telephone me-1"></i> ${client.phone ?? 'N/A'}
                            </p>
                        </div>
                        <span class="badge bg-success rounded-pill align-self-start">${client.currency_code ?? ''}</span>

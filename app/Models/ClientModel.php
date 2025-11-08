@@ -21,18 +21,26 @@ class ClientModel extends Model
      */
     protected $fillable = [
         'user_id',
-        'client_name',
         'client_code',
+        'client_name',
+        'shipping_client_name',
         'company_name',
         'email',
         'phone',
+        'shipping_phone',
         'gst_number',
         'address_1',
         'address_2',
+        'shipping_address_1',
+        'shipping_address_2',
         'city',
+        'shipping_city',
         'state_id',
+        'shipping_state_id',
         'country_id',
+        'shipping_country_id',
         'zip',
+        'shipping_zip',
         'notes',
         'terms',
         'status',
@@ -41,23 +49,30 @@ class ClientModel extends Model
 
     public $sortable = [
         'user_id',
+        'client_code',
         'client_name',
+        'shipping_client_name',
         'company_name',
         'email',
         'phone',
+        'shipping_phone',
         'gst_number',
         'address_1',
         'address_2',
+        'shipping_address_1',
+        'shipping_address_2',
         'city',
+        'shipping_city',
         'state_id',
+        'shipping_state_id',
         'country_id',
+        'shipping_country_id',
         'zip',
+        'shipping_zip',
         'notes',
         'terms',
         'status',
         'currency_code',
-        
-    ];
 
-  
+    ];
 }

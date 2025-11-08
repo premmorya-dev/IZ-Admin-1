@@ -1,313 +1,428 @@
-<x-default-layout>
-    <link href="{{ asset('assets/css/is.css') }}" rel="stylesheet">
+<form action="{{ route('client.store') }}" id="add-client-form" method="POST" enctype="multipart/form-data">
+    <div class="card shadow-lg border-0 rounded-4">
 
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <div class="card-body p-4">
+            <div class="row g-4">
 
+                {{-- Basic Info --}}
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold required"><i class="fas fa-user me-1"></i> Client Name</label>
+                    <input type="text" name="client_name" id="id_client_name" class="form-control"
+                        value="{{ old('client_name', optional($data['client'] ?? null)->client_name) }}"
+                        placeholder="Enter client name">
+                </div>
 
-    <h2 class="py-3">Add Client</h2>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold"><i class="fas fa-building me-1"></i> Company Name</label>
+                    <input type="text" name="company_name" id="id_company_name" class="form-control"
+                        value="{{ old('company_name', optional($data['client'] ?? null)->company_name) }}"
+                        placeholder="Enter company name">
+                </div>
 
-    <form action="{{ route('client.store') }}" id="add-client-form" method="POST" enctype="multipart/form-data">
-        @csrf
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold"><i class="fas fa-envelope me-1"></i> Email</label>
+                    <input type="email" name="email" id="id_email" class="form-control"
+                        value="{{ old('email', optional($data['client'] ?? null)->email) }}"
+                        placeholder="Enter email address">
+                </div>
 
-        <div class="page-header-fixed mb-3 d-flex justify-content-between align-items-center">
-            <div>
-                <a href="{{ route('invoice.list') }}" class="btn btn-outline-secondary btn-sm">
-                    <i data-lucide="arrow-left"></i> Back
-                </a>
-            </div>
-            <div>
-                <button type="button" class="btn btn-primary btn-sm save-client">
-                    <i data-lucide="save"></i> Add
-                </button>
-            </div>
-        </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold"><i class="fas fa-phone me-1"></i> Phone</label>
+                    <input type="text" name="phone" id="id_phone" class="form-control"
+                        value="{{ old('phone', optional($data['client'] ?? null)->phone) }}"
+                        placeholder="Enter phone number">
+                </div>
 
-        <div class="row">
-            <div class="col-md-3 mt-3">
-                <label for="client_name" class="form-label">Client Name</label>
-                <input type="text" id="client_name" name="client_name" value="{{ old('client_name') }}" class="form-control" placeholder="Client Name">
-            </div>
+                {{-- Address --}}
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold"><i class="fas fa-receipt me-1"></i> GST Number</label>
+                    <input type="text" name="gst_number" id="id_gst_number" class="form-control"
+                        value="{{ old('gst_number', optional($data['client'] ?? null)->gst_number) }}"
+                        placeholder="Enter GST number">
+                </div>
 
-            <div class="col-md-3 mt-3">
-                <label for="company_name" class="form-label">Company Name</label>
-                <input type="text" id="company_name" name="company_name" value="{{ old('company_name') }}" class="form-control" placeholder="Company Name">
-            </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold"><i class="fas fa-city me-1"></i> City</label>
+                    <input type="text" name="city" id="id_city" class="form-control"
+                        value="{{ old('city', optional($data['client'] ?? null)->city) }}"
+                        placeholder="Enter city">
+                </div>
 
-            <div class="col-md-3 mt-3">
-                <label for="email" class="form-label">Email</label>
-                <input type="text" id="email" name="email" value="{{ old('email') }}" class="form-control" placeholder="Email">
-            </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold  required">Address 1</label>
+                    <textarea name="address_1" id="id_address_1" class="form-control" rows="2" placeholder="Enter primary address">{{ old('address_1', optional($data['client'] ?? null)->address_1) }}</textarea>
+                </div>
 
-            <div class="col-md-3 mt-3">
-                <label for="phone" class="form-label">Phone</label>
-                <input type="number" id="phone" name="phone" value="{{ old('phone') }}" class="form-control" placeholder="Mobile Number">
-            </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Address 2</label>
+                    <textarea name="address_2" id="id_address_2" class="form-control" rows="2" placeholder="Enter secondary address">{{ old('address_2', optional($data['client'] ?? null)->address_2) }}</textarea>
+                </div>
 
-            <div class="col-md-3 mt-3">
-                <label for="gst_number" class="form-label">Gst Number</label>
-                <input type="text" id="gst_number" name="gst_number" value="{{ old('gst_number') }}" class="form-control" placeholder="Gst Number">
-            </div>
+                {{-- Location --}}
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold  required">Country</label>
+                    <select name="country_id" id="id_country_id" class="form-select">
+                        <option value="">Please Select</option>
+                        @foreach($data['countries'] as $country)
+                        <option value="{{ $country->country_id }}" {{ optional($data['client'] ?? null)->country_id == $country->country_id ? 'selected' : '' }}>
+                            {{ $country->country_name }}
+                        </option>
+                        @endforeach
+                    </select>
+                </div>
 
-            <div class="col-md-3 mt-3">
-                <label for="address_1" class="form-label">Address 1</label>
-                <textarea name="address_1" id="address_1" class="form-control" placeholder="Address 1">{{ old('address_1') }}</textarea>
-            </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold  required">State</label>
+                    <select name="state_id" id="id_state_id" class="form-select">
+                        <option value="">Please Select</option>
 
-            <div class="col-md-3 mt-3">
-                <label for="address_2" class="form-label">Address 2</label>
-                <textarea name="address_2" id="address_2" class="form-control" placeholder="Address 2">{{ old('address_2') }}</textarea>
-            </div>
+                    </select>
+                </div>
 
-            <div class="col-md-3 mt-3">
-                <label for="city" class="form-label">City</label>
-                <input type="text" id="city" name="city" value="{{ old('city') }}" class="form-control" placeholder="City">
-            </div>
-
-            <div class="col-md-3 mt-3">
-                <label for="country_id" class="form-label">Country</label>
-                <select id="country_id" name="country_id" class="form-select">
-                    <option value="">Please Select</option>
-                    @foreach($data['countries'] as $country)
-                    <option value="{{ $country->country_id }}">{{ $country->country_name }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div class="col-md-3 mt-3">
-                <label for="state_id" class="form-label">State</label>
-                <select id="state_id" name="state_id" class="form-select">
-                    <option value="">Please Select</option>
-                    @foreach($data['states'] as $state)
-                    <option value="{{ $state->state_id }}">{{ $state->state_name }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-            <div class="col-md-3 mt-3">
-                <label for="currency" class="form-label">Select Currency</label>
-                <select name="currency_code" id="currency_code" class="form-select">
-                    <option value="">Please Select</option>
-                    @foreach($data['currencies'] as $currency)
-                        <option value="{{ $currency->currency_code }}" {{ old('currency_code') == $currency->currency_code ? 'selected' : '' }}>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold  required">Currency</label>
+                    <select name="currency_code" id="id_currency_code" class="form-select">
+                        <option value="">Please Select</option>
+                        @foreach($data['currencies'] as $currency)
+                        <option value="{{ $currency->currency_code }}" {{ optional($data['client'] ?? null)->currency_code == $currency->currency_code ? 'selected' : '' }}>
                             {{ $currency->currency_name }}
                         </option>
-                    @endforeach
-                </select>
-            </div>
+                        @endforeach
+                    </select>
+                </div>
 
-            <div class="col-md-3 mt-3">
-                <label for="zip" class="form-label">Zip Code</label>
-                <input type="text" id="zip" name="zip" value="{{ old('zip') }}" class="form-control" placeholder="Zip Code">
-            </div>
+                {{-- Notes & Terms --}}
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Notes</label>
+                    <textarea name="notes" id="id_notes" class="form-control" rows="2" placeholder="Enter notes">{{ old('notes', optional($data['client'] ?? null)->notes) }}</textarea>
+                </div>
 
-            <div class="col-md-6 mt-3">
-                <label for="notes" class="form-label">Notes</label>
-                <textarea name="notes" id="notes" class="form-control">{{ old('notes') }}</textarea>
-            </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Terms & Conditions</label>
+                    <textarea name="terms" id="id_terms" class="form-control" rows="2" placeholder="Enter terms and conditions">{{ old('terms', optional($data['client'] ?? null)->terms) }}</textarea>
+                </div>
 
-            <div class="col-md-6 mt-3">
-                <label for="terms" class="form-label">Terms And Conditions</label>
-                <textarea name="terms" id="terms" class="form-control">{{ old('terms') }}</textarea>
-            </div>
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold"><i class="fas fa-mail-bulk me-1"></i> Pincode</label>
+                    <input type="number" name="zip" id="id_zip" class="form-control"
+                        value="{{ old('zip', optional($data['client'] ?? null)->zip) }}"
+                        placeholder="Enter pincode">
+                </div>
 
-            <div class="col-md-3 mt-3">
-                <label for="status" class="form-label">Status</label>
-                <select id="status" name="status" class="form-select">
-                    <option value="active">Active</option>
-                    <option value="deactive">Deactive</option>
-                </select>
+                {{-- Status --}}
+                <div class="col-md-4">
+                    <label class="form-label fw-semibold">Status</label>
+                    <select name="status" id="id_status" class="form-select">
+                        <option value="active" {{ optional($data['client'] ?? null)->status == 'active' ? 'selected' : '' }}>Active</option>
+                        <option value="deactive" {{ optional($data['client'] ?? null)->status == 'deactive' ? 'selected' : '' }}>Deactive</option>
+                    </select>
+                </div>
+
+
+                <!-- Shipping Address Checkbox -->
+                <div class="col-md-12 mt-3">
+                    <div class="form-check form-switch d-flex align-items-center">
+                        <input class="form-check-input me-2" name="new_shipping_address" type="checkbox" id="toggleNewShippingAddress">
+                        <label class="form-check-label fw-semibold mb-0" for="toggleNewShippingAddress">
+                            Add Shipping Address
+                        </label>
+                        <i class="bi bi-question-circle ms-2 text-muted"
+                            data-bs-toggle="tooltip"
+                            title="Enable this if the shipping address is different from the client's address."></i>
+                    </div>
+                </div>
+                <!-- Shipping Address Section -->
+                <div id="newShippingAddressSection" class="row g-4 mt-2 border rounded-3 p-3 bg-light" style="display:none;">
+
+                    <h5 class="fw-semibold text-primary mb-3">
+                        <i class="fas fa-shipping-fast me-1"></i> Shipping Address
+                    </h5>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold  required"><i class="fas fa-user me-1"></i> Shipping Client Name</label>
+                        <input type="text" name="shipping_client_name" id="id_shipping_client_name" class="form-control"
+                            value="{{ old('shipping_client_name') }}"
+                            placeholder="Enter shipping client name">
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold"><i class="fas fa-city me-1"></i>Shipping City</label>
+                        <input type="text" name="shipping_city" id="id_shipping_city" class="form-control"
+                            value=""
+                            placeholder="Enter city">
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold"><i class="fas fa-phone me-1"></i> Phone</label>
+                        <input type="text" name="shipping_phone" id="id_shipping_phone" class="form-control"
+                            value="{{ old('phone') }}"
+                            placeholder="Enter shipping phone number">
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold required">Shipping Address 1</label>
+                        <textarea name="shipping_address_1" id="id_shipping_address_1" class="form-control" rows="2"
+                            placeholder="Enter shipping address 1"></textarea>
+                    </div>
+
+                    <div class="col-md-6">
+                        <label class="form-label fw-semibold">Shipping Address 2</label>
+                        <textarea name="shipping_address_2" id="id_shipping_address_2" class="form-control" rows="2"
+                            placeholder="Enter shipping address 2"></textarea>
+                    </div>
+
+
+
+
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold required">Shipping Country</label>
+
+                        <select name="shipping_country_id" id="id_shipping_country_id" class="form-select">
+                            <option value="">Please Select</option>
+                            @foreach($data['countries'] as $country)
+                            <option value="{{ $country->country_id }}">
+                                {{ $country->country_name }}
+                            </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold required">Shipping State</label>
+                        <select name="shipping_state_id" id="id_shipping_state_id" class="form-select">
+                            <option value="">Please Select</option>
+
+                        </select>
+                    </div>
+
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold"><i class="fas fa-mail-bulk me-1"></i>Shipping Pincode</label>
+                        <input type="number" name="shipping_zip" id="id_shipping_zip" class="form-control"
+                            value=""
+                            placeholder="Enter shpiping pincode">
+                    </div>
+
+
+
+                </div>
+
+
+
+
+                <input type="hidden" name="client_code" id="id_client_code" value="{{ optional($data['client'] ?? null)->client_code }}">
             </div>
         </div>
-    </form>
 
-    <script>
-        const editors = {};
+        <div class="card-footer bg-light text-end rounded-bottom-4">
+            <button type="submit" class="btn btn-success px-4 save-client w-100">
+                <i class="fas fa-save me-1"></i> Save Client
+            </button>
+        </div>
+    </div>
+</form>
 
-        document.addEventListener("DOMContentLoaded", function() {
-            const ids = ['id_notes', 'id_terms'];
-
-            ids.forEach(function(id) {
-                const element = document.getElementById(id);
-                if (element) {
-                    ClassicEditor
-                        .create(element)
-                        .then(editor => {
-                            editors[id] = editor;
-                        })
-                        .catch(error => {
-                            console.error(`CKEditor init failed for ${id}`, error);
-                        });
-                }
-            });
-
-            document.querySelector('.save-client').addEventListener('click', function(e) {
-                e.preventDefault();
-
-                // Sync CKEditor data
-                for (const id in editors) {
-                    if (editors.hasOwnProperty(id)) {
-                        document.getElementById(id).value = editors[id].getData();
-                    }
-                }
-
-                const form = document.getElementById('add-client-form');
-                const formData = new FormData(form);
-
-                Swal.fire({
-                    title: "Processing...",
-                    text: "Please wait while we save your client.",
-                    allowOutsideClick: false,
-                    didOpen: () => {
-                        Swal.showLoading();
-                    }
-                });
-
-                $.ajax({
-                    url: form.action,
-                    method: "POST",
-                    data: formData,
-                    processData: false,
-                    contentType: false,
-                    headers: {
-                        'X-CSRF-TOKEN': "{{ csrf_token() }}"
-                    },
-                    beforeSend: function() {
-                        $('.error').remove();
-                        $('.is-invalid').removeClass('is-invalid');
-                    },
-                    success: function(response) {
-                        Swal.close();
-
-                        if (response.error === 1) {
-                            $.each(response.errors, function(field, messages) {
-                                let inputField = $('[name="' + field + '"]');
-                                if (inputField.length) {
-                                    inputField.addClass('is-invalid');
-                                    const errorHtml = `<div class="text-danger error">${messages[0]}</div>`;
-
-                                    if (inputField.closest('.input-group').length) {
-                                        inputField.closest('.input-group').after(errorHtml);
-                                    } else if (inputField.hasClass('select2-hidden-accessible')) {
-                                        inputField.next('.select2-container').after(errorHtml);
-                                    } else {
-                                        inputField.after(errorHtml);
-                                    }
-                                }
-                            });
-
-                            Swal.fire({
-                                icon: "warning",
-                                title: "Warning!",
-                                text: "Please check the form carefully!",
-                                position: "center",
-                                toast: true,
-                                showConfirmButton: false,
-                                timer: 3000
-                            });
-                        } else {
-                            Swal.fire({
-                                icon: "success",
-                                title: "Client Added Successfully!",
-                                text: response.message,
-                                position: "center",
-                                toast: false, // make it popup centered, not small toast
-                                showConfirmButton: false,
-                                timer: 2000 // show for 2 seconds
-                            }).then(function() {
-                                // Redirect after the alert closes
-                                window.location.href = "{{ route('client.list') }}";
-                            });
-                        }
-                    },
-                    error: function(xhr) {
-                        Swal.close();
-
-                        if (xhr.status === 403 && xhr.responseJSON?.redirect) {
-                            window.location.href = xhr.responseJSON.redirect;
-                        } else {
-                            console.error("Error:", xhr.responseText);
-                        }
-                    }
-                });
-            });
+<script>
+    $(document).ready(function() {
+        // Toggle shipping address visibility
+        $('#toggleNewShippingAddress').on('change', function() {
+            if ($(this).is(':checked')) {
+                $('#newShippingAddressSection').slideDown(300);
+            } else {
+                $('#newShippingAddressSection').slideUp(300);
+            }
         });
-    </script>
 
 
 
 
-    <script>
-        $(document).ready(function() {
+    });
+</script>
+
+<script>
+    document.querySelector('.save-client').addEventListener('click', function(e) {
+        e.preventDefault();
 
 
-            $('#country_id, #state_id, #currency_code').select2({
-                placeholder: "Please select",
-                allowClear: true
-            });
+        const form = document.getElementById('add-client-form');
+        const formData = new FormData(form);
+
+        formData.append('notes', $('#id_notes').summernote('code'));
+        formData.append('terms', $('#id_terms').summernote('code'));
 
 
+        Swal.fire({
+            title: "Processing...",
+            text: "Please wait while we save your client.",
+            allowOutsideClick: false,
+            didOpen: () => {
+                Swal.showLoading();
+            }
         });
-    </script>
 
-    <script>
-        function refreshStates(selectedCountries) {
-            // AJAX Call to fetch states
+        $.ajax({
+            url: form.action,
+            method: "POST",
+            data: formData,
+            processData: false,
+            contentType: false,
+            headers: {
+                'X-CSRF-TOKEN': "{{ csrf_token() }}"
+            },
+            beforeSend: function() {
+                $('.error').remove();
+                $('.is-invalid').removeClass('is-invalid');
+            },
+            success: function(response) {
+                Swal.close();
+
+                if (response.error === 1) {
+                    $.each(response.errors, function(field, messages) {
+                        let inputField = $('#id_' + field);
+                        if (inputField.length) {
+                            inputField.addClass('is-invalid');
+                            const errorHtml = `<div class="text-danger error">${messages[0]}</div>`;
+
+                            if (inputField.closest('.input-group').length) {
+                                inputField.closest('.input-group').after(errorHtml);
+                            } else if (inputField.hasClass('choices__input')) {
+                                console.log(inputField)
+                                inputField.parent().after(errorHtml);
+                            } else {
+                                inputField.after(errorHtml);
+                            }
+                        }
+                    });
+
+                    Swal.fire({
+                        icon: "warning",
+                        title: "Warning!",
+                        text: "Please check the form carefully!",
+                        position: "center",
+                        toast: true,
+                        showConfirmButton: false,
+                        timer: 3000
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Client Added Successfully!",
+                        text: response.message,
+                        position: "center",
+                        toast: false, // make it popup centered, not small toast
+                        showConfirmButton: false,
+                        timer: 2000 // show for 2 seconds
+                    }).then(function() {
+                        $('#client-modal').modal('hide');
+
+                        if (window.location.href.includes("/invoice/add") || window.location.href.includes("/invoice/edit")) {
+
+                        } else {
+                            location.reload();
+                        }
+
+
+                    });
+                }
+            },
+            error: function(xhr) {
+                Swal.close();
+
+                if (xhr.status === 403 && xhr.responseJSON?.redirect) {
+                    window.location.href = xhr.responseJSON.redirect;
+                } else {
+                    console.error("Error:", xhr.responseText);
+                }
+            }
+        });
+    });
+</script>
+<script>
+    $(document).ready(function() {
+
+        // === Initialize Choices.js for both state selects ===
+        const billingStateChoices = new Choices('#id_state_id', {
+            searchEnabled: true,
+            itemSelectText: '',
+            shouldSort: false
+        });
+
+        const shippingStateChoices = new Choices('#id_shipping_state_id', {
+            searchEnabled: true,
+            itemSelectText: '',
+            shouldSort: false
+        });
+
+        // === Function to load states dynamically ===
+        function refreshStates(selectedCountryId, stateChoicesInstance, selectedStateId = null) {
             $.ajax({
                 type: "GET",
                 url: "{{ route('get.states.by.country') }}",
                 data: {
-                    country_id: selectedCountries
+                    country_id: selectedCountryId
                 },
                 dataType: "json",
                 success: function(response) {
+                    // Clear old options
+                    stateChoicesInstance.clearChoices();
+                    stateChoicesInstance.removeActiveItems();
 
-                    console.log(response.states)
-                    // Clear previous states
-                    $('#state_id').html('');
+                    // Map new state options
+                    const options = response.states.map(state => ({
+                        value: String(state.state_id),
+                        label: state.state_name,
+                        selected: selectedStateId ? String(state.state_id) === String(selectedStateId) : false,
+                    }));
 
-                    // Append new state options
-                    $.each(response.states, function(key, state) {
-                        $('#state_id').append(`<option value="${state.state_id}">${state.state_name}</option>`);
-                    });
+                    // Set new choices
+                    stateChoicesInstance.setChoices(options, 'value', 'label', true);
 
-                    // Refresh the multiselect dropdown
-                    document.getElementById('state_id').loadOptions();
-
-                    let selectedState = "{{ request('state_id') }}".split(',').map(String);
-                    $('#state_id').val(selectedState).trigger('change');
+                    // Select specific state if available
+                    if (selectedStateId) {
+                        stateChoicesInstance.setChoiceByValue(String(selectedStateId));
+                    }
                 },
                 error: function(xhr, status, error) {
                     console.error('Error fetching states:', error);
                 }
             });
         }
-        $(document).ready(function() {
 
-            $('#country_id').on('change', function() {
-                var selectedCountries = $(this).val(); // Get selected country IDs (array)
-                refreshStates(selectedCountries);
-            });
-
-            let country_id = "{{ request('country_id') }}";
-            if (country_id) {
-
-                let country = country_id.split(',').map(Number);
-                $('#country_id').val(country).trigger('change'); // Preselect
-                refreshProgramsBySeoUrls(country); // Load programs
+        // === Billing Country Change ===
+        $('#id_country_id').on('change', function() {
+            let selectedCountryId = $(this).val();
+            if (selectedCountryId) {
+                refreshStates(selectedCountryId, billingStateChoices);
+            } else {
+                billingStateChoices.clearChoices();
+                billingStateChoices.removeActiveItems();
             }
-
-
         });
-    </script>
 
+        // === Shipping Country Change ===
+        $('#id_shipping_country_id').on('change', function() {
+            let selectedCountryId = $(this).val();
+            if (selectedCountryId) {
+                refreshStates(selectedCountryId, shippingStateChoices);
+            } else {
+                shippingStateChoices.clearChoices();
+                shippingStateChoices.removeActiveItems();
+            }
+        });
 
+        // === On Page Load: preload both billing and shipping ===
+        const initialBillingCountryId = "{{ optional($data['client'] ?? null)->country_id ?? request('country_id') }}";
+        const initialBillingStateId = "{{ optional($data['client'] ?? null)->state_id ?? request('state_id') }}";
 
+        const initialShippingCountryId = "{{ optional($data['client'] ?? null)->shipping_country_id ?? request('shipping_country_id') }}";
+        const initialShippingStateId = "{{ optional($data['client'] ?? null)->shipping_state_id ?? request('shipping_state_id') }}";
 
+        if (initialBillingCountryId) {
+            refreshStates(initialBillingCountryId, billingStateChoices, initialBillingStateId);
+        }
 
-   
-
-
-
-
-
-</x-default-layout>
+        if (initialShippingCountryId) {
+            refreshStates(initialShippingCountryId, shippingStateChoices, initialShippingStateId);
+        }
+    });
+</script>

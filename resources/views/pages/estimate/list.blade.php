@@ -86,14 +86,14 @@
                         <a href="{{ route('estimate.edit',['estimate_code' => $estimate->estimate_code ]) }}">{{ $estimate->estimate_number }}</a>
 
                         <a href="#" estimate-code="{{ $estimate->estimate_code }}" class="estimate-view-model" title="View Estimate"><i class="fa-regular fa-eye text-default"></i> </a>
-                        <a href="{{ route('estimate.download',['estimate_code' => $estimate->estimate_code ]) }}?preview=true" target="__blank"  title="Print Estimate"><i class="fa-solid fa-print text-defaults"></i> </a>
+                        <a href="{{ route('estimate.download',['estimate_code' => $estimate->estimate_code ]) }}?preview=true" target="__blank" title="Print Estimate"><i class="fa-solid fa-print text-defaults"></i> </a>
                         <a href="{{ route('estimate.download',['estimate_code' => $estimate->estimate_code ]) }}" title="Download Estimate"><i class="fa-solid fa-download text-defaults"></i> </a>
 
 
                     </span>
                     <span></span>
                     <div class="d-flex align-items-center flex-wrap gap-1">
-                        To:  <a href="#" client-code="{{ $estimate->client_code }}" class="edit-client" title="Client Detail"> {{ $estimate->company_name ?? $estimate->client_name }} </a> 
+                        To: <a href="#" client-code="{{ $estimate->client_code }}" class="edit-client" title="Client Detail"> {{ $estimate->company_name ?? $estimate->client_name }} </a>
 
                         @php
                         $badgeClasses = [
@@ -384,10 +384,11 @@
         </div>
     </div>
 
-   <script>
+    <script>
         $(document).on('click', '.edit-client', function(e) {
             e.preventDefault();
             $('.client-modal-body').empty();
+            $('.editClient-modal-body').empty();
 
             var client_code = $(this).attr('client-code');
 
@@ -421,7 +422,7 @@
                         $('#editClient-modal').on('shown.bs.modal', function() {
                             // Initialize Choices.js (always safe to re-init)
 
-                            ['#id_country_id', '#id_state_id', '#id_currency_code'].forEach(function(selector) {
+                            ['#id_country_id', '#id_state_id', '#id_currency_code' ,'#id_shipping_state_id', '#id_shipping_country_id'].forEach(function(selector) {
                                 const el = document.querySelector(selector);
                                 if (!el) return; // skip if element not found
 

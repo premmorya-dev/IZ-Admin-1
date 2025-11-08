@@ -60,7 +60,7 @@
 
 
             <div class="col">
-                <span class="d-block d-md-none text-center mt-2 fw-bold"> Name </span>
+                <span class="d-block d-md-none text-center mt-2 fw-bold" > Name </span>
                 <span>
                     <a href="#" client-code="{{ $client->client_code }}" class="edit-client" title="Client Detail"> {{ $client->client_name }} </a>
                 </span>
@@ -71,7 +71,7 @@
 
             <div class="col">
                 <span class="d-block d-md-none text-center mt-2 fw-bold">Company </span>
-                <span> {{ $client->company_name }} </span>
+                <span> {{ $client->company_name ?? 'N/A' }} </span>
 
             </div>
 
@@ -91,12 +91,12 @@
 
             <div class="col">
                 <span class="d-block d-md-none text-center mt-2 fw-bold"> Email </span>
-                <span>{{ $client->email }}</span>
+                <span>{{ $client->email ?? 'N/A' }}</span>
 
             </div>
             <div class="col">
                 <span class="d-block d-md-none text-center mt-2 fw-bold"> Phone </span>
-                <span> {{ $client->phone }}</span>
+                <span> {{ $client->phone  ?? 'N/A' }}</span>
 
             </div>
 
@@ -222,12 +222,12 @@
         </div>
     </div>
 
-       <!-- Edit Client Model -->
+    <!-- Edit Client Model -->
     <div class="modal fade" id="Client-modal" tabindex="-1" aria-labelledby="ClientModalLabel" aria-hidden="true">
         <div class="modal-dialog  modal-xl">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white rounded-top-3">
-                    <h4 class="modal-title" id="ClientModalLabel">Edit Client</h4>
+                    <h4 class="modal-title" id="ClientModalLabel">New Client</h4>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="Client-modal-body py-3 px-3">
@@ -263,7 +263,7 @@
         $(document).on('click', '.edit-client', function(e) {
             e.preventDefault();
             $('.editClient-modal-body').empty();
-
+            $('.Client-modal-body').empty();
             var client_code = $(this).attr('client-code');
 
             try {
@@ -296,7 +296,7 @@
                         $('#editClient-modal').on('shown.bs.modal', function() {
                             // Initialize Choices.js (always safe to re-init)
 
-                            ['#id_country_id', '#id_state_id', '#id_currency_code'].forEach(function(selector) {
+                            ['#id_country_id', '#id_state_id', '#id_currency_code', '#id_shipping_state_id', '#id_shipping_country_id'].forEach(function(selector) {
                                 const el = document.querySelector(selector);
                                 if (!el) return; // skip if element not found
 
@@ -355,6 +355,7 @@
     <script>
         $(document).on('click', '.new-client', function(e) {
             e.preventDefault();
+            $('.editClient-modal-body').empty();
             $('.Client-modal-body').empty();
             var client_id = 0;
 
@@ -387,7 +388,7 @@
 
                         $('#Client-modal').on('shown.bs.modal', function() {
                             // Initialize Choices.js (always safe to re-init)
-                            ['#id_country_id', '#id_state_id', '#id_currency_code'].forEach(function(selector) {
+                            ['#id_country_id', '#id_state_id', '#id_currency_code' ,'#id_shipping_state_id', '#id_shipping_country_id'].forEach(function(selector) {
                                 const el = document.querySelector(selector);
                                 if (!el) return; // skip if element not found
 

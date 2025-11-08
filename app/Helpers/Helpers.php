@@ -165,22 +165,33 @@ if (!function_exists('getShortcode')) {
             $logo_image =  $doc->logo_base64;
             $userId =   Auth::id();
         }
-        
+
+        if ($doc->display_shipping_status == 'Y') {
+            $shipping_address = '<h5 style="margin: 0;font-size:10px;padding-bottom: 3px;">Ship To:</h5> 
+                                 <span><strong>' . $doc->shipping_client_name . '</strong></span><br> 
+               <p style="margin: 0;">' . $doc->shipping_address_1 . '</p>
+                                <p style="margin: 0;">' . $doc->client_shipping_state . ' ' . $doc->client_shipping_country . ' ' . $doc->shipping_zip . '</p>
+                                <p style="margin: 0;">' . $doc->shipping_phone . '</p>
+                                ';
+        } else {
+            $shipping_address = '';
+        }
+
 
         $return_array =  [
             // Common placeholders
             '{{' . $type . '_id}}' => $doc->{$service->getAttribute('idField')},
             '{{' . $type . '_code}}' => $doc->{$service->getAttribute('codeField')},
             '{{' . $type . '_number}}' => $doc->{$service->getAttribute('numberField')},
-            '{{' . $type . '_date}}' => Carbon::parse($doc->{$service->getAttribute('dateField')})->format(setting('date_format', $userId )),
-            '{{' . $type . '_due_date}}' => Carbon::parse($doc->{$service->getAttribute('dueField')})->format(setting('date_format', $userId )),
+            '{{' . $type . '_date}}' => Carbon::parse($doc->{$service->getAttribute('dateField')})->format(setting('date_format', $userId)),
+            '{{' . $type . '_due_date}}' => Carbon::parse($doc->{$service->getAttribute('dueField')})->format(setting('date_format', $userId)),
             '{{' . $type . '_status}}' => $doc->status,
             '{{' . $type . '_template_id}}' => $doc->template_id,
             '{{' . $type . '_sub_total}}' => $doc->sub_total,
             '{{' . $type . '_total_tax}}' => $doc->total_tax,
             '{{' . $type . '_total_discount}}' => $doc->total_discount,
             '{{' . $type . '_grand_total}}' => $doc->grand_total,
-             '{{' . $type . '_round_off}}' => $doc->round_off,
+            '{{' . $type . '_round_off}}' => $doc->round_off,
             '{{invoice_advance_payment}}' => $doc->advance_payment ?? 0,
 
             '{{' . $type . '_total_due}}' => $doc->total_due ?? 0,
@@ -193,6 +204,8 @@ if (!function_exists('getShortcode')) {
             '{{' . $type . '_download}}' => route("{$type}.download", [$service->getAttribute('codeField') => $doc->{$service->getAttribute('codeField')}]),
             '{{' . $type . '_accept_url}}' => url("/") . "/estimate/acceptance/" . $doc->{$service->getAttribute('codeField')} . "?acceptance=true",
             '{{' . $type . '_reject_url}}' => url("/") . "/estimate/acceptance/" . $doc->{$service->getAttribute('codeField')} . "?acceptance=false",
+
+
 
             // Client
             '{{client_name}}' => $doc->client_name,
@@ -207,6 +220,17 @@ if (!function_exists('getShortcode')) {
             '{{client_zip}}' => $doc->zip ?? '',
             '{{client_gst_number}}' => $doc->client_gst_number ?? '',
             '{{show_client_gst_number}}' => !empty($doc->client_gst_number) ? 'Gstin:' . $doc->client_gst_number : '',
+            '{{client_shipping_client_name}}' => $doc->shipping_client_name ?? '',
+            '{{client_shipping_phone}}' => $doc->shipping_phone ?? '',
+            '{{client_shipping_address_1}}' => $doc->shipping_address_1 ?? '',
+            '{{client_shipping_address_2}}' => $doc->shipping_address_2 ?? '',
+            '{{client_shipping_city}}' => $doc->shipping_city ?? '',
+            '{{client_shipping_country}}' => $doc->client_shipping_country ?? '',
+            '{{client_shipping_state}}' => $doc->client_shipping_state ?? '',
+            '{{client_shipping_zip}}' => $doc->shipping_zip ?? '',
+
+            '{{client_shipping_address}}' =>  $shipping_address ?? '',
+
 
 
             // User
@@ -229,7 +253,7 @@ if (!function_exists('getShortcode')) {
             '{{user_logo_image}}' => $logo_image
         ];
 
-
+        // dd($return_array);
 
         return $return_array;
     }

@@ -48,6 +48,7 @@ class SettingModel extends Model
         'invoice_payment_reminder_status',
         'reminder_before_due_days',
         'everyday_reminder_after_due_day',
+        'shipping_status',
     ];
 
     public $sortable = [];

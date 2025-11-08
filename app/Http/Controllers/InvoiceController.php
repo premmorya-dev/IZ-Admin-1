@@ -395,6 +395,8 @@ class InvoiceController extends Controller
             ->where('invoice_code', $invoice_code)->first();
 
 
+
+
         if (empty($data['invoice'])) {
             return abort(404);
         }
@@ -551,6 +553,7 @@ class InvoiceController extends Controller
                 'item_json'        => json_encode($itemJson),
                 'upi_id'           => $upi_id,
                 'template_id'      => $request->input('template_id'),
+                'display_shipping_status'      => $request->input('display_shipping_status') == 'on' ? 'Y' : 'N',
             ]);
 
 
@@ -744,6 +747,7 @@ class InvoiceController extends Controller
                 'upi_id' => $upi_id,
                 'invoice_code' => $this->generateUniqueInvoiceCode(),
                 'template_id' => $template_id,
+                'display_shipping_status'      => $request->input('display_shipping_status') == 'on' ? 'Y' : 'N',
             ]);
 
             // Get the last inserted ID (invoice_id)
