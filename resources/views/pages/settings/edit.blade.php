@@ -31,8 +31,10 @@
         <fieldset class="border p-3 rounded mt-4">
             <legend class="w-auto mb-5">Contact Info</legend>
             <div class="row">
-                <div class="col-md-6 mt-4">
-                    <label for="mobile_country_code_id" class="form-label">Country Code</label>
+                <div class="col-md-4 mt-4">
+                    <label for="mobile_country_code_id" class="form-label">Country Code</label><span data-bs-toggle="tooltip" title="Select your country code for mobile number.">
+                        <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+                    </span>
                     <select name="mobile_country_code_id" id="mobile_country_code_id" class="form-select @error('mobile_country_code_id') is-invalid @enderror">
                         <option value="">-- Select Country Code --</option>
                         @foreach($data['mobile_country_list'] as $country)
@@ -50,14 +52,18 @@
 
 
 
-                <div class="col-md-6 mt-4">
-                    <label for="email" class="form-label">Email</label>
+                <div class="col-md-4 mt-4">
+                    <label for="email" class="form-label">Email</label>  <span data-bs-toggle="tooltip" title="Your registered business email address. Cannot be changed.">
+                        <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+                    </span>
                     <input type="email" name="email" id="email" readonly class="form-control @error('email') is-invalid @enderror" value="{{ old('email', $data['setting']->email ?? '') }}">
                     @error('email')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
 
-                <div class="col-md-6 mt-4">
-                    <label for="mobile_no" class="form-label">Mobile No</label>
+                <div class="col-md-4 mt-4">
+                    <label for="mobile_no" class="form-label">Mobile No</label>  <span data-bs-toggle="tooltip" title="Enter your valid business mobile number.">
+                        <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+                    </span>
                     <div class="input-group">
                         <span class="input-group-text" id="country_code_prefix">+--</span>
                         <input type="text" name="mobile_no" id="mobile_no" class="form-control @error('mobile_no') is-invalid @enderror" value="{{ old('mobile_no',  Auth::user()->mobile_no ?? '') }}">
@@ -75,14 +81,18 @@
             <legend class="w-auto mb-5">Company Info</legend>
 
             <div class="row">
-                <div class="col-md-6 mt-4">
-                    <label for="company_name" class="form-label">Company Name</label>
+                <div class="col-md-4 mt-4">
+                    <label for="company_name" class="form-label">Company Name</label>  <span data-bs-toggle="tooltip" title="Enter your registered business or company name.">
+                        <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+                    </span>
                     <input type="text" name="company_name" id="company_name" class="form-control @error('company_name') is-invalid @enderror" value="{{ old('company_name', $data['setting']->company_name ?? '') }}">
                     @error('company_name')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
 
-                <div class="col-md-6 mt-4">
-                    <label for="is_company" class="form-label">Buisness Type</label>
+                <div class="col-md-3 mt-4">
+                    <label for="is_company" class="form-label">Buisness Type</label>  <span data-bs-toggle="tooltip" title="Select whether you are an organisation or an individual.">
+                        <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+                    </span>
                     <select name="is_company" id="is_company" class="form-select @error('is_company') is-invalid @enderror">
                         <option value="Y" {{ old('is_company', $data['setting']->is_company ?? '') == 'Y' ? 'selected' : '' }}>Organisation</option>
                         <option value="N" {{ old('is_company', $data['setting']->is_company ?? '') == 'N' ? 'selected' : '' }}>Individual</option>
@@ -90,18 +100,67 @@
                     @error('is_company')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
 
+                <div class="col-md-5 mt-3">
+                    <label for="user_gst_number" class="form-label fw-semibold">
+                        Business GST Number
+                    </label>
+
+                    <span data-bs-toggle="tooltip" title="Enter your business GSTIN and select whether to display it on invoices and estimates.">
+                        <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+                    </span>
+
+                    <div class="input-group">
+                        <input
+                            type="text"
+                            name="user_gst_number"
+                            id="user_gst_number"
+                            class="form-control @error('user_gst_number') is-invalid @enderror"
+                            placeholder="Enter your GSTIN"
+                            value="{{ old('user_gst_number', $data['setting']->user_gst_number ?? '') }}">
+                        <select
+                            name="display_gst_number"
+                            id="display_gst_number"
+                            class="form-select w-auto @error('display_gst_number') is-invalid @enderror"
+                            style="max-width: 100px;"
+                            data-bs-toggle="tooltip"
+                            title="Choose whether to display the GST number on invoices and estimates.">
+                            <option value="Y" {{ old('display_gst_number', $data['setting']->display_gst_number ?? '') == 'Y' ? 'selected' : '' }}>
+                                Show
+                            </option>
+                            <option value="N" {{ old('display_gst_number', $data['setting']->display_gst_number ?? '') == 'N' ? 'selected' : '' }}>
+                                Hide
+                            </option>
+                        </select>
+                    </div>
+
+
+                    @error('user_gst_number')
+                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                    @enderror
+
+                    @error('display_gst_number')
+                    <div class="invalid-feedback d-block">{{ $message }}</div>
+                    @enderror
+                </div>
+
                 <div class="col-md-6 mt-4">
-                    <label for="address_1" class="form-label">Address Line 1</label>
+                    <label for="address_1" class="form-label">Address Line 1</label>  <span data-bs-toggle="tooltip" title="Enter the first line of your business address.">
+                        <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+                    </span>
                     <input type="text" name="address_1" id="address_1" class="form-control" value="{{ old('address_1', $data['setting']->address_1 ?? '') }}">
                 </div>
 
                 <div class="col-md-6 mt-4">
-                    <label for="address_2" class="form-label">Address Line 2</label>
+                    <label for="address_2" class="form-label">Address Line 2</label> <span data-bs-toggle="tooltip" title="Enter additional address details, if any.">
+                        <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+                    </span>
                     <input type="text" name="address_2" id="address_2" class="form-control" value="{{ old('address_2', $data['setting']->address_2 ?? '') }}">
                 </div>
 
-                <div class="col-md-6 mt-4">
-                    <label for="country_id" class="form-label">Country</label>
+                <div class="col-md-4 mt-4">
+                    <label for="country_id" class="form-label">Country</label> <span data-bs-toggle="tooltip" title="Select your business country.">
+                        <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+                    </span>
                     <select name="country_id" id="country_id" class="form-select @error('country_id') is-invalid @enderror">
                         <option value="">-- Select Country --</option>
                         @foreach($data['countries'] as $country)
@@ -113,8 +172,10 @@
                     @error('country_id')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
 
-                <div class="col-md-6 mt-4">
-                    <label for="state_id" class="form-label">State</label>
+                <div class="col-md-4 mt-4">
+                    <label for="state_id" class="form-label">State</label> <span data-bs-toggle="tooltip" title="Select your business state or region.">
+                        <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+                    </span>
                     <select name="state_id" id="state_id" class="form-select @error('state_id') is-invalid @enderror">
                         <option value="">-- Select State --</option>
                         @foreach($data['states']->where('country_id', $data['setting']->country_id) as $state)
@@ -127,11 +188,17 @@
                 </div>
 
 
-                <div class="col-md-6 mt-4">
-                    <label for="pincode" class="form-label">Pincode</label>
+                <div class="col-md-4 mt-4">
+                    <label for="pincode" class="form-label">Pincode</label>  <span data-bs-toggle="tooltip" title="Enter the postal or ZIP code for your business address.">
+                        <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+                    </span>
                     <input type="text" name="pincode" id="pincode" class="form-control @error('pincode') is-invalid @enderror" value="{{ old('pincode', $data['setting']->pincode ?? '') }}">
                     @error('pincode')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
+
+
+
+
 
 
             </div>
@@ -148,23 +215,31 @@
 
 
                 <div class="col-md-4 mt-3">
-                    <label for="invoice_prefix" class="form-label">Invoice Prefix</label>
+                    <label for="invoice_prefix" class="form-label">Invoice Prefix</label> <span data-bs-toggle="tooltip" title="Prefix added before each invoice number. Example: INV-001.">
+                        <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+                    </span>
                     <input type="text" name="invoice_prefix" id="invoice_prefix" class="form-control" value="{{ old('invoice_prefix', $data['setting']->invoice_prefix ?? '') }}">
                 </div>
 
                 <div class="col-md-4 mt-3">
-                    <label for="estimate_prefix" class="form-label">Estimate Prefix</label>
+                    <label for="estimate_prefix" class="form-label">Estimate Prefix</label> <span data-bs-toggle="tooltip" title="Prefix added before each estimate number.">
+                        <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+                    </span>
                     <input type="text" name="estimate_prefix" id="estimate_prefix" class="form-control" value="{{ old('estimate_prefix', $data['setting']->estimate_prefix ?? '') }}">
                 </div>
 
                 <div class="col-md-4 mt-3">
-                    <label for="expense_prefix" class="form-label">Expense Prefix</label>
+                    <label for="expense_prefix" class="form-label">Expense Prefix</label> <span data-bs-toggle="tooltip" title="Prefix used for expense records. Example: EXP-001.">
+                        <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+                    </span>
                     <input type="text" name="expense_prefix" id="expense_prefix" class="form-control" value="{{ old('expense_prefix', $data['setting']->expense_prefix ?? '') }}">
                 </div>
 
 
                 <div class="col-md-4 mt-3">
-                    <label for="default_currency" class="form-label">Default Currency</label>
+                    <label for="default_currency" class="form-label">Default Currency</label> <span data-bs-toggle="tooltip" title="Select the currency that will be used by default for all invoices and estimates.">
+            <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+        </span>
                     <select id="default_currency" name="default_currency" class="form-select">
                         <option value="">Please Select</option>
                         @foreach($data['currencies'] as $currency )
@@ -176,7 +251,9 @@
 
 
                 <div class="col-md-4 mt-3">
-                    <label for="default_tax_id" class="form-label">Default Tax %</label>
+                    <label for="default_tax_id" class="form-label">Default Tax %</label> <span data-bs-toggle="tooltip" title="Choose a default tax percentage that will automatically apply to all new invoices.">
+            <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+        </span>
                     <select id="default_tax_id" name="default_tax_id" class="form-select">
                         <option value="0">No Tax</option>
                         @foreach($data['taxes'] as $tax )
@@ -186,7 +263,9 @@
                 </div>
 
                 <div class="col-md-4 mt-3">
-                    <label for="default_discount_id" class="form-label">Default Discount %</label>
+                    <label for="default_discount_id" class="form-label">Default Discount %</label>  <span data-bs-toggle="tooltip" title="Select a default discount percentage to apply automatically to new invoices.">
+            <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+        </span>
                     <select id="default_discount_id" name="default_discount_id" class="form-select">
                         <option value="0">No Discount</option>
                         @foreach($data['discounts'] as $discount )
@@ -201,23 +280,31 @@
 
 
                 <div class="col-md-6 mt-3">
-                    <label class="form-label">Notes</label>
+                    <label class="form-label">Notes</label> <span data-bs-toggle="tooltip" title="Enter a default note that will appear at the bottom of all invoices and estimates.">
+            <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+        </span>
                     <textarea name="notes" id="id_notes" class="form-control">{{ old('notes', $data['setting']->notes) }}</textarea>
                 </div>
 
                 <div class="col-md-6 mt-3">
-                    <label class="form-label">Terms And Conditions</label>
+                    <label class="form-label">Terms And Conditions</label>  <span data-bs-toggle="tooltip" title="Add your company's standard terms and conditions to be displayed on invoices.">
+            <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+        </span>
                     <textarea name="terms" id="id_terms" class="form-control">{{ old('terms', $data['setting']->terms) }}</textarea>
                 </div>
 
-                <div class="col-md-6 mt-3">
-                    <label for="pagination_limit" class="form-label">Pagination Limit</label>
+                <div class="col-md-3 mt-3">
+                    <label for="pagination_limit" class="form-label">Pagination Limit</label> <span data-bs-toggle="tooltip" title="Set how many records you want to display per page in list views.">
+            <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+        </span>
                     <input type="number" name="pagination_limit" id="pagination_limit" class="form-control @error('pagination_limit') is-invalid @enderror" value="{{ old('pagination_limit', $data['setting']->pagination_limit ?? 10) }}">
                     @error('pagination_limit')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
 
-                <div class="col-md-6 mt-3">
-                    <label for="default_upi_id" class="form-label">Default Upi Id</label>
+                <div class="col-md-3 mt-3">
+                    <label for="default_upi_id" class="form-label">Default Upi Id</label> <span data-bs-toggle="tooltip" title="Select your default UPI account that UPI QR code will be shown on invoices for payment.">
+            <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+        </span>
                     <select id="default_upi_id" name="default_upi_id" class="form-select">
                         <option value="0">Please Select</option>
                         @foreach($data['upi_payment_id'] as $upi_id )
@@ -241,8 +328,10 @@
                 ];
                 @endphp
 
-                <div class="col-md-6 mt-3">
-                    <label for="date_format" class="form-label">Default Date Format</label>
+                <div class="col-md-3 mt-3">
+                    <label for="date_format" class="form-label">Default Date Format</label> <span data-bs-toggle="tooltip" title="Select the date format that will appear on your invoices, estimate and reports.">
+            <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+        </span>
                     <select id="date_format" name="date_format" class="form-select">
                         @foreach($formats as $key => $sample)
                         <option value="{{ $key }}" {{ $selectedFormat == $key ? 'selected' : '' }}>
@@ -256,7 +345,7 @@
                 </div>
 
 
-                <div class="col-md-6 mt-3">
+                <div class="col-md-3 mt-3">
                     <label for="shipping_status" class="form-label fw-semibold">
                         Display Shipping Address
                     </label>
@@ -266,10 +355,10 @@
 
                     <select name="shipping_status" id="shipping_status" class="form-select @error('shipping_status') is-invalid @enderror">
                         <option value="N" {{ old('shipping_status', $data['setting']->shipping_status ?? '') == 'N' ? 'selected' : '' }}>
-                            Hide from Invoice & Estimate
+                            Hide
                         </option>
                         <option value="Y" {{ old('shipping_status', $data['setting']->shipping_status ?? '') == 'Y' ? 'selected' : '' }}>
-                            Show on Invoice & Estimate
+                            Show
                         </option>
 
                     </select>
@@ -304,7 +393,9 @@
                             <span style="display: none;">Click to upload<br>or drag & drop</span>
 
                             @error('logo_path')<div class="text-danger">{{ $message }}</div>@enderror
-                        </label>
+                        </label>  <span data-bs-toggle="tooltip" title="Upload your business logo to appear on invoices and estimates. Recommended size: 200x200px.">
+                <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+            </span>
 
                         @if ($showLogo)
                         <button type="button" class="btn btn-lg mt-2" onclick="removeSavedImage('logo_path')">X</button>
@@ -315,7 +406,9 @@
                     </div>
 
                     <div class="col-md-6 mt-3">
-                        <label for="signature" class="form-label mt-4">Digital Signature</label> <br>
+                        <label for="signature" class="form-label mt-4">Digital Signature</label>  <span data-bs-toggle="tooltip" title="Upload your authorized signature to be printed on invoices automatically. Recommended size: 200x100px.">
+                <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+            </span> <br>
                         <label class="upload-area mt-3" id="upload-box-signature">
                             <input type="file" class="image-upload form-control" name="signature" accept="image/*"
                                 data-preview="preview-signature" data-upload-box="upload-box-signature" data-clear-btn="clear-signature"
@@ -349,55 +442,58 @@
 
         <fieldset class="border p-3 rounded mt-4">
             <legend class="w-auto mb-5">Alerts</legend>
-
-            <!-- Payment Reminder -->
-            <div class="col-md-6 mt-3">
-                <label for="invoice_payment_reminder_status" class="form-label">
-                    Payment Reminder
-                    <span data-bs-toggle="tooltip" title="Enable or disable payment reminders.">
-                        <i class="bi bi-question-circle-fill text-primary ms-1"></i>
-                    </span>
-                </label>
-                <select name="invoice_payment_reminder_status" id="invoice_payment_reminder_status" class="form-select">
-                    <option value="N" {{ old('invoice_payment_reminder_status', $data['setting']->invoice_payment_reminder_status ?? '') == 'N' ? 'selected' : '' }}>No</option>
-                    <option value="Y" {{ old('invoice_payment_reminder_status', $data['setting']->invoice_payment_reminder_status ?? '') == 'Y' ? 'selected' : '' }}>Yes</option>
-                </select>
-            </div>
-
-            <!-- Before Due Days -->
-            <div class="col-md-6 mt-3">
-                <label for="reminder_before_due_days" class="form-label">
-                    Before Due Days
-                    <span data-bs-toggle="tooltip" title="Select how many days before due date the reminder should be sent.">
-                        <i class="bi bi-question-circle-fill text-primary ms-1"></i>
-                    </span>
-                </label>
-                <select name="reminder_before_due_days" id="reminder_before_due_days" class="form-select">
-                    <option value="0">Disable</option>
-                    @for ($i = 1; $i <= 30; $i++)
-                        <option value="{{ $i }}" {{ old('reminder_before_due_days', $data['setting']->reminder_before_due_days ?? '') == $i ? 'selected' : '' }}>{{ $i }} day{{ $i > 1 ? 's' : '' }}</option>
-                        @endfor
-                </select>
-            </div>
-
-
-            <!-- After Due Days -->
-            <div class="col-md-6 mt-3">
-                <label for="enable_reminder" class="form-label">
-                    Every Day Invoice Payment Reminder
-                    <span
-                        data-bs-toggle="tooltip"
-                        title="If enabled, all invoices that are already past their due date will receive a reminder notification every day until they are paid.">
-                        <i class="bi bi-question-circle-fill text-primary ms-1"></i>
-                    </span>
-                </label>
-
-
-                <div class="form-check form-switch">
-                    <input class="form-check-input" type="checkbox" id="everyday_reminder_after_due_day" name="everyday_reminder_after_due_day"
-                        {{ !empty($data['setting']->everyday_reminder_after_due_day) && $data['setting']->everyday_reminder_after_due_day == 'Y'  ? 'checked' : '' }}>
-                    <label class="form-check-label" for="everyday_reminder_after_due_day">Send reminder after due date</label>
+            <div class="row">
+                <!-- Payment Reminder -->
+                <div class="col-md-4 mt-3">
+                    <label for="invoice_payment_reminder_status" class="form-label">
+                        Payment Reminder
+                        <span data-bs-toggle="tooltip" title="Enable or disable payment reminders.">
+                            <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+                        </span>
+                    </label>
+                    <select name="invoice_payment_reminder_status" id="invoice_payment_reminder_status" class="form-select">
+                        <option value="N" {{ old('invoice_payment_reminder_status', $data['setting']->invoice_payment_reminder_status ?? '') == 'N' ? 'selected' : '' }}>No</option>
+                        <option value="Y" {{ old('invoice_payment_reminder_status', $data['setting']->invoice_payment_reminder_status ?? '') == 'Y' ? 'selected' : '' }}>Yes</option>
+                    </select>
                 </div>
+
+                <!-- Before Due Days -->
+                <div class="col-md-4 mt-3">
+                    <label for="reminder_before_due_days" class="form-label">
+                        Before Due Days
+                        <span data-bs-toggle="tooltip" title="Select how many days before due date the reminder should be sent.">
+                            <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+                        </span>
+                    </label>
+                    <select name="reminder_before_due_days" id="reminder_before_due_days" class="form-select">
+                        <option value="0">Disable</option>
+                        @for ($i = 1; $i <= 30; $i++)
+                            <option value="{{ $i }}" {{ old('reminder_before_due_days', $data['setting']->reminder_before_due_days ?? '') == $i ? 'selected' : '' }}>{{ $i }} day{{ $i > 1 ? 's' : '' }}</option>
+                            @endfor
+                    </select>
+                </div>
+
+
+                <!-- After Due Days -->
+                <div class="col-md-4 mt-3">
+                    <label for="enable_reminder" class="form-label">
+                        Every Day Invoice Payment Reminder
+                        <span
+                            data-bs-toggle="tooltip"
+                            title="If enabled, all invoices that are already past their due date will receive a reminder notification every day until they are paid.">
+                            <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+                        </span>
+                    </label>
+
+
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="everyday_reminder_after_due_day" name="everyday_reminder_after_due_day"
+                            {{ !empty($data['setting']->everyday_reminder_after_due_day) && $data['setting']->everyday_reminder_after_due_day == 'Y'  ? 'checked' : '' }}>
+                        <label class="form-check-label" for="everyday_reminder_after_due_day">Send reminder after due date</label>
+                    </div>
+                </div>
+
+
             </div>
 
 

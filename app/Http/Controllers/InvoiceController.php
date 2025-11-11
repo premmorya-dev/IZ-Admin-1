@@ -477,6 +477,9 @@ class InvoiceController extends Controller
 
     public function update(Request $request)
     {
+
+
+
         try {
             $validator = Validator::make($request->all(), [
                 'client_id' => 'required',
@@ -617,6 +620,28 @@ class InvoiceController extends Controller
                         ->where('invoice_id', $invoice->invoice_id)
                         ->update(['is_sent' => 'submitted']);
                 }
+            }
+
+
+            if ($request->has('paid_status') && $request->input('paid_status') == 'true') {
+
+                $payment = PaymentModel::create([
+                    'invoice_id' => $invoice->invoice_id,
+                    'user_id' => Auth::id(),
+                    'amount' => $request->input('hidden_total_due'),
+                    'payment_date' =>  Carbon::now('UTC')->format('Y-m-d'),
+                    'payment_method' => 'cash',
+                    'transaction_reference' => 'manual payment' ?? null,
+                    'notes' => $request->input('notes') ?? null,
+                ]);
+
+
+                DB::table('invoices')
+                    ->where('invoice_id', $invoice->invoice_id)
+                    ->update([
+                        'status' => 'paid',
+                        'is_paid' => 'Y'
+                    ]);
             }
 
             return response()->json([

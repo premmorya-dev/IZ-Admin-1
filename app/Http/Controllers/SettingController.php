@@ -271,6 +271,8 @@ class SettingController extends Controller
             'notes' => $request->input('notes') ?? null,
             'terms' => $request->input('terms') ?? null,
             'invoice_start_number' => $request->input('invoice_start_number'),
+            'display_gst_number' => $request->input('display_gst_number') ?? 'N' ,
+            'user_gst_number' => $request->input('user_gst_number') ?? Null ,
             'company_footer' => $request->input('company_footer'),
             'pagination_limit' => $data['pagination_limit'],
             'company_name' => $data['company_name'],

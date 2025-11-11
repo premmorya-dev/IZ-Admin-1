@@ -46,11 +46,12 @@ class SettingModel extends Model
         'notes',
         'terms',
         'date_format',
-        'user_gst_number',
         'invoice_payment_reminder_status',
         'reminder_before_due_days',
         'everyday_reminder_after_due_day',
         'shipping_status',
+        'user_gst_number',
+        'display_gst_number'
     ];
 
     public $sortable = [];

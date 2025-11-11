@@ -602,7 +602,22 @@
             </div>
         </div>
     </div>
+    <!-- Payment Modal -->
+    <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered">
+            <div class="modal-content rounded-4 shadow">
+                <div class="modal-header bg-primary text-white rounded-top-3">
+                    <h5 class="modal-title" id="paymentModalLabel">
+                        Record Payment
+                    </h5>
+                    <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div id="payment-record-form-body">
 
+                </div>
+            </div>
+        </div>
+    </div>
 
 
 
@@ -610,7 +625,43 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+
     <script>
+        $(document).on('click', '.record-payment-form', function(e) {
+            e.preventDefault();
+            $('#paymentModal').modal('show');
+            var invoice_code = $(this).attr('invoice-code')
+
+            try {
+
+                $.ajax({
+                    url: "{{ route('invoice.get_payment_form') }}",
+                    data: {
+                        invoice_code: invoice_code
+                    },
+                    type: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token()  }}'
+                    },
+                    beforeSend: function() {
+                        $('.loader').show()
+                    },
+                    complete: function() {
+                        $('.loader').hide()
+                    },
+                    success: function(response) {
+                        $('#payment-record-form-body').html(response);
+                        $('#paymentModal').modal('show');
+                    }
+
+                });
+            } catch (error) {
+                console.error('Error:', error);
+            }
+        });
+
+
+
         $(document).on('click', '.invoice-view-model', function(e) {
             e.preventDefault();
             $('#viewModal').modal('show');
@@ -920,6 +971,7 @@
 
 
 
+
                 // 🛠️ Update textarea values before creating FormData
                 Object.keys(editors).forEach(id => {
                     const data = editors[id].getData();
@@ -930,6 +982,7 @@
 
                 formData.append('notes', $('#id_invoice_notes').summernote('code'));
                 formData.append('terms', $('#id_invoice_terms').summernote('code'));
+                formData.append('paid_status', $(this).attr('paid-status'));
 
                 Swal.fire({
                     title: "Processing...",

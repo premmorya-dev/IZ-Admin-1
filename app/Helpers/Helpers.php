@@ -177,6 +177,31 @@ if (!function_exists('getShortcode')) {
             $shipping_address = '';
         }
 
+        if (!empty($doc->is_paid)  &&  $doc->is_paid == 'Y') {
+            $paid_water_mark = ' <div style="
+            position:absolute;
+            top:50%;
+            left:50%;
+            transform:translate(-50%, -50%) rotate(-30deg);
+            font-size:50px;
+            color:#28a745; /* Green color */
+            opacity:0.12; /* Light transparent */
+            font-weight:900;
+            text-transform:uppercase;
+            white-space:nowrap;
+            pointer-events:none;
+        ">
+            PAID
+        </div>';
+        } else {
+            $paid_water_mark = '';
+        }
+
+        if ( setting('display_gst_number') == 'Y' &&  !empty($doc->user_gst_number)  ) {
+            $user_gst_number = 'GSTIN: ' . $doc->user_gst_number;
+        } else {
+            $user_gst_number = '';
+        }
 
         $return_array =  [
             // Common placeholders
@@ -204,8 +229,7 @@ if (!function_exists('getShortcode')) {
             '{{' . $type . '_download}}' => route("{$type}.download", [$service->getAttribute('codeField') => $doc->{$service->getAttribute('codeField')}]),
             '{{' . $type . '_accept_url}}' => url("/") . "/estimate/acceptance/" . $doc->{$service->getAttribute('codeField')} . "?acceptance=true",
             '{{' . $type . '_reject_url}}' => url("/") . "/estimate/acceptance/" . $doc->{$service->getAttribute('codeField')} . "?acceptance=false",
-
-
+            '{{paid_water_mark}}' => $paid_water_mark,
 
             // Client
             '{{client_name}}' => $doc->client_name,
@@ -247,7 +271,7 @@ if (!function_exists('getShortcode')) {
             '{{user_qrcode_image}}' => $qr_code_image ?? '',
             '{{user_signature_image}}' => $signature_image,
             '{{user_gst_number}}' => $doc->user_gst_number ?? '',
-            '{{show_user_gst_number}}' => !empty($doc->user_gst_number) ? 'Gstin:' . $doc->user_gst_number : '',
+            '{{show_user_gst_number}}' => $user_gst_number,
 
             '{{user_pincode}}' =>  $doc->pincode ?? '',
             '{{user_logo_image}}' => $logo_image
