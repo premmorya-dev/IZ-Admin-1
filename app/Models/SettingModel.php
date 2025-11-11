@@ -29,6 +29,8 @@ class SettingModel extends Model
         'default_upi_id',
         'default_tax_percent',
         'invoice_prefix',
+        'estimate_prefix',
+        'expense_prefix',
         'invoice_start_number',
         'company_footer',
         'email',

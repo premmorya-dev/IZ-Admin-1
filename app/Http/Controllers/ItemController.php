@@ -201,7 +201,7 @@ class ItemController extends Controller
 
         $data['item_categories'] = \DB::table('item_categories')
             ->where('user_id',  Auth::id())
-             ->orWhere('user_id', 1)
+            ->orWhere('user_id', 1)
             ->orderBy('item_category_name', 'ASC')->get();
 
         return view('pages/item.add', compact('data'));
@@ -311,7 +311,7 @@ class ItemController extends Controller
 
         $data['item_categories'] = \DB::table('item_categories')
             ->where('user_id',  Auth::id())
-             ->orWhere('user_id', 1)
+            ->orWhere('user_id', 1)
             ->orderBy('item_category_name', 'ASC')->get();
 
         return view('pages/item.edit', compact('data'));
@@ -438,11 +438,7 @@ class ItemController extends Controller
             ->leftJoin('taxes', 'items.tax_id', '=', 'taxes.tax_id')
             ->leftJoin('discounts', 'items.discount_id', '=', 'discounts.discount_id')
             ->where('items.user_id', auth()->id())
-            ->where(function ($q) use ($query) {
-                $q->where('items.item_name', 'LIKE', "%{$query}%")
-                    ->orWhere('items.sku', 'LIKE', "%{$query}%")
-                    ->orWhere('items.hsn_sac', 'LIKE', "%{$query}%");
-            })
+            ->whereRaw("MATCH(" . dbPrefix() . "items.item_name, " . dbPrefix() . "items.sku, " . dbPrefix() . "items.hsn_sac) AGAINST(? IN BOOLEAN MODE)",[$query . '*'])
             ->select(
                 'items.item_id',
                 'items.item_name',
@@ -457,10 +453,20 @@ class ItemController extends Controller
                 'taxes.tax_id',
                 'discounts.name as discount_name',
                 'discounts.percent as discount_percent',
-                'discounts.discount_id',
+                'discounts.discount_id'
             )
             ->take(20)
             ->get();
+
+
+        // $queryString = vsprintf(
+        //     str_replace('?', "'%s'", $results->toSql()),
+        //     $results->getBindings()
+        // );
+
+
+
+
 
 
         $output = '';

@@ -13,7 +13,7 @@
                 <th style="border:1px solid #ccc; padding:8px;">Tax</th>
                 <th style="border:1px solid #ccc; padding:8px;">Discount</th>
                 <th style="border:1px solid #ccc; padding:8px;">Grand Total</th>
-                <th style="border:1px solid #ccc; padding:8px;">Advance</th>
+                <th style="border:1px solid #ccc; padding:8px;">Paid</th>
                 <th style="border:1px solid #ccc; padding:8px;">Total Due</th>
             </tr>
         </thead>

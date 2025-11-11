@@ -56,8 +56,8 @@
 
             <!-- Invoice Number with Mode -->
             <div class="col-md-3 mt-3">
-                <label for="invoice_number" class="form-label d-flex justify-content-between align-items-center">
-                    <span>Invoice Number</span>
+                <label for="invoice_number" class="form-label d-flex justify-content-between align-items-center text-danger">
+                    <span>Invoice Number *</span>
                 </label>
                 <input type="text" class="form-control form-control-sm" id="invoice_number" value="{{ old('invoice_number', $data['invoice']->invoice_number ) }}" name="invoice_number" placeholder="Auto-generated" readonly>
             </div>
@@ -66,7 +66,7 @@
 
             <!-- Currency -->
             <div class="col-md-3 mt-3">
-                <label for="currency" class="form-label">Select Currency</label>
+                <label for="currency" class="form-label text-danger">Select Currency *</label>
                 <select name="currency_code" id="currency_code" class="form-select">
                     <option value="">Please Select</option>
                     @foreach($data['currencies'] as $currency)
@@ -79,7 +79,7 @@
 
             <!-- Language -->
             <div class="col-md-3 mt-3">
-                <label for="template" class="form-label">Template</label>
+                <label for="template" class="form-label text-danger">Template *</label>
                 <select class="form-select" id="template_id" name="template_id">
                     <option value="">Please Select</option>
                     @foreach($data['templates'] as $template )
@@ -130,7 +130,7 @@
                 <!-- To Address Section -->
                 <div>
                     <div class="mb-1 mt-4 d-flex justify-content-between align-items-center">
-                        <h4 class="mb-1">To</h4>
+                        <h4 class="mb-1 text-danger">To *</h4>
                         <a href="{{ route('client.add') }}" target="__blank" class="clientActionBtn new-client" style="text-decoration: none;display:none;">✏️ New Client</a>
                         <a href="#" onclick="event.preventDefault()" class="clientActionBtn change-client" style="text-decoration: none;">✏️ Change Client</a>
 
@@ -272,7 +272,7 @@
 
 
                 <div class="mt-3">
-                    <label for="invoice_date" class="form-label">Invoice Date</label>
+                    <label for="invoice_date" class="form-label text-danger">Invoice Date *</label>
 
                     <div class="input-group">
                         <input type="text" id="invoice_date" class="form-control" name="invoice_date" value="{{ old('invoice_date', $data['invoice']->invoice_date )  }}" placeholder="Select Invoice Issue Date">
@@ -281,7 +281,7 @@
                 </div>
 
                 <div class="mt-3">
-                    <label for="due_date" class="form-label">Invoice Due</label>
+                    <label for="due_date" class="form-label text-danger">Invoice Due *</label>
                     <div class="input-group">
                         <input type="text" id="due_date" class="form-control" name="due_date" value="{{ old('due_date', $data['invoice']->due_date )  }}" placeholder="Select Invoice Due Date">
                         <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
@@ -314,7 +314,7 @@
 
             <!-- test -->
             <div class="container my-4">
-                <h4 class="mb-3">Invoice Item Entry</h4>
+                <h4 class="mb-3 text-danger">Invoice Item Entry *</h4>
 
 
 
@@ -328,7 +328,7 @@
 
                             <!-- Item Name -->
                             <div class="col-12 col-md-6 position-relative">
-                                <div id="item-list-{{ $itemCount }}" class="list-group" style="position: absolute; z-index: 1000;"></div>
+                                <div id="item-list-{{ $itemCount }}" class="list-group" style="position: absolute; z-index: 1000;margin-top:35px;"></div>
                                 <div class="d-flex align-items-center">
                                     <input type="text"
                                         name="item[{{ $itemCount }}][name]"
@@ -1249,7 +1249,7 @@
       
       
    <div class="col-12 col-md-6 position-relative">
-     <div id="item-list-${itemCount}" class="list-group" style="position: absolute; z-index: 1000;"></div>
+     <div id="item-list-${itemCount}" class="list-group" style="position: absolute; z-index: 1000;margin-top:35px;"></div>
   <div class="d-flex align-items-center">
     <input type="text" 
            name="item[${itemCount}][name]" 

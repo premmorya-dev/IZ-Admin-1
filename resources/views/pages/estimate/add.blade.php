@@ -48,8 +48,8 @@
 
             <!-- Invoice Number with Mode -->
             <div class="col-md-3 mt-3">
-                <label for="estimate_number" class="form-label d-flex justify-content-between align-items-center">
-                    <span>Estimate Number</span>
+                <label for="estimate_number" class="form-label d-flex justify-content-between align-items-center text-danger">
+                    <span>Estimate Number *</span>
                     <div class="form-check form-switch m-0">
                         <input class="form-check-input" type="checkbox" id="estimateModeSwitch" onchange="toggleEstimateMode(this)">
                         <label class="form-check-label small" for="estimateModeSwitch">Custom</label>
@@ -62,7 +62,7 @@
 
             <!-- Currency -->
             <div class="col-md-3 mt-3">
-                <label for="currency" class="form-label">Select Currency</label>
+                <label for="currency" class="form-label text-danger">Select Currency *</label>
                 <select name="currency_code" id="currency_code" class="form-select">
                     <option value="">Please Select</option>
                     @foreach($data['currencies'] as $currency)
@@ -75,7 +75,7 @@
 
             <!-- Language -->
             <div class="col-md-3 mt-3">
-                <label for="template" class="form-label">Template</label>
+                <label for="template" class="form-label text-danger">Template *</label>
                 <select class="form-select" id="template_id" name="template_id">
                     <option value="">Please Select</option>
                     @foreach($data['templates'] as $template )
@@ -124,7 +124,7 @@
                 <!-- To Address Section -->
                 <div>
                     <div class="mb-1 mt-4 d-flex justify-content-between align-items-center">
-                        <h4 class="mb-1">To</h4>
+                        <h4 class="mb-1 text-danger">To *</h4>
                         <a href="{{ route('client.add') }}" target="__blank" class="clientActionBtn new-client" style="text-decoration: none;display:none;">✏️ New Client</a>
                         <a href="#" onclick="event.preventDefault()" class="clientActionBtn change-client" style="text-decoration: none;">✏️ Change Client</a>
                     </div>
@@ -147,9 +147,16 @@
 
 
             <div class="col-md-6">
-
                 <div class="mt-3">
-                    <label for="issue_date" class="form-label">Estimate Date</label>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="display_shipping_status" name="display_shipping_status"
+                          {{ old('display_shipping_status',setting('shipping_status')) == 'Y' ? 'checked' : '' }}>
+
+                        <label class="form-check-label" for="display_shipping_status">Show Shipping</label>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <label for="issue_date" class="form-label text-danger">Estimate Date *</label>
 
                     <div class="input-group">
                         <input type="text" id="issue_date" class="form-control" name="issue_date" placeholder="Select Estimate Issue Date">
@@ -158,7 +165,7 @@
                 </div>
 
                 <div class="mt-3">
-                    <label for="expiry_date" class="form-label">Expiry Date</label>
+                    <label for="expiry_date" class="form-label text-danger">Expiry Date *</label>
                     <div class="input-group">
                         <input type="text" id="expiry_date" class="form-control" name="expiry_date" placeholder="Select Invoice Due Date">
                         <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
@@ -173,7 +180,7 @@
 
             <!-- test -->
             <div class="container my-4">
-                <h4 class="mb-3">Estimate Item Entry</h4>
+                <h4 class="mb-3 text-danger">Estimate Item Entry *</h4>
 
 
 
@@ -353,7 +360,7 @@
         $(document).ready(function() {
 
             function generateInvoiceNumber() {
-                let prefix = "{{ setting('invoice_prefix') }}";
+                let prefix = "{{ setting('estimate_prefix') }}";
                 let now = new Date();
                 let formattedDate = now.getFullYear().toString() +
                     (now.getMonth() + 1).toString().padStart(2, '0') +
@@ -546,7 +553,7 @@
 
     <script>
         $(document).ready(function() {
-             $('#client').on('keyup', function() {
+            $('#client').on('keyup', function() {
                 let query = $(this).val();
 
                 if (query.length >= 2) {
@@ -621,8 +628,8 @@
 
                 if (client.company_name) {
                     addressHTML += client.company_name + '<br>';
-                }else{
-                     addressHTML += client.client_name + '<br>';
+                } else {
+                    addressHTML += client.client_name + '<br>';
                 }
                 if (client.address_1) addressHTML += client.address_1 + '<br>';
                 if (client.address_2) addressHTML += client.address_2 + '<br>';
@@ -669,7 +676,6 @@
                 }
             });
         });
-       
     </script>
 
 
@@ -693,7 +699,7 @@
 
     <!-- Bootstrap 5 JS Bundle -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-      <script>
+    <script>
         const discountOptions = `{!! collect($data['discounts'])->map(function($d) {
         return "<option value='" . $d->percent . "' discount-id='" . $d->discount_id . "'>" . e($d->name) . " (" . $d->percent . "%)</option>";
     })

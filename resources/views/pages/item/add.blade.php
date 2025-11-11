@@ -5,7 +5,7 @@
             <div class="row g-4">
 
                 <div class="col-md-12 mt-3">
-                    <label class="form-label">Name</label>
+                    <label class="form-label text-danger">Name *</label>
                     <input type="text" name="item_name" id="id_item_name" value="{{ old('item_name') }}" class="form-control" placeholder="Item Name">
                 </div>
 
@@ -34,17 +34,17 @@
                 </div>
 
                 <div class="col-md-6 mt-3">
-                    <label class="form-label">Hsn/Sac</label>
+                    <label class="form-label text-danger">Hsn/Sac *</label>
                     <input type="number" name="hsn_sac" id="id_hsn_sac" value="{{ old('hsn_sac') }}" class="form-control" placeholder="HSN/SAC">
                 </div>
 
                 <div class="col-md-6 mt-3">
-                    <label class="form-label">Unit Price</label>
+                    <label class="form-label text-danger">Unit Price *</label>
                     <input type="number" id="id_unit_price" name="unit_price" value="{{ old('unit_price') }}" class="form-control" placeholder="Unit Price">
                 </div>
 
                 <div class="col-md-6 mt-3">
-                    <label class="form-label">Stock</label>
+                    <label class="form-label text-danger">Stock *</label>
                     <input type="number" id="id_stock" name="stock" value="{{ old('stock') }}" class="form-control" placeholder="Stock">
                 </div>
 

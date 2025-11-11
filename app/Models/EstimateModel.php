@@ -44,6 +44,8 @@ class EstimateModel extends Model
         'sent_at',
         'item_json',
         'template_id',
+        'display_shipping_status',
+        
     ];
 
     public $sortable = [

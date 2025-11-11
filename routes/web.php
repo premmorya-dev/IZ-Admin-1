@@ -47,7 +47,7 @@ Route::middleware(['auth'])->group(function () {
         return redirect()->route('dashboard');
     });
 
-    Route::get('/user/login', function () { 
+    Route::get('/user/login', function () {
         return redirect()->route('dashboard');
     });
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
@@ -193,6 +193,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('edit', [ExpenseItemController::class, 'edit'])->name('expense.item.edit');
         Route::post('update', [ExpenseItemController::class, 'update'])->name('expense.item.update');
         Route::post('destroy', [ExpenseItemController::class, 'destroy'])->name('expense.item.destroy');
+        Route::get('search', [ExpenseItemController::class, 'search'])->name('expense.item.search');
     });
 
     Route::group(['prefix' => '/expense'], function () {

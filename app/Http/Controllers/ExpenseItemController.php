@@ -402,35 +402,77 @@ class ExpenseItemController extends Controller
     {
         $query = $request->get('query', '');
 
-        // Example: search by name or code; limit to 20 results
-        $results = ExpenseItemModel::where('user_id', auth()->id())
-            ->where(function ($q) use ($query) {
-                $q->where('expense_item_name', 'LIKE', "%{$query}%")
-                    ->orWhere('expense_item_code', 'LIKE', "%{$query}%");
-            })
-            ->select('expense_item_id', 'expense_item_name', 'expense_item_code', 'hsn_sac', 'unit_price', 'tax_id', 'discount_id')
-
+        $results = DB::table('expense_items')
+            ->leftJoin('expense_categories', 'expense_items.expense_category_id', '=', 'expense_categories.expense_category_id')
+            ->leftJoin('taxes', 'expense_items.tax_id', '=', 'taxes.tax_id')
+            ->leftJoin('discounts', 'expense_items.discount_id', '=', 'discounts.discount_id')
+            ->where('expense_items.user_id', auth()->id())
+            ->whereRaw("MATCH(" . dbPrefix() . "expense_items.expense_item_name, " . dbPrefix() . "expense_items.hsn_sac) AGAINST(? IN BOOLEAN MODE)", [$query . '*'])
+            ->select(
+                'expense_items.expense_item_id',
+                'expense_items.expense_item_name',
+                'expense_items.hsn_sac',
+                'expense_items.unit_price',
+                'expense_categories.expense_category_name',
+                'taxes.name as tax_name',
+                'taxes.percent as tax_percent',
+                'taxes.tax_id',
+                'discounts.name as discount_name',
+                'discounts.percent as discount_percent',
+                'discounts.discount_id'
+            )
             ->take(20)
             ->get();
 
 
+        // $queryString = vsprintf(
+        //     str_replace('?', "'%s'", $results->toSql()),
+        //     $results->getBindings()
+        // );
 
-        $output = '';
+
+
+
+
+         $output = '';
         if ($results->count() > 0) {
+            $output .= '<div class="p-3 rounded shadow-sm border" style="max-height: 400px; overflow-y:auto; border:1px solid #dee2e6; background-color:#f8f9fa;">';
             foreach ($results as $result) {
-                $output .= '<a href="#" class="list-group-expense_item list-group-expense_item-action select-expense_item" data-expense_item_id="' . $result->expense_item_id .
-                    '" data-expense_item_name="' . htmlspecialchars($result->expense_item_name) .
-                    '" data-hsn_sac="' . htmlspecialchars($result->hsn_sac) .
-                    '" data-unit_price="' . htmlspecialchars($result->unit_price) .
-                    '" data-tax_id="' . htmlspecialchars($result->tax_id) .
-                    '" data-discount_id="' . htmlspecialchars($result->discount_id) .
+                $output .= '
+        <a href="javascript:void(0);"
+           class="list-group-item list-group-item-action select-item d-flex justify-content-between align-items-center p-3 mb-2 rounded shadow-sm"
+           data-expense_item_id="' . $result->expense_item_id . '"
+           data-expense_item_name="' . htmlspecialchars($result->expense_item_name) . '"
+           data-hsn_sac="' . htmlspecialchars($result->hsn_sac) . '"
+           data-unit_price="' . htmlspecialchars($result->unit_price) . '"
+           data-tax_id="' . htmlspecialchars($result->tax_id) . '"
+           data-discount_id="' . htmlspecialchars($result->discount_id) . '"
+           style="cursor:pointer; transition: all 0.2s ease-in-out;">
 
-
-
-                    '">' . htmlspecialchars($result->expense_item_name) . '</a>';
+           <div>
+               <h6 class="mb-1 fw-bold text-dark">
+                   <i class="bi bi-box me-1"></i> ' . htmlspecialchars($result->expense_item_name) . '
+               </h6>
+               <p class="mb-0 text-muted small">
+                   <i class="bi bi-upc-scan me-1"></i> HSN/SAC: ' . htmlspecialchars($result->hsn_sac) . '
+               </p>
+               <p class="mb-0 text-muted small">
+                   <i class="bi bi-currency-rupee me-1"></i> ' . htmlspecialchars($result->unit_price) . '
+               </p>
+           </div>
+           <div class="text-end d-flex flex-column align-items-end">
+               <span class="badge bg-info mb-1 text-white">
+                   <i class="fas fa-percentage me-1 text-white"></i> Tax: ' . intval($result->tax_percent ?? 0) . '%
+               </span>
+               <span class="badge bg-warning text-white">
+                   <i class="fas fa-tags me-1 text-white"></i> Discount: ' . intval($result->discount_percent ?? 0) . '%
+               </span>
+           </div>
+        </a>';
             }
+            $output .= '</div>';
         } else {
-            $output .= '<div class="list-group-expense_item">No expense_item</div>';
+            $output .= '<div class="list-group-item text-muted text-center">No Expense Item Found</div>';
         }
 
 

@@ -6,7 +6,7 @@
 
                 {{-- Basic Info --}}
                 <div class="col-md-6">
-                    <label class="form-label fw-semibold required"><i class="fas fa-user me-1"></i> Client Name</label>
+                    <label class="form-label fw-semibold text-danger required"><i class="fas fa-user me-1"></i> Client Name</label>
                     <input type="text" name="client_name" id="id_client_name" class="form-control"
                         value="{{ old('client_name', optional($data['client'] ?? null)->client_name) }}"
                         placeholder="Enter client name">
@@ -49,7 +49,7 @@
                 </div>
 
                 <div class="col-md-6">
-                    <label class="form-label fw-semibold  required">Address 1</label>
+                    <label class="form-label fw-semibold  text-danger required">Address 1</label>
                     <textarea name="address_1" id="id_address_1" class="form-control" rows="2" placeholder="Enter primary address">{{ old('address_1', optional($data['client'] ?? null)->address_1) }}</textarea>
                 </div>
 
@@ -60,7 +60,7 @@
 
                 {{-- Location --}}
                 <div class="col-md-4">
-                    <label class="form-label fw-semibold  required">Country</label>
+                    <label class="form-label fw-semibold  text-danger required">Country</label>
                     <select name="country_id" id="id_country_id" class="form-select">
                         <option value="">Please Select</option>
                         @foreach($data['countries'] as $country)
@@ -72,7 +72,7 @@
                 </div>
 
                 <div class="col-md-4">
-                    <label class="form-label fw-semibold  required">State</label>
+                    <label class="form-label fw-semibold  text-danger required">State</label>
                     <select name="state_id" id="id_state_id" class="form-select">
                         <option value="">Please Select</option>
 
@@ -80,7 +80,7 @@
                 </div>
 
                 <div class="col-md-4">
-                    <label class="form-label fw-semibold  required">Currency</label>
+                    <label class="form-label fw-semibold  text-danger required">Currency</label>
                     <select name="currency_code" id="id_currency_code" class="form-select">
                         <option value="">Please Select</option>
                         @foreach($data['currencies'] as $currency)
@@ -139,7 +139,7 @@
                     </h5>
 
                     <div class="col-md-4">
-                        <label class="form-label fw-semibold  required"><i class="fas fa-user me-1"></i> Shipping Client Name</label>
+                        <label class="form-label fw-semibold  text-danger required"><i class="fas fa-user me-1"></i> Shipping Client Name</label>
                         <input type="text" name="shipping_client_name" id="id_shipping_client_name" class="form-control"
                             value="{{ old('shipping_client_name') }}"
                             placeholder="Enter shipping client name">
@@ -160,7 +160,7 @@
                     </div>
 
                     <div class="col-md-6">
-                        <label class="form-label fw-semibold required">Shipping Address 1</label>
+                        <label class="form-label fw-semibold text-danger required">Shipping Address 1</label>
                         <textarea name="shipping_address_1" id="id_shipping_address_1" class="form-control" rows="2"
                             placeholder="Enter shipping address 1"></textarea>
                     </div>
@@ -176,7 +176,7 @@
 
 
                     <div class="col-md-4">
-                        <label class="form-label fw-semibold required">Shipping Country</label>
+                        <label class="form-label fw-semibold text-danger required">Shipping Country</label>
 
                         <select name="shipping_country_id" id="id_shipping_country_id" class="form-select">
                             <option value="">Please Select</option>
@@ -189,7 +189,7 @@
                     </div>
 
                     <div class="col-md-4">
-                        <label class="form-label fw-semibold required">Shipping State</label>
+                        <label class="form-label fw-semibold text-danger required">Shipping State</label>
                         <select name="shipping_state_id" id="id_shipping_state_id" class="form-select">
                             <option value="">Please Select</option>
 

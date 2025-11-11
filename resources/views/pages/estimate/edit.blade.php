@@ -52,8 +52,8 @@
 
             <!-- estimate Number with Mode -->
             <div class="col-md-3 mt-3">
-                <label for="estimate_number" class="form-label d-flex justify-content-between align-items-center">
-                    <span>Estimate Number</span>
+                <label for="estimate_number" class="form-label d-flex justify-content-between align-items-center text-danger">
+                    <span>Estimate Number *</span>
                 </label>
                 <input type="text" class="form-control form-control-sm" id="estimate_number" value="{{ old('estimate_number', $data['estimate']->estimate_number ) }}" name="estimate_number" placeholder="Auto-generated" readonly>
             </div>
@@ -62,7 +62,7 @@
 
             <!-- Currency -->
             <div class="col-md-3 mt-3">
-                <label for="currency" class="form-label">Select Currency</label>
+                <label for="currency" class="form-label text-danger">Select Currency *</label>
                 <select name="currency_code" id="currency_code" class="form-select">
                     <option value="">Please Select</option>
                     @foreach($data['currencies'] as $currency)
@@ -75,7 +75,7 @@
 
             <!-- Language -->
             <div class="col-md-3 mt-3">
-                <label for="template" class="form-label">Template</label>
+                <label for="template" class="form-label text-danger">Template *</label>
                 <select class="form-select" id="template_id" name="template_id">
                     <option value="">Please Select</option>
                     @foreach($data['templates'] as $template )
@@ -124,7 +124,7 @@
                 <!-- To Address Section -->
                 <div>
                     <div class="mb-1 mt-4 d-flex justify-content-between align-items-center">
-                        <h4 class="mb-1">To</h4>
+                        <h4 class="mb-1 text-danger">To *</h4>
                         <a href="{{ route('client.add') }}" target="__blank" class="clientActionBtn new-client" style="text-decoration: none;display:none;">✏️ New Client</a>
                         <a href="#" onclick="event.preventDefault()" class="clientActionBtn change-client" style="text-decoration: none;">✏️ Change Client</a>
                     </div>
@@ -148,8 +148,17 @@
 
             <div class="col-md-6">
 
+
                 <div class="mt-3">
-                    <label for="issue_date" class="form-label">Issue Date</label>
+                    <div class="form-check form-switch">
+                        <input class="form-check-input" type="checkbox" id="display_shipping_status" name="display_shipping_status"
+                            {{ old('display_shipping_status', !empty($data['estimate']->display_shipping_status) && $data['estimate']->display_shipping_status == 'Y' ? 'checked' : '') }}>
+
+                        <label class="form-check-label" for="display_shipping_status">Show Shipping</label>
+                    </div>
+                </div>
+                <div class="mt-3">
+                    <label for="issue_date" class="form-label text-danger">Issue Date *</label>
 
                     <div class="input-group">
                         <input type="text" id="issue_date" class="form-control" name="issue_date" value="{{ old('issue_date', $data['estimate']->issue_date )  }}" placeholder="Select estimate Issue Date">
@@ -158,7 +167,7 @@
                 </div>
 
                 <div class="mt-3">
-                    <label for="expiry_date" class="form-label">Expiry Due</label>
+                    <label for="expiry_date" class="form-label text-danger">Expiry Due *</label>
                     <div class="input-group">
                         <input type="text" id="expiry_date" class="form-control" name="expiry_date" value="{{ old('expiry_date', $data['estimate']->expiry_date )  }}" placeholder="Select estimate Due Date">
                         <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
@@ -173,7 +182,7 @@
 
             <!-- test -->
             <div class="container my-4">
-                <h4 class="mb-3">Estimate Item Entry</h4>
+                <h4 class="mb-3 text-danger">Estimate Item Entry *</h4>
 
 
 
@@ -232,7 +241,7 @@
                                 <input type="text" name="item[{{ $itemCount }}][amount]" value="{{ $item['amount'] }}" class="form-control form-control-sm amount" readonly>
                             </div>
 
-                              <!-- Description (New Field) -->
+                            <!-- Description (New Field) -->
                             <div class="w-100 mt-2">
                                 <textarea
                                     class="id_description"
@@ -488,7 +497,7 @@
                 ]
             });
 
-             $('.id_description').summernote({
+            $('.id_description').summernote({
                 placeholder: 'Enter Description...',
                 height: 120,
                 toolbar: [
@@ -497,7 +506,7 @@
                     ['view', ['codeview']]
                 ]
             });
-            
+
             $('.update-estimate').on('click', function(e) {
                 e.preventDefault();
 
@@ -604,7 +613,7 @@
     </script>
 
 
-  <script>
+    <script>
         $(document).ready(function() {
 
             var address = `{!! $data['client_details_html'] !!}`;
@@ -663,10 +672,10 @@
                                <i class="bi bi-geo-alt me-1"></i> ${client.address_1 ?? ''}, ${client.city ?? ''}
                            </p>
                            <p class="mb-0 text-muted small">
-                               <i class="bi bi-envelope me-1"></i> ${client.email ?? ''}
+                               <i class="bi bi-envelope me-1"></i> ${client.email ??  'N/A'}
                            </p>
                            <p class="mb-0 text-muted small">
-                               <i class="bi bi-telephone me-1"></i> ${client.phone ?? ''}
+                               <i class="bi bi-telephone me-1"></i> ${client.phone ??  'N/A'}
                            </p>
                        </div>
                        <span class="badge bg-success rounded-pill align-self-start">${client.currency_code ?? ''}</span>
@@ -695,8 +704,8 @@
 
                 if (client.company_name) {
                     addressHTML += client.company_name + '<br>';
-                }else{
-                     addressHTML += client.client_name + '<br>';
+                } else {
+                    addressHTML += client.client_name + '<br>';
                 }
                 if (client.address_1) addressHTML += client.address_1 + '<br>';
                 if (client.address_2) addressHTML += client.address_2 + '<br>';
@@ -778,8 +787,7 @@
 
 
     <script>
-
-         const currencies = @json($data['currencies']);
+        const currencies = @json($data['currencies']);
         const currencySymbols = Object.fromEntries(
             currencies.map(cur => [cur.currency_code, cur.currency_symbol])
         );
@@ -800,7 +808,7 @@
             calculateestimate();
         });
 
-     
+
 
         function addItemRow() {
             itemCount++;
@@ -876,7 +884,7 @@
             formContainer.appendChild(itemRow);
             lucide.createIcons();
 
-             $('.id_description').summernote({
+            $('.id_description').summernote({
                 placeholder: 'Enter Description...',
                 height: 120,
                 toolbar: [

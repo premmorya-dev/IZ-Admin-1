@@ -12,7 +12,7 @@
         <p><strong>Total Tax:</strong> {{ number_format($summary['total_tax'], 2) }}</p>
         <p><strong>Total Discount:</strong> {{ number_format($summary['total_discount'], 2) }}</p>
         <p><strong>Grand Total:</strong> {{ number_format($summary['total_grand'], 2) }}</p>
-        <p><strong>Advance Paid:</strong> {{ number_format($summary['total_advance'], 2) }}</p>
+        <p><strong>Paid:</strong> {{ number_format($summary['total_advance'], 2) }}</p>
         <p><strong>Total Due:</strong> {{ number_format($summary['total_due'], 2) }}</p>
     </div>
 </div>
@@ -30,7 +30,7 @@
                 <th>Tax</th>
                 <th>Discount</th>
                 <th>Grand Total</th>
-                <th>Advance</th>
+                <th>Paid</th>
                 <th>Due</th>
             </tr>
         </thead>

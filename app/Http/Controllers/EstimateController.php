@@ -418,6 +418,7 @@ class EstimateController extends Controller
                 'currency_code'    => $request->input('currency_code'),
                 'item_json'        => json_encode($itemJson),
                 'template_id'      => $request->input('template_id'),
+                'display_shipping_status'      => $request->input('display_shipping_status') == 'on' ? 'Y' : 'N',
             ]);
 
             // Optional: Send status update logic
@@ -551,6 +552,7 @@ class EstimateController extends Controller
                 'terms' => $terms,
                 'estimate_code' => $this->generateUniqueestimateCode(),
                 'template_id' => $template_id,
+                'display_shipping_status'      => $request->input('display_shipping_status') == 'on' ? 'Y' : 'N',
             ]);
 
             // Get the last inserted ID (estimate_id)

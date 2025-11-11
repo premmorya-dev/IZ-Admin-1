@@ -25,26 +25,23 @@ class ClientController extends Controller
 
 
         $clients = DB::table('clients')
-            ->leftJoin('countries', 'countries.country_id', 'clients.country_id')
-            ->leftJoin('country_states', 'country_states.state_id', 'clients.state_id')
+            ->leftJoin('countries', 'countries.country_id', '=', 'clients.country_id')
+            ->leftJoin('country_states', 'country_states.state_id', '=', 'clients.state_id')
             ->where('clients.user_id', auth()->id())
-            ->where('status', 'active')
-            ->where(function ($q) use ($query) {
-                $q->where('clients.client_name', 'LIKE', "%{$query}%")
-                    ->orWhere('clients.company_name', 'LIKE', "%{$query}%")
-                    ->orWhere('clients.email', 'LIKE', "%{$query}%")
-                    ->orWhere('clients.phone', 'LIKE', "%{$query}%")
-                    ->orWhere('clients.gst_number', 'LIKE', "%{$query}%");
-            })
+            ->where('clients.status', 'active')
+            ->whereRaw("MATCH(" . dbPrefix() . "clients.client_name, " . dbPrefix() . "clients.company_name, " . dbPrefix() . "clients.email, " . dbPrefix() . "clients.phone, " . dbPrefix() . "clients.gst_number) AGAINST (? IN BOOLEAN MODE)", [$query . '*'])
             ->select(
                 'clients.*',
                 'countries.country_name',
-                'country_states.state_name',
-
-
+                'country_states.state_name'
             )
             ->take(5)
             ->get();
+
+        // $queryString = vsprintf(
+        //     str_replace('?', "'%s'", $clients->toSql()),
+        //     $clients->getBindings()
+        // );
 
 
         return response()->json($clients);

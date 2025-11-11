@@ -145,7 +145,25 @@
             <div class="row">
 
 
-                <div class="col-md-6 mt-3">
+
+
+                <div class="col-md-4 mt-3">
+                    <label for="invoice_prefix" class="form-label">Invoice Prefix</label>
+                    <input type="text" name="invoice_prefix" id="invoice_prefix" class="form-control" value="{{ old('invoice_prefix', $data['setting']->invoice_prefix ?? '') }}">
+                </div>
+
+                <div class="col-md-4 mt-3">
+                    <label for="estimate_prefix" class="form-label">Estimate Prefix</label>
+                    <input type="text" name="estimate_prefix" id="estimate_prefix" class="form-control" value="{{ old('estimate_prefix', $data['setting']->estimate_prefix ?? '') }}">
+                </div>
+
+                <div class="col-md-4 mt-3">
+                    <label for="expense_prefix" class="form-label">Expense Prefix</label>
+                    <input type="text" name="expense_prefix" id="expense_prefix" class="form-control" value="{{ old('expense_prefix', $data['setting']->expense_prefix ?? '') }}">
+                </div>
+
+
+                <div class="col-md-4 mt-3">
                     <label for="default_currency" class="form-label">Default Currency</label>
                     <select id="default_currency" name="default_currency" class="form-select">
                         <option value="">Please Select</option>
@@ -157,7 +175,7 @@
                 </div>
 
 
-                <div class="col-md-6 mt-3">
+                <div class="col-md-4 mt-3">
                     <label for="default_tax_id" class="form-label">Default Tax %</label>
                     <select id="default_tax_id" name="default_tax_id" class="form-select">
                         <option value="0">No Tax</option>
@@ -167,7 +185,7 @@
                     </select>
                 </div>
 
-                <div class="col-md-6 mt-3">
+                <div class="col-md-4 mt-3">
                     <label for="default_discount_id" class="form-label">Default Discount %</label>
                     <select id="default_discount_id" name="default_discount_id" class="form-select">
                         <option value="0">No Discount</option>
@@ -177,10 +195,7 @@
                     </select>
                 </div>
 
-                <div class="col-md-6 mt-3">
-                    <label for="invoice_prefix" class="form-label">Invoice Prefix</label>
-                    <input type="text" name="invoice_prefix" id="invoice_prefix" class="form-control" value="{{ old('invoice_prefix', $data['setting']->invoice_prefix ?? '') }}">
-                </div>
+
 
 
 

@@ -94,8 +94,8 @@
                 <div class="row">
                     <!-- expense Number with Mode -->
                     <div class="col-md-4 mt-3">
-                        <label for="expense_number" class="form-label d-flex justify-content-between align-items-center">
-                            <span>Expense Number</span>
+                        <label for="expense_number" class="form-label d-flex justify-content-between align-items-center text-danger">
+                            <span>Expense Number *</span>
                         </label>
                         <input type="text" class="form-control form-control-sm" id="expense_number" value="{{ old('expense_number', $data['expense']->expense_number ) }}" name="expense_number" placeholder="Auto-generated" readonly>
                     </div>
@@ -104,7 +104,7 @@
 
                     <!-- Currency -->
                     <div class="col-md-4 mt-3">
-                        <label for="currency" class="form-label">Select Currency</label>
+                        <label for="currency" class="form-label text-danger">Select Currency *</label>
                         <select name="currency_code" id="currency_code" class="form-select">
                             <option value="">Please Select</option>
                             @foreach($data['currencies'] as $currency)
@@ -143,7 +143,7 @@
 
                     <!-- Language -->
                     <div class="col-md-6 mt-3">
-                        <label for="template" class="form-label">Template</label>
+                        <label for="template" class="form-label  text-danger">Template *</label>
                         <select class="form-select" id="template_id" name="template_id">
                             <option value="">Please Select</option>
                             @foreach($data['templates'] as $template )
@@ -163,7 +163,7 @@
 
 
                     <div class="col-md-6 mt-3">
-                        <label for="expense_date" class="form-label">Expense Date</label>
+                        <label for="expense_date" class="form-label text-danger">Expense Date *</label>
 
                         <div class="input-group">
                             <input type="text" id="expense_date" class="form-control" name="expense_date" value="{{ old('expense_date', $data['expense']->expense_date )  }}" placeholder="Select expense Issue Date">
@@ -305,7 +305,7 @@
 
             <!-- test -->
             <div class="container my-4">
-                <h4 class="mb-3">Expense Item Entry</h4>
+                <h4 class="mb-3 text-danger">Expense Item Entry *</h4>
 
 
 
@@ -414,7 +414,7 @@
             <!-- test -->
 
 
-            <div class="col-md-12 mt-3">
+            <div class="col-md-12 mt-3 mb-5">
                 <label for="notes" class="form-label fw-semibold">Notes:</label>
                 <textarea id="notes" name="notes" class="form-control ck-editor" placeholder="Enter Notes">{{ old('notes', $data['expense']->notes ) }}</textarea>
 
@@ -852,7 +852,7 @@
 
             if (query.length > 1) {
                 $.ajax({
-                    url: "{{ route('item.search') }}",
+                    url: "{{ route('expense.item.search') }}",
                     method: "GET",
                     data: {
                         query: query
@@ -877,8 +877,8 @@
                 const rowIdx = listDivId.replace('item-list-', ''); // "3"
 
                 // b) Grab all data attributes from the clicked <a>:
-                const dbItemId = $(this).data('item_id'); // actual DB ID
-                const itemName = $(this).data('item_name'); // item name text
+                const dbItemId = $(this).data('expense_item_id'); // actual DB ID
+                const itemName = $(this).data('expense_item_name'); // item name text
                 const hsnVal = $(this).data('hsn_sac'); // HSN/SAC
                 const rateVal = $(this).data('unit_price'); // unit price
                 const taxIdVal = $(this).data('tax_id'); // tax ID
