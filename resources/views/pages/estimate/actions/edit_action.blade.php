@@ -13,7 +13,7 @@
     </button>
     <div class="dropdown-menu wide-dropdown">
        
-        <a href="{{ route('estimate.edit',['estimate_code' => $estimate->estimate_code ]) }}" ><i data-lucide="eye" class="text-primary"></i> View</a>
+        <a href="#" estimate-code="{{ $estimate->estimate_code }}" class="estimate-view-model" title="View Estimate" ><i data-lucide="eye" class="text-primary"></i> View</a>
         <a href="{{ route('estimate.edit',['estimate_code' => $estimate->estimate_code ]) }}"><i data-lucide="pencil" class="text-warning"></i> Edit</a>
 
        

@@ -4,7 +4,7 @@
     </button>
     <div class="dropdown-menu">
        
-        <a href="{{ route('client.edit',['client_code' => $client->client_code  ]  ) }}"><i data-lucide="eye" class="text-primary"></i> View</a>
+        <a href="#" client-code="{{ $client->client_code }}" class="edit-client"><i data-lucide="eye" class="text-primary"></i> View</a>
         <a href="{{ route('client.edit',['client_code' => $client->client_code  ]  ) }}" class="edit-client" client-code="{{ $client->client_code }}" ><i data-lucide="pencil" class="text-warning"></i> Edit</a>
         <a href="" class="deleteSingleBtn" data-id="{{ $client->client_code }}"><i data-lucide="trash-2" class="text-danger"></i> Delete</a>
 

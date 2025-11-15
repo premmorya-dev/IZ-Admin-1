@@ -4,7 +4,6 @@
     </button>
     <div class="dropdown-menu">
        
-        <a href="{{ route('item.category.edit',['item_category_code' => $item_categories->item_category_code  ]  ) }}"><i data-lucide="eye" class="text-primary"></i> View</a>
 
        
 

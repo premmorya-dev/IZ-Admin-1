@@ -4,7 +4,7 @@
     </button>
     <div class="dropdown-menu">
        
-        <a href="{{ route('vendor.edit',['vendor_code' => $vendor->vendor_code  ]  ) }}"><i data-lucide="eye" class="text-primary"></i> View</a>
+        <a href="#" vendor-code="{{ $vendor->vendor_code }}" class="edit-vendor" ><i data-lucide="eye" class="text-primary"></i> View</a>
         <a href="{{ route('vendor.edit',['vendor_code' => $vendor->vendor_code  ]  ) }}" class="edit-vendor" vendor-code="{{ $vendor->vendor_code }}" ><i data-lucide="pencil" class="text-warning"></i> Edit</a>
         <a href="" class="deleteSingleBtn" data-id="{{ $vendor->vendor_code }}"><i data-lucide="trash-2" class="text-danger"></i> Delete</a>
 
