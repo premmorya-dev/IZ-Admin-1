@@ -13,5 +13,11 @@ class InvoiceService extends DocumentService
         $this->dateField = 'invoice_date';
         $this->dueField = 'due_date';
         $this->idField = 'invoice_id';
+
+
+        // party config for clients
+        $this->partyTable = 'clients';
+        $this->partyKey = 'client_id';
+        $this->partyAlias = 'client';
     }
 }

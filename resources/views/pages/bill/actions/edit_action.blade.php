@@ -12,15 +12,15 @@
         <i data-lucide="more-vertical"></i>
     </button>
     <div class="dropdown-menu wide-dropdown">
-        @if( $invoice->total_due > 0 )
-        <a href="#" class="record-payment-form" invoice-code="{{ $invoice->invoice_code }}"><i data-lucide="notebook-pen" class="text-primary"></i> Record Payment</a>
+        @if( $bill->total_due > 0 )
+        <a href="#" class="record-payment-form" bill-code="{{ $bill->bill_code }}"><i data-lucide="notebook-pen" class="text-primary"></i> Record Payment</a>
         @endif
 
-        <a href="#" invoice-code="{{ $invoice->invoice_code }}" class="invoice-view-model" ><i data-lucide="eye" class="text-primary"></i> View</a>
-        <a href="{{ route('invoice.edit',['invoice_code' => $invoice->invoice_code ]) }}"><i data-lucide="pencil" class="text-warning"></i> Edit</a>
+        <a href="#" bill-code="{{ $bill->bill_code }}" class="bill-view-model"><i data-lucide="eye" class="text-primary"></i> View</a>
+        <a href="{{ route('bill.edit',['bill_code' => $bill->bill_code ]) }}"><i data-lucide="pencil" class="text-warning"></i> Edit</a>
 
        
-        <a href="#" title="Delete Invoice" class="single-delete" invoice-code="{{ $invoice->invoice_code }}">
+        <a href="#" title="Delete bill" class="single-delete" bill-code="{{ $bill->bill_code }}">
                 <i data-lucide="trash-2"  class="text-danger"></i> Delete
             </a>
        
@@ -49,8 +49,8 @@
 
 
     $('.single-delete').on('click', function() {
-       var invoice_code = $(this).attr('invoice-code');
-       $('#confirmed-single-delete').attr('invoice-code',invoice_code)
+       var bill_code = $(this).attr('bill-code');
+       $('#confirmed-single-delete').attr('bill-code',bill_code)
        $('#singleDeleteModal').modal('show');
 
       
@@ -59,23 +59,23 @@
 
     $('#confirmed-single-delete').on('click', function(e) {
         e.preventDefault();
-       var invoice_code = $(this).attr('invoice-code');
+       var bill_code = $(this).attr('bill-code');
         $.ajax({
-            url: "{{ route('invoice.destroy') }}",
+            url: "{{ route('bill.destroy') }}",
             method: 'POST',
             data: {
-                invoice_code: invoice_code,
+                bill_code: bill_code,
                 _token: $('meta[name="csrf-token"]').attr('content')
             },
             success: function(res) {
                 if (res.error === 0) {
                     location.reload();
                 } else {
-                    alert("Failed to delete invoices.");
+                    alert("Failed to delete bills.");
                 }
             },
             error: function() {
-                alert("An error occurred while deleting invoices.");
+                alert("An error occurred while deleting bills.");
             }
         });
     });

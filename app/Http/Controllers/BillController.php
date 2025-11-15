@@ -9,17 +9,16 @@ use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-use App\Models\InvoiceModel;
+use App\Models\BillModel;
 use App\Models\PaymentModel;
 use App\Models\SettingModel;
-use SimpleSoftwareIO\QrCode\Facades\QrCode;
 
 use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
 use ZipArchive;
 
 
-class InvoiceController extends Controller
+class BillController extends Controller
 {
     public function index(Request $request)
     {
@@ -51,15 +50,15 @@ class InvoiceController extends Controller
 
         // sorting
         $sort_by = [
-            'invoice_id' => 'invoices.invoice_id',
-            'invoice_number' => 'invoices.invoice_number',
-            'invoice_date' => 'invoices.invoice_date',
-            'due_date' => 'invoices.due_date',
-            'status' => 'invoices.status',
-            'sub_total' => 'invoices.sub_total',
-            'total' => 'invoices.total',
-            'created_at' => 'invoices.created_at',
-            'updated_at' => 'invoices.updated_at',
+            'bill_id' => 'bills.bill_id',
+            'bill_number' => 'bills.bill_number',
+            'bill_date' => 'bills.bill_date',
+            'due_date' => 'bills.due_date',
+            'bill_status' => 'bills.bill_status',
+            'sub_total' => 'bills.sub_total',
+            'total' => 'bills.total',
+            'created_at' => 'bills.created_at',
+            'updated_at' => 'bills.updated_at',
 
         ];
 
@@ -68,69 +67,73 @@ class InvoiceController extends Controller
         if (!empty($request->input('sort')) && array_key_exists($request->input('sort'), $sort_by)) {
             $sort = $sort_by[$request->input('sort')];
         } else {
-            $sort = 'invoices.invoice_id';
+            $sort = 'bills.bill_id';
         }
         // sorting
 
         if ($request->has('filters')) {
 
-
-
-
-
-            $query = DB::table('invoices')
+            $query = DB::table('bills')
                 ->select(
-                    'invoices.invoice_id',
-                )->leftJoin('clients', 'invoices.client_id', 'clients.client_id');
+                    'bills.bill_id',
+                )->leftJoin('vendors', 'bills.vendor_id', 'vendors.vendor_id');
 
 
 
             // **Applying Filters**
 
 
-            if ($request->filled('invoice_number')) {
-                $query->where('invoices.invoice_number', 'Like', "%" . $request->input('invoice_number') . "%");
+            if ($request->filled('bill_number')) {
+                $query->where('bills.bill_number', 'Like', "%" . $request->input('bill_number') . "%");
             }
 
-            if ($request->filled('client_name')) {
-                $query->where('clients.client_name', 'Like', "%" . $request->input('client_name') . "%");
+            if ($request->filled('vendor_name')) {
+                $query->where('vendors.vendor_name', 'Like', "%" . $request->input('vendor_name') . "%");
             }
 
             if ($request->filled('company_name')) {
-                $query->where('clients.company_name', 'Like', "%" . $request->input('company_name') . "%");
+                $query->where('vendors.company_name', 'Like', "%" . $request->input('company_name') . "%");
             }
 
-            if ($request->filled('status')) {
-                $status = explode(',', $request->input('status'));
-                $query->whereIn('invoices.status', $status);
+            if ($request->filled('bill_status')) {
+                $bill_status = explode(',', $request->input('bill_status'));
+                $query->whereIn('bills.bill_status', $bill_status);
             }
-            if ($request->filled('issue_date')) {
-                $issue_date = $this->parseDateRange($request->input('issue_date'));
+            if ($request->filled('due_date')) {
+                $due_date = $this->parseDateRange($request->input('due_date'));
 
 
-                $query->where('invoices.invoice_date', '>=',  $this->convertToUTC($issue_date['start_date']));
-                $query->where('invoices.invoice_date', '<=',  $this->convertToUTC($issue_date['end_date']));
+                $query->where('bills.due_date', '>=',  convertToUTCDateOnly($due_date['start_date']));
+                $query->where('bills.due_date', '<=',  convertToUTCDateOnly($due_date['end_date']));
+            }
+
+            if ($request->filled('bill_date')) {
+                $bill_date = $this->parseDateRange($request->input('bill_date'));
+
+
+                $query->where('bills.bill_date', '>=',  convertToUTCDateOnly($bill_date['start_date']));
+                $query->where('bills.bill_date', '<=',  convertToUTCDateOnly($bill_date['end_date']));
             }
 
             if ($request->filled('sub_total')) {
-                $query->where('invoices.sub_total', '=', $request->input('sub_total'));
+                $query->where('bills.sub_total', '=', $request->input('sub_total'));
             }
 
             if ($request->filled('tax_total')) {
-                $query->where('invoices.tax_total', '=', $request->input('tax_total'));
+                $query->where('bills.tax_total', '=', $request->input('tax_total'));
             }
             if ($request->filled('discount')) {
-                $query->where('invoices.discount', '=', $request->input('discount'));
+                $query->where('bills.discount', '=', $request->input('discount'));
             }
             if ($request->filled('total')) {
-                $query->where('invoices.total', '=', $request->input('total'));
+                $query->where('bills.total', '=', $request->input('total'));
             }
             if ($request->filled('currency')) {
-                $query->where('invoices.currency', '=', $request->input('currency'));
+                $query->where('bills.currency', '=', $request->input('currency'));
             }
 
 
-            $query->where('invoices.user_id', '=', Auth::id());
+            $query->where('bills.user_id', '=', Auth::id());
             $result =  $query;
 
             $data['totalRecords'] =  $result->count();
@@ -144,15 +147,15 @@ class InvoiceController extends Controller
             $query = $query->toArray();
 
 
-            $data['invoice_string'] = implode(",", array_column($query, 'invoice_id'));
+            $data['bill_string'] = implode(",", array_column($query, 'bill_id'));
         } else {
 
-            $query = DB::table('invoices')
+            $query = DB::table('bills')
                 ->select(
-                    'invoices.invoice_id',
+                    'bills.bill_id',
                 );
 
-            $query->where('invoices.user_id', '=', Auth::id());
+            $query->where('bills.user_id', '=', Auth::id());
             $data['totalRecords'] =  $query->count();
             $data['totalPages'] = ceil($data['totalRecords'] / $data['perPage']);
 
@@ -161,7 +164,7 @@ class InvoiceController extends Controller
             $query->limit($limit);
             $query = $query->get();
             $query = $query->toArray();
-            $data['invoice_string'] = implode(",", array_column($query, 'invoice_id'));
+            $data['bill_string'] = implode(",", array_column($query, 'bill_id'));
         }
 
 
@@ -179,8 +182,8 @@ class InvoiceController extends Controller
 
 
 
-        $data['invoice'] = explode(",", $data['invoice_string']);
-        if (empty($data['invoice'][0])  ||  count($data['invoice'])  <= 0) {
+        $data['bill'] = explode(",", $data['bill_string']);
+        if (empty($data['bill'][0])  ||  count($data['bill'])  <= 0) {
             $data['show_pagination'] = false;
         } else {
             $data['show_pagination'] = true;
@@ -191,20 +194,20 @@ class InvoiceController extends Controller
         $data['timezone'] = DB::table('time_zone')->where('time_zone_id', $user->time_zone_id)->first();
 
 
-        if (!empty($data['invoice'])) {
+        if (!empty($data['bill'])) {
 
-            $data['invoice'] = DB::table('invoices')
+            $data['bill'] = DB::table('bills')
 
                 ->select(
-                    'invoices.*',
-                    'clients.company_name',
-                    'clients.client_name',
-                    'clients.client_code',
+                    'bills.*',
+                    'vendors.company_name',
+                    'vendors.vendor_name',
+                    'vendors.vendor_code',
 
                 )
-                ->leftJoin('clients', 'invoices.client_id', 'clients.client_id')
-                ->where('invoices.user_id', '=', Auth::id())
-                ->whereIn('invoices.invoice_id', $data['invoice'])
+                ->leftJoin('vendors', 'bills.vendor_id', 'vendors.vendor_id')
+                ->where('bills.user_id', '=', Auth::id())
+                ->whereIn('bills.bill_id', $data['bill'])
                 ->orderBy($sort, $order_by)
                 ->get();
 
@@ -212,68 +215,70 @@ class InvoiceController extends Controller
 
 
 
-            foreach ($data['invoice'] as $key => $invoice) {
+            foreach ($data['bill'] as $key => $bill) {
 
 
-                $currency_symbol =  DB::table('currencies')->where('currency_code', $invoice->currency_code)->first();
+                $currency_symbol =  DB::table('currencies')->where('currency_code', $bill->currency_code)->first();
 
                 if (!empty($currency_symbol)) {
-                    $data['invoice'][$key]->symbol = DB::table('currencies')->where('currency_code', $invoice->currency_code)->first()->currency_symbol;
+                    $data['bill'][$key]->symbol = DB::table('currencies')->where('currency_code', $bill->currency_code)->first()->currency_symbol;
                 } else {
-                    $data['invoice'][$key]->symbol = '';
+                    $data['bill'][$key]->symbol = '';
                 }
 
 
 
-                $data['invoice'][$key]->invoice_date_utc = $invoice->invoice_date;
-                $data['invoice'][$key]->invoice_date =  !empty($invoice->invoice_date) ? getTimeDateDisplay($user->time_zone_id, $invoice->invoice_date, 'Y-m-d', 'Y-m-d') : '';
+                $data['bill'][$key]->bill_date_utc = $bill->bill_date;
+                $data['bill'][$key]->bill_date =  !empty($bill->bill_date) ? getTimeDateDisplay($user->time_zone_id, $bill->bill_date, 'Y-m-d', 'Y-m-d') : '';
 
-                $data['invoice'][$key]->due_date_utc = $invoice->due_date;
-                $data['invoice'][$key]->due_date =  !empty($invoice->due_date) ? getTimeDateDisplay($user->time_zone_id, $invoice->due_date, 'Y-m-d', 'Y-m-d') : '';
+                $data['bill'][$key]->due_date_utc = $bill->due_date;
+                $data['bill'][$key]->due_date =  !empty($bill->due_date) ? getTimeDateDisplay($user->time_zone_id, $bill->due_date, 'Y-m-d', 'Y-m-d') : '';
 
 
-                $data['invoice'][$key]->created_at_utc = $invoice->created_at;
-                $data['invoice'][$key]->created_at =  !empty($invoice->created_at) ? getTimeDateDisplay($user->time_zone_id, $invoice->created_at, 'Y-m-d H:i:s', 'Y-m-d H:i:s') : '';
+                $data['bill'][$key]->created_at_utc = $bill->created_at;
+                $data['bill'][$key]->created_at =  !empty($bill->created_at) ? getTimeDateDisplay($user->time_zone_id, $bill->created_at, 'Y-m-d H:i:s', 'Y-m-d H:i:s') : '';
 
-                $data['invoice'][$key]->updated_at_utc = $invoice->updated_at;
-                $data['invoice'][$key]->updated_at =  !empty($invoice->updated_at) ? getTimeDateDisplay($user->time_zone_id, $invoice->updated_at, 'Y-m-d H:i:s', 'Y-m-d H:i:s') : '';
+                $data['bill'][$key]->updated_at_utc = $bill->updated_at;
+                $data['bill'][$key]->updated_at =  !empty($bill->updated_at) ? getTimeDateDisplay($user->time_zone_id, $bill->updated_at, 'Y-m-d H:i:s', 'Y-m-d H:i:s') : '';
 
 
                 $today = Carbon::now($data['timezone']->timezone); // user's timezone
-                if (!empty($invoice->due_date_utc)) {
-                    $dueDate = Carbon::parse($invoice->due_date_utc);
+                if (!empty($bill->due_date_utc)) {
+                    $dueDate = Carbon::parse($bill->due_date_utc);
 
                     if ($dueDate->lt($today)) {
                         // Due date is in past
-                        $data['invoice'][$key]->due_status_text = 'Due for ' . $dueDate->diffInDays($today) . ' day(s)';
-                        $data['invoice'][$key]->due_type = 'overdue';
+                        $data['bill'][$key]->due_status_text = 'Due for ' . $dueDate->diffInDays($today) . ' day(s)';
+                        $data['bill'][$key]->due_type = 'overdue';
                     } elseif ($dueDate->gt($today)) {
                         // Due date is in future
-                        $data['invoice'][$key]->due_status_text = 'Due in ' . $today->diffInDays($dueDate) . ' day(s)';
-                        $data['invoice'][$key]->due_type = 'upcoming';
+                        $data['bill'][$key]->due_status_text = 'Due in ' . $today->diffInDays($dueDate) . ' day(s)';
+                        $data['bill'][$key]->due_type = 'upcoming';
                     } else {
                         // Due date is today
-                        $data['invoice'][$key]->due_status_text = 'Due today';
-                        $data['invoice'][$key]->due_type = 'today';
+                        $data['bill'][$key]->due_status_text = 'Due today';
+                        $data['bill'][$key]->due_type = 'today';
                     }
                 } else {
-                    $data['invoice'][$key]->due_status_text = 'N/A';
-                    $data['invoice'][$key]->due_type = 'unknown';
+                    $data['bill'][$key]->due_status_text = 'N/A';
+                    $data['bill'][$key]->due_type = 'unknown';
                 }
             }
         }
 
-        return view('pages/invoice.list', compact('data'));
+
+        // dd( $data['bill']);
+        return view('pages/bill.list', compact('data'));
     }
 
     public function getRecordPaymentForm(Request $request)
     {
         $data = [];
 
-        $data =   \DB::table('invoices')
-            ->leftJoin('clients', 'invoices.client_id', 'clients.client_id')
-            ->where('invoices.user_id', '=', Auth::id())
-            ->where('invoices.invoice_code', $request->input('invoice_code'))->first();
+        $data =   \DB::table('bills')
+            ->leftJoin('vendors', 'bills.vendor_id', 'vendors.vendor_id')
+            ->where('bills.user_id', '=', Auth::id())
+            ->where('bills.bill_code', $request->input('bill_code'))->first();
         return view('pages/invoice.payment', compact('data'));
     }
 
@@ -282,15 +287,15 @@ class InvoiceController extends Controller
     {
         try {
             $validator = Validator::make($request->all(), [
-                'invoice_id' => 'required|exists:invoices,invoice_id',
+                'bill_id' => 'required|exists:bills,bill_id',
                 'amount' => 'required|numeric|min:0.01',
                 'payment_date' => 'required|date',
                 'payment_method' => 'required|in:cash,bank,card,upi,paypal,stripe,other',
                 'transaction_reference' => 'nullable|string|max:100',
                 'notes' => 'nullable|string',
             ], [
-                'invoice_id.required' => 'Invoice ID is required.',
-                'invoice_id.exists' => 'The selected invoice does not exist.',
+                'bill_id.required' => 'Invoice ID is required.',
+                'bill_id.exists' => 'The selected invoice does not exist.',
                 'amount.required' => 'Payment amount is required.',
                 'amount.numeric' => 'Amount must be a valid number.',
                 'payment_date.required' => 'Payment date is required.',
@@ -308,7 +313,7 @@ class InvoiceController extends Controller
 
             // Save the payment
             $payment = PaymentModel::create([
-                'invoice_id' => $data['invoice_id'],
+                'bill_id' => $data['bill_id'],
                 'user_id' => Auth::id(),
                 'amount' => $data['amount'],
                 'payment_date' => $data['payment_date'],
@@ -318,18 +323,18 @@ class InvoiceController extends Controller
             ]);
 
             // Optionally, update the invoice total_due
-            $invoice = InvoiceModel::find($data['invoice_id']);
-            if ($invoice) {
-                $invoice->total_due = $invoice->total_due - $data['amount'];
-                $invoice->advance_payment = $invoice->advance_payment + $data['amount'];
+            $bill = BillModel::find($data['bill_id']);
+            if ($bill) {
+                $bill->total_due = $bill->total_due - $data['amount'];
+                $bill->advance_payment = $bill->advance_payment + $data['amount'];
 
-                if ($invoice->total_due <= 0) {
-                    $invoice->status = 'paid';
-                    $invoice->is_paid = 'Y';
-                    $invoice->paid_at = Carbon::now('UTC')->format('Y-m-d H:i:s');
+                if ($bill->total_due <= 0) {
+                    $bill->status = 'paid';
+                    $bill->is_paid = 'Y';
+                    $bill->paid_at = Carbon::now('UTC')->format('Y-m-d H:i:s');
                 }
 
-                $invoice->save();
+                $bill->save();
             }
 
             return response()->json([
@@ -352,15 +357,11 @@ class InvoiceController extends Controller
         $data['currencies'] = \DB::table('currencies')->orderBy('currency_name', 'ASC')->get();
         $data['templates'] = \DB::table('templates')->orderBy('template_name', 'ASC')->get();
 
-        $data['upi_payment_id'] = \DB::table('upi_payment_id')
-            ->where('user_id', Auth::id())->orderBy('upi_name', 'ASC')->get();
 
         $data['setting'] = \DB::table('settings')->where('user_id', Auth::id())->first();
         $data['discounts'] = \DB::table('discounts')
             ->where('user_id',  Auth::id())
             ->orderBy('name', 'ASC')->get();
-
-
 
         $data['taxes'] = \DB::table('taxes')
             ->where('user_id',  Auth::id())
@@ -373,60 +374,59 @@ class InvoiceController extends Controller
         }
 
 
-
-        return view('pages/invoice.add', compact('data'));
+        $data['states'] = \DB::table('country_states')->where('country_id', $data['setting']->country_id)->orderBy('state_name', 'ASC')->get();
+        return view('pages/bill.add', compact('data'));
     }
 
-    public function edit(Request $request, $invoice_code)
+    public function edit(Request $request, $bill_code)
     {
         $data = [];
 
-        $data['invoice'] = \DB::table('invoices')
+        $data['bill'] = \DB::table('bills')
             ->select(
-                'clients.*',
-                'invoices.*',
+                'vendors.*',
+                'bills.*',
                 'countries.country_name',
                 'country_states.state_name',
             )
-            ->leftJoin('clients', 'invoices.client_id', 'clients.client_id')
-            ->leftJoin('countries', 'countries.country_id', 'clients.country_id')
-            ->leftJoin('country_states', 'country_states.state_id', 'clients.state_id')
-            ->where('invoices.user_id', '=', Auth::id())
-            ->where('invoice_code', $invoice_code)->first();
+            ->leftJoin('vendors', 'bills.vendor_id', 'vendors.vendor_id')
+            ->leftJoin('countries', 'countries.country_id', 'vendors.country_id')
+            ->leftJoin('country_states', 'country_states.state_id', 'vendors.state_id')
+            ->where('bills.user_id', '=', Auth::id())
+            ->where('bill_code', $bill_code)->first();
 
 
 
 
-        if (empty($data['invoice'])) {
+        if (empty($data['bill'])) {
             return abort(404);
         }
 
-        $data['items'] = json_decode($data['invoice']->item_json, true);
+        $data['items'] = json_decode($data['bill']->item_json, true);
+
+        $data['items'] = json_decode($data['items'], true);
 
 
 
+        $data['vendor_details_html'] = '';
 
+        $data['vendor_details_html'] .= !empty($data['bill']->company_name) ? $data['bill']->company_name . '<br>' : $data['bill']->vendor_name . '<br>';
 
-
-        $data['client_details_html'] = '';
-
-        $data['client_details_html'] .= !empty($data['invoice']->company_name) ? $data['invoice']->company_name . '<br>' : $data['invoice']->client_name . '<br>';
-
-        if (!empty($data['invoice']->address_1)) {
-            $data['client_details_html'] .= $data['invoice']->address_1 . '<br>';
+        if (!empty($data['bill']->address_1)) {
+            $data['vendor_details_html'] .= $data['bill']->address_1 . '<br>';
         }
-        if (!empty($data['invoice']->address_2)) {
-            $data['client_details_html'] .= $data['invoice']->address_2 . '<br>';
+        if (!empty($data['bill']->address_2)) {
+            $data['vendor_details_html'] .= $data['bill']->address_2 . '<br>';
         }
 
-        if (!empty($data['invoice']->state_name)) {
-            $data['client_details_html'] .= $data['invoice']->state_name . ', ';
+        if (!empty($data['bill']->state_name)) {
+            $data['vendor_details_html'] .= $data['bill']->state_name . ', ';
         }
-        if (!empty($data['invoice']->country_name)) {
-            $data['client_details_html'] .= $data['invoice']->country_name . ' ';
+        if (!empty($data['bill']->country_name)) {
+            $data['vendor_details_html'] .= $data['bill']->country_name . ' ';
         }
-        if (!empty($data['invoice']->zip)) {
-            $data['client_details_html'] .= $data['invoice']->zip;
+        if (!empty($data['bill']->zip)) {
+            $data['vendor_details_html'] .= $data['bill']->zip;
         }
 
 
@@ -445,31 +445,30 @@ class InvoiceController extends Controller
 
 
 
-        $data['upi_payment_id'] = \DB::table('upi_payment_id')
-            ->where('user_id', Auth::id())->orderBy('upi_name', 'ASC')->get();
+
 
         $data['setting'] = \DB::table('settings')->where('user_id', Auth::id())->first();
 
-        if (!empty($data['setting'])) {
-            $data['setting']->country = \DB::table('countries')->where('country_id',  $data['setting']->country_id)->first();
-            $data['setting']->state = \DB::table('country_states')->where('state_id',  $data['setting']->state_id)->first();
-        }
+        // if (!empty($data['setting'])) {
+        //     $data['setting']->country = \DB::table('countries')->where('country_id',  $data['setting']->country_id)->first();
+        //     $data['setting']->state = \DB::table('country_states')->where('state_id',  $data['setting']->state_id)->first();
+        // }
 
 
-        $data['recurring'] = \DB::table('recurring_invoices')
-            ->where('invoice_id', $data['invoice']->invoice_id)
+        $data['recurring'] = \DB::table('recurring_bills')
+            ->where('bill_id', $data['bill']->bill_id)
             ->first();
 
-
+        $data['states'] = \DB::table('country_states')->where('country_id', $data['setting']->country_id)->orderBy('state_name', 'ASC')->get();
         // dd($data);
-        return view('pages/invoice.edit', compact('data'));
+        return view('pages/bill.edit', compact('data'));
     }
 
-    private function generateUniqueInvoiceCode(): string
+    private function generateUniqueBillCode(): string
     {
         do {
             $code = bin2hex(random_bytes(32));
-        } while (\App\Models\InvoiceModel::where('invoice_code', $code)->exists());
+        } while (\App\Models\BillModel::where('bill_code', $code)->exists());
 
         return $code;
     }
@@ -482,21 +481,21 @@ class InvoiceController extends Controller
 
         try {
             $validator = Validator::make($request->all(), [
-                'client_id' => 'required',
-                'invoice_number' => 'required|string|max:255',
+                'vendor_id' => 'required',
+                'bill_number' => 'required|string|max:255',
                 'currency_code' => 'required',
                 'template_id' => 'required',
-                'invoice_date' => 'required|date',
+                'bill_date' => 'required|date',
                 'due_date' => 'required|date',
                 'item' => 'required',
             ], [
-                'client_id.required' => 'Please select a client for the invoice.',
-                'invoice_number.required' => 'Invoice number is required.',
-                'invoice_number.max' => 'Invoice number should not exceed 255 characters.',
+                'vendor_id.required' => 'Please select a vendor for the bill.',
+                'bill_number.required' => 'Bill number is required.',
+                'bill_number.max' => 'Bill number should not exceed 255 characters.',
                 'currency_code.required' => 'Currency is required.',
-                'template_id.required' => 'Please select template for invoice.',
-                'invoice_date.required' => 'Invoice date is required.',
-                'invoice_date.date' => 'Invoice date must be a valid date.',
+                'template_id.required' => 'Please select template for Bill.',
+                'bill_date.required' => 'Bill date is required.',
+                'bill_date.date' => 'Bill date must be a valid date.',
                 'due_date.required' => 'Due date is required.',
                 'due_date.date' => 'Due date must be a valid date.',
                 'item.required' => 'Please select or enter the items details.',
@@ -512,8 +511,8 @@ class InvoiceController extends Controller
 
             $userId = Auth::id();
 
-            // Fetch invoice using invoice_code and user_id
-            $invoice = InvoiceModel::where('invoice_code', $request->input('invoice_code'))
+            // Fetch invoice using bill_code and user_id
+            $bill = BillModel::where('bill_code', $request->input('bill_code'))
                 ->where('user_id', $userId)
                 ->firstOrFail();
 
@@ -535,28 +534,29 @@ class InvoiceController extends Controller
             }
 
             $upi_id = $request->input('upi_id') ?? null;
-
             // Update invoice fields
-            $invoice->update([
-                'client_id'        => $request->input('client_id'),
-                'invoice_number'   => $request->input('invoice_number'),
-                'invoice_date'     => $request->input('invoice_date'),
+            $bill->update([
+                'vendor_id'        => $request->input('vendor_id'),
+                'bill_number'   => $request->input('bill_number'),
+                'bill_date'     => $request->input('bill_date'),
                 'due_date'         => $request->input('due_date'),
                 'sub_total'        => $request->input('hidden_sub_total'),
                 'total_tax'        => $request->input('hidden_total_tax'),
                 'total_discount'   => $request->input('hidden_total_discount'),
                 'grand_total'      => $request->input('hidden_grand_total'),
                 'round_off'      => $request->input('hidden_round_off'),
-             
                 'total_due'        => $request->input('hidden_total_due'),
                 'notes'            => $request->input('notes'),
-                'terms'            => $request->input('terms'),
                 'currency_code'    => $request->input('currency_code'),
-                'template'         => $request->input('template'),
                 'item_json'        => json_encode($itemJson),
-                'upi_id'           => $upi_id,
-                'template_id'      => $request->input('template_id'),
-                'display_shipping_status'      => $request->input('display_shipping_status') == 'on' ? 'Y' : 'N',
+                'template_id'      => $request->input('template_id') ?? 1,
+                'bill_file_path'      => $request->input('bill_file_path') ?? '',
+                'is_recurring'      => $request->input('is_recurring') == 'on' ? 'Y' : 'N',
+
+                'supply_source_state_id'    => $request->input('supply_source_state_id'),
+                'destination_source_state_id'    => $request->input('destination_source_state_id'),
+                'bill_month'    => Carbon::parse($request->input('bill_date'))->month,
+                'bill_financial_year'    => Carbon::parse($request->input('bill_date'))->format('Y'),
             ]);
 
 
@@ -590,9 +590,9 @@ class InvoiceController extends Controller
 
 
 
-                DB::table('recurring_invoices')->updateOrInsert(
+                DB::table('recurring_bills')->updateOrInsert(
                     [
-                        'invoice_id' =>  $invoice->invoice_id,
+                        'bill_id' =>  $bill->bill_id,
                         'user_id' =>  Auth::id()
 
                     ],
@@ -601,55 +601,13 @@ class InvoiceController extends Controller
             }
 
 
-            // Optional: Send status update logic
-            if ($request->has('send_status') && $request->input('send_status') == 'true') {
-                $last_notification_id = DB::table('notifications')->insertGetId([
-                    'user_id' => $userId,
-                    'invoice_id' => $invoice->invoice_id,
-                    'notification_type' => 'email',
-                    'template_id' => 1,
-                    'is_read' => 'N',
-                    'processing_status' => 'pending',
-                    'cron_start_datetime' => null,
-                    'cron_end_datetime' => null,
-                    'processing_log' => null,
-                ]);
-
-                if ($last_notification_id) {
-                    DB::table('invoices')
-                        ->where('invoice_id', $invoice->invoice_id)
-                        ->update(['is_sent' => 'submitted']);
-                }
-            }
-
-
-            if ($request->has('paid_status') && $request->input('paid_status') == 'true') {
-
-                $payment = PaymentModel::create([
-                    'invoice_id' => $invoice->invoice_id,
-                    'user_id' => Auth::id(),
-                    'amount' => $request->input('hidden_total_due'),
-                    'payment_date' =>  Carbon::now('UTC')->format('Y-m-d'),
-                    'payment_method' => 'cash',
-                    'transaction_reference' => 'manual payment' ?? null,
-                    'notes' => $request->input('notes') ?? null,
-                ]);
-
-
-                DB::table('invoices')
-                    ->where('invoice_id', $invoice->invoice_id)
-                    ->update([
-                        'status' => 'paid',
-                        'is_paid' => 'Y'
-                    ]);
-            }
 
             return response()->json([
                 "error" => 0,
-                "message" => "Invoice Updated Successfully!"
+                "message" => "Bill Updated Successfully!"
             ]);
         } catch (ValidationException $e) {
-            Log::channel('admin')->error('Error while updating invoice: ' . $e->getMessage());
+            Log::channel('admin')->error('Error while updating bill: ' . $e->getMessage());
 
             return response()->json([
                 'error' => 1,
@@ -666,28 +624,27 @@ class InvoiceController extends Controller
 
         try {
             $validator = Validator::make($request->all(), [
-                'client_id' => 'required',
-                'invoice_number' => 'required|string|max:255',
+                'vendor_id' => 'required',
+                'bill_number' => 'required|string|max:255',
                 'currency_code' => 'required',
                 'template_id' => 'required',
-                'invoice_date' => 'required|date',
+                'bill_date' => 'required|date',
                 'due_date' => 'required|date',
                 'item' => 'required',
-
             ], [
-                'client_id.required' => 'Please select a client for the invoice.',
-                'invoice_number.required' => 'Invoice number is required.',
-                'invoice_number.max' => 'Invoice number should not exceed 255 characters.',
+                'vendor_id.required' => 'Please select a vendor for the bill.',
+                'bill_number.required' => 'Bill number is required.',
+                'bill_number.max' => 'Bill number should not exceed 255 characters.',
                 'currency_code.required' => 'Currency is required.',
-                'template_id.required' => 'Please select template for invoice.',
-                'invoice_date.required' => 'Invoice date is required.',
-                'invoice_date.date' => 'Invoice date must be a valid date.',
+                'template_id.required' => 'Please select template for Bill.',
+                'bill_date.required' => 'Bill date is required.',
+                'bill_date.date' => 'Bill date must be a valid date.',
                 'due_date.required' => 'Due date is required.',
                 'due_date.date' => 'Due date must be a valid date.',
-
                 'item.required' => 'Please select or enter the items details.',
 
             ]);
+
 
             if ($validator->fails()) {
                 return response()->json([
@@ -699,20 +656,20 @@ class InvoiceController extends Controller
             $data = $validator->validated();
             // Retrieve data from the request
             $userId = Auth::id();
-            $clientId = $request->input('client_id');
-            $invoiceNumber = $request->input('invoice_number');
-            $invoiceDate = $request->input('invoice_date');
+            $vendor_id = $request->input('vendor_id');
+            $billNumber = $request->input('bill_number');
+            $billDate = $request->input('bill_date');
             $dueDate = $request->input('due_date');
             $status = 'pending';
             $subTotal = $request->input('hidden_sub_total');
             $totalTax = $request->input('hidden_total_tax');
             $totalDiscount = $request->input('hidden_total_discount');
             $grandTotal = $request->input('hidden_grand_total');
+            $advancePayment = $request->input('hidden_advance_payment');
             $totalDue = $request->input('hidden_total_due');
             $notes = $request->input('notes');
             $terms = $request->input('terms');
             $currencyCode = $request->input('currency_code');
-            $template = $request->input('template');
 
             $template_id = $request->input('template_id');
 
@@ -749,32 +706,33 @@ class InvoiceController extends Controller
 
 
 
-            $invoice = InvoiceModel::create([
-                'user_id' => $userId,
-                'client_id' => $clientId,
-                'invoice_number' => $invoiceNumber,
-                'invoice_date' => $invoiceDate,
-                'due_date' => $dueDate,
-                'status' => $status,
-                'sub_total' => $subTotal,
-                'total_tax' => $totalTax,
-                'total_discount' => $totalDiscount,
-                'grand_total' => $grandTotal,
+            $bill = BillModel::create([
+                'vendor_id'        => $request->input('vendor_id'),
+                'bill_number'   => $request->input('bill_number'),
+                'bill_code'   => $this->generateUniqueBillCode(),
+                'user_id'   => Auth::id(),
+                'bill_date'     => $request->input('bill_date'),
+                'due_date'         => $request->input('due_date'),
+                'sub_total'        => $request->input('hidden_sub_total'),
+                'total_tax'        => $request->input('hidden_total_tax'),
+                'total_discount'   => $request->input('hidden_total_discount'),
+                'grand_total'      => $request->input('hidden_grand_total'),
                 'round_off'      => $request->input('hidden_round_off'),
-                'total_due' => $totalDue,
-                'notes' => $notes,
-                'terms' => $terms,
-                'currency_code' => $currencyCode,
-                'template' => $template,
-                'item_json' => json_encode($itemJson),
-                'upi_id' => $upi_id,
-                'invoice_code' => $this->generateUniqueInvoiceCode(),
-                'template_id' => $template_id,
-                'display_shipping_status'      => $request->input('display_shipping_status') == 'on' ? 'Y' : 'N',
+                'total_due'        => $request->input('hidden_total_due'),
+                'notes'            => $request->input('notes'),
+                'currency_code'    => $request->input('currency_code'),
+                'item_json'        => json_encode($itemJson),
+                'template_id'      => $request->input('template_id') ?? 1,
+                'bill_file_path'      => $request->input('bill_file_path') ?? '',
+                'is_recurring'      => $request->input('is_recurring') == 'on' ? 'Y' : 'N',
+                'supply_source_state_id'    => $request->input('supply_source_state_id'),
+                'destination_source_state_id'    => $request->input('destination_source_state_id'),
+                'bill_month'    => Carbon::parse($request->input('bill_date'))->month,
+                'bill_financial_year'    => Carbon::parse($request->input('bill_date'))->format('Y'),
             ]);
 
-            // Get the last inserted ID (invoice_id)
-            $lastInsertedId = $invoice->invoice_id;
+            // Get the last inserted ID (bill_id)
+            $lastInsertedId = $bill->bill_id;
 
             if (!empty($lastInsertedId)) {
                 foreach ($itemJson as $item) {
@@ -794,7 +752,7 @@ class InvoiceController extends Controller
                 if ($request->has('is_recurring')) {
 
 
-                    $recurring_data['invoice_id'] =  $lastInsertedId;
+                    $recurring_data['bill_id'] =  $lastInsertedId;
                     $recurring_data['user_id'] =  Auth::id();
                     $recurring_data['frequency'] =  $request->input('frequency');
 
@@ -822,7 +780,7 @@ class InvoiceController extends Controller
 
 
 
-                    DB::table('recurring_invoices')->insert($recurring_data);
+                    DB::table('recurring_bills')->insert($recurring_data);
                 }
             }
 
@@ -830,7 +788,7 @@ class InvoiceController extends Controller
 
                 $last_notification_id = DB::table('notifications')->insertGetId([
                     'user_id' => $userId,
-                    'invoice_id' => $lastInsertedId,  // This should be the invoice ID
+                    'bill_id' => $lastInsertedId,  // This should be the invoice ID
                     'notification_type' => 'email',
                     'template_id' => 1,
                     'is_read' => 'N',
@@ -840,16 +798,16 @@ class InvoiceController extends Controller
                     'processing_log' => null,
                 ]);
 
-                // Check if the notification was inserted successfully and get the associated invoice_id from the notifications table
+                // Check if the notification was inserted successfully and get the associated bill_id from the notifications table
                 if ($last_notification_id) {
-                    // Get the invoice_id from the notification (because it should be linked)
-                    $invoiceIdFromNotification = DB::table('notifications')
+                    // Get the bill_id from the notification (because it should be linked)
+                    $billIdFromNotification = DB::table('notifications')
                         ->where('notification_id', $last_notification_id)
-                        ->value('invoice_id'); // Get the invoice_id from the notification table
+                        ->value('bill_id'); // Get the bill_id from the notification table
 
                     // Update the invoice's 'is_sent' status
-                    if ($invoiceIdFromNotification) {
-                        DB::table('invoices')->where('invoice_id', $invoiceIdFromNotification) // Use the invoice_id here
+                    if ($billIdFromNotification) {
+                        DB::table('bills')->where('bill_id', $billIdFromNotification) // Use the bill_id here
                             ->update([
                                 'is_sent' => 'submitted',
                             ]);
@@ -862,7 +820,7 @@ class InvoiceController extends Controller
 
             return response()->json([
                 "error" => 0,
-                //'download_url' => route('invoice.download', ['invoice_code' => $data['invoice_code']]),
+                //'download_url' => route('invoice.download', ['bill_code' => $data['bill_code']]),
                 "message" => "Invoice Saved Successfully!"
             ]);
         } catch (ValidationException $e) {
@@ -881,10 +839,13 @@ class InvoiceController extends Controller
     {
 
 
-        $invoice_code = $request->input('invoice_code');
-        $invoice_template_id =  shortcode('invoice', $invoice_code, "{{invoice_template_id}}");
+        $bill_code = $request->input('bill_code');
 
-        $template =  DB::table('templates')->where('template_id', $invoice_template_id)->first();
+        $bill_template_id =  shortcode('bill', $bill_code,  "{{bill_template_id}}");
+
+
+
+        $template =  DB::table('bill_templates')->where('template_id', $bill_template_id)->first();
 
 
 
@@ -903,55 +864,55 @@ class InvoiceController extends Controller
         );
 
 
-        $html =  shortcode('invoice', $invoice_code, $html);
+        $html =  shortcode('bill', $bill_code, $html);
 
         return response()->json([
             "error" => 0,
             'html' => $html,
-            "message" => "Invoice Saved Successfully!"
+            "message" => "Bill Saved Successfully!"
         ]);
     }
 
-    public function shortcode($invoice_code)
+    public function shortcode($bill_code)
     {
 
-        $invoice =  getShortcode($invoice_code);
-        dd($invoice);
+        $bill =  getShortcode($bill_code);
+        dd($bill);
     }
 
     public function downloadMultiple(Request $request)
     {
-        $invoices_code = $request->invoices_code;
+        $bills_code = $request->bills_code;
 
-        if (empty($invoices_code) || !is_array($invoices_code)) {
-            return back()->with('error', 'No invoices selected.');
+        if (empty($bills_code) || !is_array($bills_code)) {
+            return back()->with('error', 'No bills selected.');
         }
 
-        $zipFileName = 'invoices_' . time() . '.zip';
+        $zipFileName = 'bills_' . time() . '.zip';
         $zipPath = storage_path("app/public/{$zipFileName}");
 
         $zip = new ZipArchive;
 
         if ($zip->open($zipPath, ZipArchive::CREATE) === TRUE) {
 
-            foreach ($invoices_code as $invoice_code) {
+            foreach ($bills_code as $bill_code) {
 
                 // Fetch invoice
-                $invoice = DB::table('invoices')
-                    ->select('invoice_code')
-                    ->where('invoice_code', $invoice_code)
-                    ->where('invoices.user_id', '=', Auth::id())
+                $bill = DB::table('bills')
+                    ->select('bill_code')
+                    ->where('bill_code', $bill_code)
+                    ->where('bills.user_id', '=', Auth::id())
                     ->first();
 
-                if (!$invoice) continue;
+                if (!$bill) continue;
 
-                $invoice_code = $invoice->invoice_code;
+                $bill_code = $bill->bill_code;
 
                 // Extract template ID from shortcode
-                $invoice_template_id = shortcode('invoice', $invoice_code, "{{invoice_template_id}}");
+                $bill_template_id = shortcode('bill', $bill_code, "{{bill_template_id}}");
 
                 // Fetch template
-                $template = DB::table('templates')->where('template_id', $invoice_template_id)->first();
+                $template = DB::table('bill_templates')->where('template_id', $bill_template_id)->first();
                 if (!$template) continue;
 
                 // Clean and parse template HTML
@@ -968,7 +929,7 @@ class InvoiceController extends Controller
                     '/<!--(.*?)-->/'
                 ], ['><', ' ', ''], $html);
 
-                $html = shortcode('invoice', $invoice_code, $html);
+                $html = shortcode('bill', $bill_code, $html);
 
                 // Generate PDF content
                 $pdf = Pdf::loadHTML($html)
@@ -977,9 +938,9 @@ class InvoiceController extends Controller
                 $pdfContent = $pdf->output();
 
                 // Ensure unique filename in zip
-                $fileName = $invoice_code . '.pdf';
+                $fileName = $bill_code . '.pdf';
                 if ($zip->locateName($fileName) !== false) {
-                    $fileName = $invoice_code . '_' . uniqid() . '.pdf';
+                    $fileName = $bill_code . '_' . uniqid() . '.pdf';
                 }
 
                 $zip->addFromString($fileName, $pdfContent);
@@ -995,13 +956,13 @@ class InvoiceController extends Controller
 
 
 
-    public function invoiceDownload(Request $request, $invoice_code)
+    public function billDownload(Request $request, $bill_code)
     {
 
 
-        $invoice_template_id =  shortcode('invoice', $invoice_code, "{{invoice_template_id}}");
+        $bill_template_id =  shortcode('bill', $bill_code, "{{bill_template_id}}");
 
-        $template =  DB::table('templates')->where('template_id', $invoice_template_id)->first();
+        $template =  DB::table('bill_templates')->where('template_id', $bill_template_id)->first();
 
 
 
@@ -1020,7 +981,7 @@ class InvoiceController extends Controller
         );
 
 
-        $html =  shortcode('invoice', $invoice_code, $html);
+        $html =  shortcode('bill', $bill_code, $html);
         // dd($html);
         $pdf = Pdf::loadHTML($html)
             ->setPaper('a4', 'portrait')
@@ -1031,9 +992,9 @@ class InvoiceController extends Controller
             ]);
 
         if ($request->input('preview') === 'true') {
-            return $pdf->stream($invoice_code . '.pdf', ["Attachment" => false]);
+            return $pdf->stream($bill_code . '.pdf', ["Attachment" => false]);
         } else {
-            return $pdf->download(time() . '_' . $invoice_code . '.pdf');
+            return $pdf->download(time() . '_' . $bill_code . '.pdf');
         }
     }
 
@@ -1043,26 +1004,26 @@ class InvoiceController extends Controller
 
 
         $request->validate([
-            'invoices_code' => 'required|array',
-            'invoices_code.*' => 'exists:invoices,invoice_code',
+            'bills_code' => 'required|array',
+            'bills_code.*' => 'exists:bills,bill_code',
         ]);
 
         try {
 
 
-            InvoiceModel::whereIn('invoice_code', $request->invoices_code)
-                ->where('user_id', auth()->id()) // Ensures only current user's invoices are deleted
+            BillModel::whereIn('bill_code', $request->bills_code)
+                ->where('user_id', auth()->id()) // Ensures only current user's bills are deleted
                 ->delete();
-            session()->flash('success', 'Invoices deleted successfully!');
+            session()->flash('success', 'bills deleted successfully!');
             return response()->json([
                 'error' => 0,
-                'message' => 'Invoices deleted successfully.'
+                'message' => 'bills deleted successfully.'
             ]);
         } catch (\Exception $e) {
-            session()->flash('error', 'Invoices deleted failed!');
+            session()->flash('error', 'bills deleted failed!');
             return response()->json([
                 'error' => 1,
-                'message' => 'Error deleting invoices: ' . $e->getMessage()
+                'message' => 'Error deleting bills: ' . $e->getMessage()
             ]);
         }
     }
@@ -1072,7 +1033,7 @@ class InvoiceController extends Controller
 
         try {
 
-            InvoiceModel::where('invoice_code', $request->invoice_code)
+            BillModel::where('bill_code', $request->bill_code)
                 ->where('user_id', auth()->id())
                 ->delete();
 
@@ -1085,7 +1046,7 @@ class InvoiceController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'error' => 1,
-                'message' => 'Error deleting invoices: ' . $e->getMessage()
+                'message' => 'Error deleting bills: ' . $e->getMessage()
             ]);
         }
     }
@@ -1095,17 +1056,17 @@ class InvoiceController extends Controller
 
     public function queueEmail(Request $request)
     {
-        $invoices_code = $request->input('invoices_code');
+        $bills_code = $request->input('bills_code');
         $userId = auth()->id();
 
-        foreach ($invoices_code as $invoice_code) {
-            $invoice =  DB::table('invoices')->where('invoice_code', $invoice_code)->first();
+        foreach ($bills_code as $bill_code) {
+            $bill =  DB::table('bills')->where('bill_code', $bill_code)->first();
 
 
             DB::table('notifications')->insert([
                 'user_id' => $userId,
-                'invoice_id' => $invoice->invoice_id,
-                'invoice_code' => $invoice_code,
+                'bill_id' => $bill->bill_id,
+                'bill_code' => $bill_code,
                 'notification_type' => 'email',
                 'template_id' => 1,
                 'is_read' => 'N',
@@ -1114,9 +1075,9 @@ class InvoiceController extends Controller
                 'cron_end_datetime' => null,
                 'processing_log' => null,
             ]);
-            DB::table('invoices')->where([
+            DB::table('bills')->where([
                 'user_id' => $userId,
-                'invoice_code' => $invoices_code,
+                'bill_code' => $bills_code,
             ])->update([
                 'is_sent' => 'submitted',
             ]);

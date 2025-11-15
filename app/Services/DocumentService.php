@@ -17,6 +17,11 @@ abstract class DocumentService
     protected $dueField;
     protected $idField;
 
+    // ✅ new fields for flexibility
+    protected $partyTable;       // 'clients' or 'vendors'
+    protected $partyKey;         // 'client_id' or 'vendor_id'
+    protected $partyAlias;       // 'client' or 'vendor'
+
     public function __construct()
     {
         // override in child
@@ -26,25 +31,28 @@ abstract class DocumentService
     {
         $userId = $userId ?? Auth::id();
 
+        $partyAlias = $this->partyAlias;
+        $partyTable = $this->partyTable;
+        $partyKey   = $this->partyKey;
+
         $document = DB::table($this->table)
             ->select(
                 "{$this->table}.*",
                 'settings.*',
-                'clients.*',
+                "{$partyTable}.*",
                 'users.*',
                 'mobile_country_list.country_code',
 
                 "{$this->table}.notes",
                 "{$this->table}.terms",
 
-                'clients.company_name as client_company_name',
-                'clients.email as client_email',
-                'clients.address_1 as client_address_1',
-                'clients.address_2 as client_address_2',
-                'clients.state_id as client_state_id',
-                'clients.country_id as client_country_id',
-                'clients.gst_number as client_gst_number',
-
+                "{$partyTable}.company_name as {$partyAlias}_company_name",
+                "{$partyTable}.email as {$partyAlias}_email",
+                "{$partyTable}.address_1 as {$partyAlias}_address_1",
+                "{$partyTable}.address_2 as {$partyAlias}_address_2",
+                "{$partyTable}.state_id as {$partyAlias}_state_id",
+                "{$partyTable}.country_id as {$partyAlias}_country_id",
+                "{$partyTable}.gst_number as {$partyAlias}_gst_number",
 
                 'settings.company_name as user_company_name',
                 'settings.email as user_email',
@@ -52,15 +60,11 @@ abstract class DocumentService
                 'settings.address_2 as user_address_2',
                 'settings.state_id as user_state_id',
                 'settings.country_id as user_country_id',
-                'settings.user_gst_number as user_gst_number',
-
-
-
-
+                'settings.user_gst_number as user_gst_number'
             )
             ->leftJoin('settings', 'settings.user_id', "{$this->table}.user_id")
-            ->leftJoin('clients', 'clients.client_id', "{$this->table}.client_id")
-            ->leftJoin('users', 'clients.user_id', "{$this->table}.user_id")
+            ->leftJoin($partyTable, "{$partyTable}.{$partyKey}", "{$this->table}.{$partyKey}")
+            ->leftJoin('users', "{$partyTable}.user_id", "{$this->table}.user_id")
             ->leftJoin('mobile_country_list', 'mobile_country_list.mobile_country_code_id', 'users.mobile_country_code_id')
             ->where("{$this->table}.{$this->codeField}", $code)
             ->where('users.user_id', $userId)
@@ -73,11 +77,13 @@ abstract class DocumentService
         }
 
         // Fetch country and state names
-        $document->client_country = optional(DB::table('countries')->where('country_id', $document->client_country_id)->first())->country_name ?? '';
-        $document->client_state = optional(DB::table('country_states')->where('state_id', $document->client_state_id)->first())->state_name ?? '';
+        $document->{"{$partyAlias}_country"} = optional(DB::table('countries')->where('country_id', $document->{"{$partyAlias}_country_id"})->first())->country_name ?? '';
+        $document->{"{$partyAlias}_state"} = optional(DB::table('country_states')->where('state_id', $document->{"{$partyAlias}_state_id"})->first())->state_name ?? '';
 
-        $document->client_shipping_country = optional(DB::table('countries')->where('country_id', $document->shipping_country_id)->first())->country_name ?? '';
-        $document->client_shipping_state = optional(DB::table('country_states')->where('state_id', $document->shipping_state_id)->first())->state_name ?? '';
+        if ($partyTable  == 'clients') {
+            $document->client_shipping_country = optional(DB::table('countries')->where('country_id', $document->shipping_country_id)->first())->country_name ?? '';
+            $document->client_shipping_state = optional(DB::table('country_states')->where('state_id', $document->shipping_state_id)->first())->state_name ?? '';
+        }
 
         $document->user_country = optional(DB::table('countries')->where('country_id', $document->user_country_id)->first())->country_name ?? '';
         $document->user_state = optional(DB::table('country_states')->where('state_id', $document->user_state_id)->first())->state_name ?? '';
@@ -137,14 +143,12 @@ abstract class DocumentService
 
         // Get currency symbol
         $document->currency_symbol = optional(DB::table('currencies')->where('currency_code', $document->currency_code)->first())->currency_symbol ?? '';
-
+      
         return $document;
     }
 
     public function generateDynamicItemRows($items, $currencySymbol)
     {
-
-
         $rows = '';
         foreach ($items as $item) {
             $discount = (($item->rate * $item->quantity) / 100) * $item->discount;
@@ -170,18 +174,14 @@ abstract class DocumentService
 
     public function getAttribute($name)
     {
-
-        $attribute = match ($name) {
+        return match ($name) {
             'table' => $this->table,
             'codeField' => $this->codeField,
             'numberField' => $this->numberField,
             'dateField' => $this->dateField,
             'dueField' => $this->dueField,
             'idField' => $this->idField,
-
             default => null,
         };
-
-        return $attribute;
     }
 }

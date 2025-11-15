@@ -4,6 +4,7 @@ use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\InvoiceController;
+use App\Http\Controllers\BillController;
 use App\Http\Controllers\ClientController;
 use App\Http\Controllers\VendorController;
 use App\Http\Controllers\SettingController;
@@ -35,8 +36,26 @@ use App\Http\Middleware\CheckActiveSubscription;
 
 // Route::get('/', function (){ return 'test'; });
 
+//Email tracking route
+Route::get('/email-open/{id}', function ($id) { 
+    // Log email open into DB
+    \DB::table('leads')
+        ->where('id', $id)
+        ->update([
+            'is_opened' => 'Y',
+            'opened_at' => now()
+        ]);
 
+    // Return a 1x1 transparent PNG
+    $transparentImage = base64_decode(
+        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAA
+         AAC0lEQVR42mP8z8AARwMDgP8BAG0BBsdo7FYAAAAASUVORK5CYII='
+    );
 
+    return response($transparentImage)
+        ->header('Content-Type', 'image/png');
+})->name('email.tracking');
+//Email tracking route end
 
 Route::get('/auth/callback', [DashboardController::class, 'handleCallback'])->name('auth.callback')->middleware('web');
 
@@ -61,21 +80,30 @@ Route::middleware(['auth'])->group(function () {
         Route::post('destroy', [InvoiceController::class, 'destroy'])->name('invoice.destroy');
         Route::get('edit/{invoice_code}', [InvoiceController::class, 'edit'])->name('invoice.edit');
         Route::post('view-model', [InvoiceController::class, 'viewModel'])->name('invoice.view.model');
-
         Route::post('update', [InvoiceController::class, 'update'])->name('invoice.update')->middleware(CheckActiveSubscription::class);
         Route::get('download/{invoice_code}', [InvoiceController::class, 'invoiceDownload'])->name('invoice.download');
         Route::post('bulk-download', [InvoiceController::class, 'downloadMultiple'])->name('invoice.bulk_download');
         Route::post('/bulk-delete', [InvoiceController::class, 'bulkDelete'])->name('invoice.bulk_delete');
         Route::post('/send-bulk-email', [InvoiceController::class, 'queueEmail'])->name('invoice.send_bulk_email');
-
         Route::post('/get-payment-form', [InvoiceController::class, 'getRecordPaymentForm'])->name('invoice.get_payment_form');
         Route::post('/record-payment', [InvoiceController::class, 'recordPayment'])->name('invoice.record_payment');
-
-
-
-
-
         Route::get('shortcode/{invoice_code}', [InvoiceController::class, 'shortcode'])->name('invoice.shortcode');
+    });
+
+    Route::group(['prefix' => '/bill'], function () {
+        Route::get('list', [BillController::class, 'index'])->name('bill.list');
+        Route::get('add', [BillController::class, 'create'])->name('bill.add');
+        Route::post('store', [BillController::class, 'store'])->name('bill.store');
+        Route::post('destroy', [BillController::class, 'destroy'])->name('bill.destroy');
+        Route::get('edit/{bill_code}', [BillController::class, 'edit'])->name('bill.edit');
+        Route::post('view-model', [BillController::class, 'viewModel'])->name('bill.view.model');
+        Route::post('update', [BillController::class, 'update'])->name('bill.update');
+        Route::get('download/{bill_code}', [BillController::class, 'billDownload'])->name('bill.download');
+        Route::post('bulk-download', [BillController::class, 'downloadMultiple'])->name('bill.bulk_download');
+        Route::post('/bulk-delete', [BillController::class, 'bulkDelete'])->name('bill.bulk_delete');
+        Route::post('/get-payment-form', [BillController::class, 'getRecordPaymentForm'])->name('bill.get_payment_form');
+        Route::post('/record-payment', [BillController::class, 'recordPayment'])->name('bill.record_payment');
+        Route::get('shortcode/{bill_code}', [BillController::class, 'shortcode'])->name('bill.shortcode');
     });
 
     Route::group(['prefix' => '/estimate'], function () {

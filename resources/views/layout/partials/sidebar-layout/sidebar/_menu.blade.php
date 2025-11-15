@@ -86,7 +86,7 @@
                 </a>
             </div>
             <div class="menu-item">
-                <a href="{{ route('coming_soon') }}" class="menu-link">
+                <a href="{{ route('bill.list') }}" class="menu-link">
                     <span class="menu-icon"><i data-lucide="receipt-text" class="fs-3 text-white"></i></span>
                     <span class="menu-title text-white">Bills</span>
                 </a>

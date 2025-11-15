@@ -25,6 +25,8 @@ class VendorController extends Controller
 
 
         $vendors = DB::table('vendors')
+            ->leftJoin('countries', 'countries.country_id', '=', 'vendors.country_id')
+            ->leftJoin('country_states', 'country_states.state_id', '=', 'vendors.state_id')
             ->where('vendors.user_id', auth()->id())
             ->where('status', 'active')
             ->where(function ($q) use ($query) {
@@ -35,12 +37,9 @@ class VendorController extends Controller
                     ->orWhere('vendors.gst_number', 'LIKE', "%{$query}%");
             })
             ->select(
-                'vendors.vendor_name',
-                'vendors.company_name',
-                'vendors.email',
-                'vendors.phone',
-                'vendors.gst_number',
-                'vendors.address_1',
+                'vendors.*',               
+                'countries.country_name',
+                'country_states.state_name'
 
             )
             ->take(5)
@@ -141,7 +140,7 @@ class VendorController extends Controller
             // **Applying Filters**
 
             if ($request->filled('vendor_name')) {
-                $query->where('vendors.vendor_name', 'LIKE',"%". $request->input('vendor_name') . '%' );
+                $query->where('vendors.vendor_name', 'LIKE', "%" . $request->input('vendor_name') . '%');
             }
 
             if ($request->filled('status')) {

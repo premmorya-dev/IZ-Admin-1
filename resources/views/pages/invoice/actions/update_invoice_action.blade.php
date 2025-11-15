@@ -1,5 +1,5 @@
 <div class="dropdown">
-    <a href="#" class="btn btn-primary btn-sm" onclick="toggleDropdown(this)"> <i class="fa-solid fa-gear"></i> Update Invoice <i data-lucide="more-vertical"></i> </a>
+    <a href="#" class="btn btn-primary btn-sm" onclick="toggleDropdown(this)"> <i class="fa-solid fa-gear"></i> Actions <i data-lucide="more-vertical"></i> </a>
     <div class="dropdown-menu custom-dropdown">
         <a href="#" class="update-invoice" send-status="false" paid-status="false"><i data-lucide="save" class="text-primary"></i> Update</a>
         <a href="#" class="update-invoice" send-status="true" paid-status="false"><i data-lucide="send" class="text-info"></i> Update & Send Invoice</a>

@@ -138,8 +138,15 @@ if (!function_exists('getShortcode')) {
         $service = match ($type) {
             'invoice' => new \App\Services\InvoiceService(),
             'estimate' => new \App\Services\EstimateService(),
+            'bill' => new \App\Services\BillService(),
             default => null,
         };
+
+        if ($type == 'bill') {
+            $party = 'vendor';
+        } else {
+            $party = 'client';
+        }
 
         if (!$service) return [];
 
@@ -149,6 +156,10 @@ if (!function_exists('getShortcode')) {
         if (!$doc) return [];
 
         $items = json_decode($doc->item_json, false) ?? [];
+        if (is_string($items)) {
+            $items = json_decode($items, false);
+        }
+
         $dynamicItemRow = $service->generateDynamicItemRows($items, $doc->currency_symbol);
 
 
@@ -166,7 +177,7 @@ if (!function_exists('getShortcode')) {
             $userId =   Auth::id();
         }
 
-        if ($doc->display_shipping_status == 'Y') {
+        if (!empty($doc->display_shipping_status) &&  $doc->display_shipping_status == 'Y') {
             $shipping_address = '<h5 style="margin: 0;font-size:10px;padding-bottom: 3px;">Ship To:</h5> 
                                  <span><strong>' . $doc->shipping_client_name . '</strong></span><br> 
                <p style="margin: 0;">' . $doc->shipping_address_1 . '</p>
@@ -197,7 +208,7 @@ if (!function_exists('getShortcode')) {
             $paid_water_mark = '';
         }
 
-        if ( setting('display_gst_number') == 'Y' &&  !empty($doc->user_gst_number)  ) {
+        if (setting('display_gst_number') == 'Y' &&  !empty($doc->user_gst_number)) {
             $user_gst_number = 'GSTIN: ' . $doc->user_gst_number;
         } else {
             $user_gst_number = '';
@@ -231,29 +242,29 @@ if (!function_exists('getShortcode')) {
             '{{' . $type . '_reject_url}}' => url("/") . "/estimate/acceptance/" . $doc->{$service->getAttribute('codeField')} . "?acceptance=false",
             '{{paid_water_mark}}' => $paid_water_mark,
 
-            // Client
-            '{{client_name}}' => $doc->client_name,
-            '{{client_company_name}}' => $doc->client_company_name ?? $doc->client_name ?? '',
-            '{{client_email}}' => $doc->client_email ?? '',
-            '{{client_phone}}' => $doc->phone ?? '',
-            '{{client_address_1}}' => $doc->client_address_1 ?? '',
-            '{{client_address_2}}' => $doc->client_address_2 ?? '',
-            '{{client_city}}' => $doc->city ?? '',
-            '{{client_state}}' => $doc->client_state,
-            '{{client_country}}' => $doc->client_country,
-            '{{client_zip}}' => $doc->zip ?? '',
-            '{{client_gst_number}}' => $doc->client_gst_number ?? '',
-            '{{show_client_gst_number}}' => !empty($doc->client_gst_number) ? 'Gstin:' . $doc->client_gst_number : '',
-            '{{client_shipping_client_name}}' => $doc->shipping_client_name ?? '',
-            '{{client_shipping_phone}}' => $doc->shipping_phone ?? '',
-            '{{client_shipping_address_1}}' => $doc->shipping_address_1 ?? '',
-            '{{client_shipping_address_2}}' => $doc->shipping_address_2 ?? '',
-            '{{client_shipping_city}}' => $doc->shipping_city ?? '',
-            '{{client_shipping_country}}' => $doc->client_shipping_country ?? '',
-            '{{client_shipping_state}}' => $doc->client_shipping_state ?? '',
-            '{{client_shipping_zip}}' => $doc->shipping_zip ?? '',
+            // Client or vendor
+            '{{' . $party . '_name}}' => $doc->{$party . '_name'} ?? '',
+            '{{' . $party . '_company_name}}' => $doc->{$party . '_company_name'} ?? $doc->{$party . '_name'} ?? '',
+            '{{' . $party . '_email}}' => $doc->{$party . '_email'} ?? '',
+            '{{' . $party . '_phone}}' => $doc->{$party . '_phone'} ?? '',
+            '{{' . $party . '_address_1}}' => $doc->{$party . '_address_1'} ?? '',
+            '{{' . $party . '_address_2}}' => $doc->{$party . '_address_2'} ?? '',
+            '{{' . $party . '_city}}' => $doc->{$party . '_city'} ?? '',
+            '{{' . $party . '_state}}' => $doc->{$party . '_state'} ?? '',
+            '{{' . $party . '_country}}' => $doc->{$party . '_country'} ?? '',
+            '{{' . $party . '_zip}}' => $doc->{$party . '_zip'} ?? '',
+            '{{' . $party . '_gst_number}}' => $doc->{$party . '_gst_number'} ?? '',
+            '{{show_' . $party . '_gst_number}}' => !empty($doc->{$party . '_gst_number'}) ? 'Gstin: ' . $doc->{$party . '_gst_number'} : '',
 
-            '{{client_shipping_address}}' =>  $shipping_address ?? '',
+            '{{' . $party . '_shipping_name}}' => $doc->{$party . '_shipping_name'} ?? '',
+            '{{' . $party . '_shipping_phone}}' => $doc->{$party . '_shipping_phone'} ?? '',
+            '{{' . $party . '_shipping_address_1}}' => $doc->{$party . '_shipping_address_1'} ?? '',
+            '{{' . $party . '_shipping_address_2}}' => $doc->{$party . '_shipping_address_2'} ?? '',
+            '{{' . $party . '_shipping_city}}' => $doc->{$party . '_shipping_city'} ?? '',
+            '{{' . $party . '_shipping_state}}' => $doc->{$party . '_shipping_state'} ?? '',
+            '{{' . $party . '_shipping_country}}' => $doc->{$party . '_shipping_country'} ?? '',
+            '{{' . $party . '_shipping_zip}}' => $doc->{$party . '_shipping_zip'} ?? '',
+            '{{' . $party . '_shipping_address}}' => $shipping_address ?? '',
 
 
 

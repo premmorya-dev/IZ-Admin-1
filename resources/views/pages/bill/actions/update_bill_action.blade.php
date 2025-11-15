@@ -1,12 +1,10 @@
 <div class="dropdown">
     <a href="#" class="btn btn-primary btn-sm" onclick="toggleDropdown(this)"> <i class="fa-solid fa-gear"></i> Actions <i data-lucide="more-vertical"></i> </a>
     <div class="dropdown-menu custom-dropdown">
-        <a href="#" class="save-invoice"  send-status="false" ><i data-lucide="save" class="text-primary"></i> Save</a>
-        <a href="#" class="save-invoice" send-status="true" ><i data-lucide="send" class="text-info"></i> Save & Send Invoice</a>
-        <a href="#"  send-status="false" ><i data-lucide="indian-rupee" class="text-success"></i> Save & Paid</a>
+        <a href="#" class="update-bill" ><i data-lucide="save" class="text-primary"></i> Update</a>
     </div>
 </div>
-<input type="hidden" name="send_status" id="send_status"  value="" >
+<input type="hidden" name="send_status" id="send_status" value="">
 
 <script>
     function toggleDropdown(button) {

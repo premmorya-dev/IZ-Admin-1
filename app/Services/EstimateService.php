@@ -13,5 +13,10 @@ class EstimateService extends DocumentService
         $this->dateField = 'issue_date';
         $this->dueField = 'expiry_date';
         $this->idField = 'estimate_id';
+
+        // party config for clients
+        $this->partyTable = 'clients';
+        $this->partyKey = 'client_id';
+        $this->partyAlias = 'client';
     }
 }

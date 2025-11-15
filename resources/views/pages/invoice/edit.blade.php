@@ -468,13 +468,7 @@
                         <div class="col-4 col-md-5 text-end" id="round-off">$0.00</div>
                     </div>
 
-                    <!-- Advance Payment -->
-                    <div class="row">
-                        <div class="col-8 col-md-10 col-label">Partial Payment:</div>
-                        <div class="col-4 col-md-2 text-end">
-                            <input type="number" id="advance-payment" class="form-control text-end form-control-sm" value="{{ $data['invoice']->advance_payment }}" placeholder="Enter Advance Payment" oninput="calculateInvoice()">
-                        </div>
-                    </div>
+                 
 
                     <!-- Remaining Balance -->
                     <div class="row">
@@ -490,7 +484,7 @@
                 <input type="hidden" name="hidden_total_discount" value="" id="hidden_total_discount">
                 <input type="hidden" name="hidden_total_tax" value="" id="hidden_total_tax">
                 <input type="hidden" name="hidden_grand_total" value="" id="hidden_grand_total">
-                <input type="hidden" name="hidden_advance_payment" value="" id="hidden_advance_payment">
+              
                 <input type="hidden" name="hidden_round_off" value="" id="hidden_round_off">
                 <input type="hidden" name="hidden_total_due" value="" id="hidden_total_due">
 
@@ -1439,8 +1433,8 @@
             document.getElementById('round-off').innerText = `${currencySymbol}${roundOff}`;
 
             // Advance payment & balance
-            const advancePayment = parseFloat(document.getElementById('advance-payment').value || 0);
-            const remainingBalance = roundedTotal - advancePayment;
+           
+            const remainingBalance = roundedTotal ;
             document.getElementById('remaining-balance').innerText = `${currencySymbol}${remainingBalance.toFixed(2)}`;
 
 
@@ -1448,7 +1442,6 @@
             $("#hidden_total_discount").val(totalDiscount.toFixed(2));
             $("#hidden_total_tax").val(totalTax.toFixed(2));
             $("#hidden_grand_total").val(grandTotal.toFixed(2));
-            $("#hidden_advance_payment").val(advancePayment);
             $("#hidden_total_due").val(remainingBalance.toFixed(2));
             $("#hidden_round_off").val(roundOff);
 
