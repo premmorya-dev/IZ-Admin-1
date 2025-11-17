@@ -537,7 +537,7 @@
                     </h5>
                     <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div id="view-record-form-body">
+                <div id="view-record-form-body" class="mb-5">
 
                 </div>
             </div>
@@ -907,7 +907,7 @@
         const editors = {};
 
         document.addEventListener("DOMContentLoaded", function() {
-          
+
             $('.id_description').summernote({
                 placeholder: 'Enter Description...',
                 height: 120,
@@ -920,9 +920,9 @@
 
 
             $('.update-bill').on('click', function(e) {
-                e.preventDefault();           
+                e.preventDefault();
 
-                let formData = new FormData(document.getElementById('bill-generate'));          
+                let formData = new FormData(document.getElementById('bill-generate'));
 
                 Swal.fire({
                     title: "Processing...",
@@ -1139,12 +1139,8 @@
                 $('#vendorAddress').html(addressHTML).show();
 
                 $('#currency_code').val(vendor.currency_code).trigger('change');
-                if (vendor.notes) {
-                    $('#id_bill_terms').summernote('code', vendor.notes);
-
-                }
-                if (vendor.terms) {
-                    $('#id_bill_notes').summernote('code', vendor.terms);
+                if (vendor.notes && vendor.notes.replace(/<[^>]*>/g, '').trim() !== '') {
+                    $('#id_bill_notes').summernote('code', vendor.notes);
                 }
                 $('#vendorSearchBox').hide();
                 $('.change-vendor').show();
@@ -1185,9 +1181,6 @@
             dateFormat: "Y-m-d", // Format: 2025-04-17 14:00
             time_24hr: true
         });
-
-         
-
     </script>
 
 

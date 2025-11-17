@@ -390,7 +390,7 @@
                     </h5>
                     <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div id="view-record-form-body">
+                <div id="view-record-form-body" class="mb-5">
 
                 </div>
             </div>

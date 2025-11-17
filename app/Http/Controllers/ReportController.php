@@ -32,6 +32,7 @@ class ReportController extends Controller
         // Get current period invoices
         $invoices = InvoiceModel::whereYear('invoice_date', $year)
             ->whereMonth('invoice_date', $month)
+            ->where('user_id', Auth::id())
             ->get();
 
 
@@ -43,7 +44,7 @@ class ReportController extends Controller
         $gstr1Data = [
             'gstin' => setting('user_gst_number'),
             'fp' => $period,
-            'gt' => InvoiceModel::whereBetween('invoice_date', [$gtStart, $gtEnd])->sum('grand_total'),
+            'gt' => InvoiceModel::whereBetween('invoice_date', [$gtStart, $gtEnd])->where('user_id', Auth::id())->sum('grand_total'),
             'cur_gt' => $invoices->sum('grand_total'),
             'b2b' => [],
             'b2cl' => [],
@@ -60,6 +61,7 @@ class ReportController extends Controller
                 ->leftJoin('clients', 'clients.client_id', 'invoices.client_id')
                 ->leftJoin('country_states', 'country_states.state_id', 'clients.state_id')
                 ->where('invoices.invoice_id', $invoice->invoice_id)
+                ->where('invoices.user_id', Auth::id())
                 ->first();
             $place_of_supply =   $items->code;
 
@@ -114,6 +116,7 @@ class ReportController extends Controller
             ->leftJoin('clients', 'clients.client_id', 'invoices.client_id')
             ->leftJoin('country_states', 'country_states.state_id', 'clients.state_id')
             ->where('invoices.invoice_id', $invoice->invoice_id)
+            ->where('invoices.user_id', Auth::id())
             ->first();
         $place_of_supply =   $items->code;
 
@@ -164,6 +167,7 @@ class ReportController extends Controller
             ->leftJoin('clients', 'clients.client_id', 'invoices.client_id')
             ->leftJoin('country_states', 'country_states.state_id', 'clients.state_id')
             ->where('invoices.invoice_id', $invoice->invoice_id)
+              ->where('invoices.user_id', Auth::id())
             ->first();
 
 
@@ -224,7 +228,7 @@ class ReportController extends Controller
                 'total_due'
             );
 
-        $query->where('user_id', Auth::id());
+        $query->where('invoices.user_id', Auth::id());
 
         // Period filter
         switch ($request->period) {

@@ -3,7 +3,7 @@
     <div class="dropdown-menu custom-dropdown">
         <a href="#" class="save-invoice"  send-status="false" ><i data-lucide="save" class="text-primary"></i> Save</a>
         <a href="#" class="save-invoice" send-status="true" ><i data-lucide="send" class="text-info"></i> Save & Send Invoice</a>
-        <a href="#"  send-status="false" ><i data-lucide="indian-rupee" class="text-success"></i> Save & Paid</a>
+       
     </div>
 </div>
 <input type="hidden" name="send_status" id="send_status"  value="" >

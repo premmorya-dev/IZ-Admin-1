@@ -121,7 +121,7 @@
 
         <div class="card-footer bg-light text-end rounded-bottom-4">
             <button type="submit" class="btn btn-success px-4 update-vendor w-100">
-                <i class="fas fa-save me-1"></i> Update vendor
+                <i class="fas fa-save me-1"></i> Update Vendor
             </button>
         </div>
     </div>

@@ -53,6 +53,7 @@ abstract class DocumentService
                 "{$partyTable}.state_id as {$partyAlias}_state_id",
                 "{$partyTable}.country_id as {$partyAlias}_country_id",
                 "{$partyTable}.gst_number as {$partyAlias}_gst_number",
+                "{$partyTable}.phone as {$partyAlias}_phone",
 
                 'settings.company_name as user_company_name',
                 'settings.email as user_email',
@@ -143,7 +144,7 @@ abstract class DocumentService
 
         // Get currency symbol
         $document->currency_symbol = optional(DB::table('currencies')->where('currency_code', $document->currency_code)->first())->currency_symbol ?? '';
-      
+
         return $document;
     }
 

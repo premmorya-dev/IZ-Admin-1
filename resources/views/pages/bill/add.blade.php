@@ -46,9 +46,9 @@
 
             <div class="col-md-3 mt-3 text-md-start text-center">
                 <img src="{{ asset($data['setting']->logo_path) }}" style="height: 80px;">
-            </div>       
+            </div>
 
-              <!-- Invoice Number with Mode -->
+            <!-- Invoice Number with Mode -->
             <div class="col-md-3 mt-3">
                 <label for="bill_number" class="form-label d-flex justify-content-between align-items-center text-danger">
                     <span>Bill Number *</span>
@@ -493,7 +493,7 @@
                 <input type="hidden" name="hidden_round_off" value="" id="hidden_round_off">
                 <input type="hidden" name="hidden_total_due" value="" id="hidden_total_due">
 
-          
+
 
 
             </div>
@@ -622,7 +622,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 
-        <script>
+    <script>
         $(document).ready(function() {
 
             function generateBillNumber() {
@@ -968,7 +968,7 @@
         const editors = {};
 
         document.addEventListener("DOMContentLoaded", function() {
-          
+
             $('.id_description').summernote({
                 placeholder: 'Enter Description...',
                 height: 120,
@@ -981,9 +981,9 @@
 
 
             $('.save-bill').on('click', function(e) {
-                e.preventDefault();           
+                e.preventDefault();
 
-                let formData = new FormData(document.getElementById('bill-generate'));          
+                let formData = new FormData(document.getElementById('bill-generate'));
 
                 Swal.fire({
                     title: "Processing...",
@@ -1096,7 +1096,7 @@
     <script>
         $(document).ready(function() {
 
-           
+
 
             $('#vendor').on('keyup', function() {
                 let query = $(this).val();
@@ -1189,12 +1189,9 @@
                 $('#vendorAddress').html(addressHTML).show();
 
                 $('#currency_code').val(vendor.currency_code).trigger('change');
-                if (vendor.notes) {
-                    $('#id_bill_terms').summernote('code', vendor.notes);
 
-                }
-                if (vendor.terms) {
-                    $('#id_bill_notes').summernote('code', vendor.terms);
+                if (vendor.notes && vendor.notes.replace(/<[^>]*>/g, '').trim() !== '') {
+                    $('#id_bill_notes').summernote('code', vendor.notes);
                 }
                 $('#vendorSearchBox').hide();
                 $('.change-vendor').show();
@@ -1235,9 +1232,6 @@
             dateFormat: "Y-m-d", // Format: 2025-04-17 14:00
             time_24hr: true
         });
-
-         
-
     </script>
 
 
