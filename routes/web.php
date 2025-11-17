@@ -279,6 +279,7 @@ Route::middleware(['auth'])->group(function () {
     Route::post('/account/update', [SettingController::class, 'updateAccount'])->name('settings.account.update');
 
     Route::get('/search-client', [ClientController::class, 'searchClient'])->name('client.search2');
+     Route::get('/search-vendor', [VendorController::class, 'searchVendor'])->name('vendor.search2');
 
 
     Route::group(['prefix' => '/policy'], function () {

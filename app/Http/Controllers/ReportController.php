@@ -167,7 +167,7 @@ class ReportController extends Controller
             ->leftJoin('clients', 'clients.client_id', 'invoices.client_id')
             ->leftJoin('country_states', 'country_states.state_id', 'clients.state_id')
             ->where('invoices.invoice_id', $invoice->invoice_id)
-              ->where('invoices.user_id', Auth::id())
+            ->where('invoices.user_id', Auth::id())
             ->first();
 
 
@@ -196,9 +196,141 @@ class ReportController extends Controller
     public function getReport(Request $request)
     {
 
+        if ($request->report_type === 'invoice') {
+            return $this->getInvoiceReport($request);
+        } else if ($request->report_type === 'bill') {
+            return $this->getPurchaseReport($request);
+        } else if ($request->report_type === 'itc') {
+            return $this->getPurchaseReport($request);
+        }
+    }
+
+
+    public function getPurchaseReport(Request  $request)
+    {
 
         $validator = Validator::make($request->all(), [
-            'report_type' => 'required|in:invoice,payment',
+            'report_type' => 'required|in:invoice,bill,itc',
+            'period' => 'required|in:all_time,this_month,last_month,3_month,custom',
+            'status' => 'array|nullable',
+            'currency' => 'array|nullable',
+            'client' => 'nullable|in:all_client,single_client',
+            'client_id' => 'nullable|integer|exists:clients,client_id',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'error' => 1,
+                'errors' => $validator->errors()
+            ]);
+        }
+
+        $query = DB::table('bills')
+            ->select(
+                'vendors.*',
+                'bills.bill_number',
+                'bills.bill_date',
+                'bills.due_date',
+                'bills.bill_status',
+                'bills.currency_code',
+                'bills.grand_total',
+                'bills.total_tax',
+                'bills.sub_total',
+                'bills.total_discount',
+                'bills.total_due',
+
+            );
+
+        $query->leftJoin('vendors', 'vendors.vendor_id', 'bills.vendor_id');
+
+        $query->where('bills.user_id', Auth::id());
+
+        // Period filter
+        switch ($request->period) {
+            case 'this_month':
+                $query->whereBetween('bills.bill_date', [now()->startOfMonth(), now()->endOfMonth()]);
+                break;
+            case 'last_month':
+                $query->whereBetween('bills.bill_date', [now()->subMonth()->startOfMonth(), now()->subMonth()->endOfMonth()]);
+                break;
+            case '3_month':
+                $query->whereBetween('bills.bill_date', [now()->subMonths(3)->startOfMonth(), now()]);
+                break;
+            case 'custom':
+
+                if ($request->filled('date')) {
+                    $date = $this->parseDateRange($request->input('date'));
+
+
+                    $query->where('bills.bill_date', '>=',  convertToUTCDateOnly($date['start_date']));
+                    $query->where('bills.bill_date', '<=',  convertToUTCDateOnly($date['end_date']));
+                }
+                break;
+        }
+
+        // Status filter
+        if ($request->filled('bill_status')) {
+            $query->whereIn('bills.bill_status',  $request->status);
+        }
+
+        // Currency filter
+        if ($request->filled('currency')) {
+            $query->whereIn('bills.currency_code', $request->currency);
+        }
+
+        // Vendor filter
+        if ($request->vendor == 'single_vendor' && $request->filled('vendor_id')) {
+            $query->where('vendors.vendor_id', $request->vendor_id);
+        }
+
+        $bills = $query->get();
+
+        $user = DB::table('users')->where('user_id', Auth::id())->first();
+        $data['timezone'] = DB::table('time_zone')->where('time_zone_id', $user->time_zone_id)->first();
+
+
+        foreach ($bills as $key => $bill) {
+            $bill->bill_date_utc = $bill->bill_date;
+            $bill->bill_date = !empty($bill->bill_date)
+                ? getTimeDateDisplay($user->time_zone_id, $bill->bill_date, 'd-m-Y', 'Y-m-d')
+                : '';
+        }
+
+        // Aggregate totals
+        $summary = [
+            'total_bills' => $bills->count(),
+            'total_sub_total' => $bills->sum('sub_total'),
+            'total_tax' => $bills->sum('total_tax'),
+            'total_discount' => $bills->sum('total_discount'),
+            'total_grand' => $bills->sum('grand_total'),
+            'total_due' => $bills->sum('total_due'),
+        ];
+
+        if ($request->report_type === 'itc') {
+            $html = view('pages/report.itc_report', compact('bills', 'summary'))->render();
+
+            $report_pdf = view('pages/report.itc_report_pdf', compact('bills', 'summary'))->render();
+        } else {
+            $html = view('pages/report.purchase_report', compact('bills', 'summary'))->render();
+
+            $report_pdf = view('pages/report.purchase_report_pdf', compact('bills', 'summary'))->render();
+        }
+
+
+
+        Session::put('report_statement', $report_pdf);
+        return response()->json([
+            'error' => 0,
+            'message' => 'Report data fetched successfully.',
+            'html' => $html
+        ]);
+    }
+
+    public function getInvoiceReport(Request  $request)
+    {
+
+        $validator = Validator::make($request->all(), [
+            'report_type' => 'required|in:invoice,bill,itc',
             'period' => 'required|in:all_time,this_month,last_month,3_month,custom',
             'status' => 'array|nullable',
             'currency' => 'array|nullable',
@@ -247,8 +379,8 @@ class ReportController extends Controller
                     $date = $this->parseDateRange($request->input('date'));
 
 
-                    $query->where('invoices.invoice_date', '>=',  $this->convertToUTC($date['start_date']));
-                    $query->where('invoices.invoice_date', '<=',  $this->convertToUTC($date['end_date']));
+                    $query->where('invoices.invoice_date', '>=',  convertToUTCDateOnly($date['start_date']));
+                    $query->where('invoices.invoice_date', '<=',  convertToUTCDateOnly($date['end_date']));
                 }
                 break;
         }
@@ -305,6 +437,7 @@ class ReportController extends Controller
             'html' => $html
         ]);
     }
+
 
 
 

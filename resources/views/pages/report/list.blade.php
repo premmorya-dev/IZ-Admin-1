@@ -24,16 +24,17 @@
 
             <div class="row">
 
-                <div class="col-md-6 mt-4">
+                <div class="col-md-4 mt-4">
                     <label for="report_type" class="form-label">Report Type</label>
                     <select name="report_type" id="report_type" class="form-select">
                         <option value="invoice">Invoice</option>
-                        <option value="payment">Payment</option>
+                        <option value="bill">Bill</option>
+                        <option value="itc">Input Tax Credit</option>
                     </select>
 
                 </div>
 
-                <div class="col-md-6 mt-4">
+                <div class="col-md-4 mt-4">
                     <label for="status" class="form-label">Status</label>
                     <select id="status" name="status[]" class="form-select" multiple multiselect-max-items="2" multiselect-search="true">
                         <option value="pending" {{ in_array('pending', (array) explode("," , request('status') )  ) ? 'selected' : '' }}>Pending</option>
@@ -44,7 +45,19 @@
                     </select>
                 </div>
 
-                <div class="col-md-6 mt-4">
+                  <div class="col-md-4 mt-4">
+                    <label for="currency" class="form-label">Currency</label>
+                    <select id="currency" name="currency[]" class="form-select" multiple multiselect-max-items="2" multiselect-search="true">
+                        @foreach($data['currencies'] as $currency )
+                        <option value="{{ $currency->currency_code }}" {{ old('currency', $data['setting']->currency ?? '') == $currency->currency_code ? 'selected' : '' }}> {{ $currency->currency_name }} | {{ $currency->currency_symbol }}</option>
+                        @endforeach
+
+                    </select>
+
+                </div>
+
+
+                <div class="col-md-3 mt-4">
                     <label for="period" class="form-label">Period</label>
                     <select name="period" id="period" class="form-select">
                         <option value="all_time">All Time</option>
@@ -57,7 +70,7 @@
                 </div>
 
 
-                <div class="col-md-6 mt-4" id="custom-date-wrapper" style="display: none;">
+                <div class="col-md-3 mt-4" id="custom-date-wrapper" style="display: none;">
                     <label class="form-label">Custom Date</label>
                     <div class="input-group">
                         <input type="text" name="date" id="date" value="{{ request('date') }}" class="form-control date-range" placeholder="Pick Custom Date Range">
@@ -67,20 +80,10 @@
 
 
 
-                <div class="col-md-6 mt-4">
-                    <label for="currency" class="form-label">Currency</label>
-                    <select id="currency" name="currency[]" class="form-select" multiple multiselect-max-items="2" multiselect-search="true">
-                        @foreach($data['currencies'] as $currency )
-                        <option value="{{ $currency->currency_code }}" {{ old('currency', $data['setting']->currency ?? '') == $currency->currency_code ? 'selected' : '' }}> {{ $currency->currency_name }} | {{ $currency->currency_symbol }}</option>
-                        @endforeach
-
-                    </select>
-
-                </div>
+              
 
 
-
-                <div class="col-md-6 mt-4">
+                <div class="col-md-3 mt-4">
                     <label for="client" class="form-label fw-semibold">Select Client Type</label>
                     <select name="client" id="client" class="form-select">
                         <option value="all_client" selected>All Clients</option>
@@ -88,7 +91,7 @@
                     </select>
                 </div>
 
-                <div class="col-md-6 mt-4" id="client_search_wrapper" style="display: none; position: relative;">
+                <div class="col-md-3 mt-4" id="client_search_wrapper" style="display: none; position: relative;">
                     <label for="client_name" class="form-label fw-semibold">Search Client</label>
                     <input type="text" class="form-control" id="client_name" name="client_name" value="{{ request('client_name') }}" placeholder="Type to search client..." autocomplete="off">
                     <input type="hidden" name="client_id" id="client_id">
@@ -96,6 +99,23 @@
                 </div>
 
 
+                <!-- Purchase Vendor Section -->
+                <div class="col-md-3 mt-4" id="vendor_type_wrapper" style="display:none;">
+                    <label for="vendor" class="form-label fw-semibold">Select Vendor Type</label>
+                    <select name="vendor" id="vendor" class="form-select">
+                        <option value="all_vendor" selected>All Vendors</option>
+                        <option value="single_vendor">Single Vendor</option>
+                    </select>
+                </div>
+
+                <div class="col-md-3 mt-4" id="vendor_search_wrapper" style="display:none; position:relative;">
+                    <label for="vendor_name" class="form-label fw-semibold">Search Vendor</label>
+                    <input type="text" class="form-control" id="vendor_name" name="vendor_name"
+                        placeholder="Type to search vendor..." autocomplete="off">
+                    <input type="hidden" name="vendor_id" id="vendor_id">
+                    <div id="vendorList" class="list-group shadow"
+                        style="position:absolute; top:100%; width:100%; z-index:1050;"></div>
+                </div>
 
 
 
@@ -134,15 +154,7 @@
 
                         </div>
                     </form>
-                    <!-- Summary Box -->
-                    <!-- <div class="d-flex align-items-center justify-content-between bg-light p-3 rounded-3 border mb-4">
-                        <div>
-                            <strong>Filing Period:</strong> <span id="selectedPeriod">June 2025</span><br>
-                            <strong>Gross Turnover:</strong> ₹<span id="gtAmount">50,00,000</span><br>
-                            <strong>Current Period Turnover:</strong> ₹<span id="curGtAmount">3,25,180</span>
-                        </div>
-                        <i class="fas fa-file-code fa-3x text-primary"></i>
-                    </div> -->
+
 
                     <!-- Action Buttons -->
                     <div class="d-flex gap-3">
@@ -167,7 +179,74 @@
     <script src="{{ asset('assets/plugins/global/plugins.bundle.js') }}"></script>
     <script src="https://cdn.jsdelivr.net/npm/flatpickr/dist/plugins/monthSelect/index.js"></script>
 
+    <script>
+        $(document).ready(function() {
 
+            function toggleReportType() {
+                let type = $('#report_type').val();
+
+                if (type === 'invoice') {
+                    $('#client').closest('.col-md-3').show();
+                    $('#client_search_wrapper').hide();
+                    $('#vendor_type_wrapper').hide();
+                    $('#vendor_search_wrapper').hide();
+                    $('#vendor_name, #vendor_id').val('');
+                } else {
+                    $('#vendor_type_wrapper').show();
+                    $('#client').closest('.col-md-3').hide();
+                    $('#client_search_wrapper').hide();
+                    $('#client_name, #client_id').val('');
+                }
+            }
+
+            // On load + on change
+            toggleReportType();
+            $('#report_type').on('change', toggleReportType);
+        });
+
+
+        $(document).ready(function() {
+
+            // When user selects vendor type
+            $('#vendor').on('change', function() {
+                if ($(this).val() === 'single_vendor') {
+                    $('#vendor_search_wrapper').slideDown();
+                } else {
+                    $('#vendor_search_wrapper').slideUp();
+                    $('#vendor_name, #vendor_id').val('');
+                    $('#vendorList').fadeOut();
+                }
+            });
+
+            // Vendor autocomplete search
+            $('#vendor_name').on('keyup', function() {
+                let query = $(this).val();
+
+                if (query.length > 1) {
+                    $.ajax({
+                        url: "{{ route('vendor.search2') }}",
+                        method: "GET",
+                        data: {
+                            query: query
+                        },
+                        success: function(data) {
+                            $('#vendorList').fadeIn().html(data);
+                        }
+                    });
+                } else {
+                    $('#vendorList').fadeOut();
+                }
+            });
+
+            // Select vendor from list
+            $(document).on('click', '.vendor-item', function() {
+                $('#vendor_name').val($(this).data('name'));
+                $('#vendor_id').val($(this).data('id'));
+                $('#vendorList').fadeOut();
+            });
+
+        });
+    </script>
 
     <script>
         $('#downloadGSTR1').on('click', function(e) {
@@ -361,95 +440,6 @@
             });
         });
     </script>
-
-
-
-    <script>
-        $('#generate-report').on('click', function(e) {
-            e.preventDefault();
-            let formData = new FormData(document.getElementById('generate-report-form'));
-            Swal.fire({
-                title: "Processing...",
-                text: "Please wait while we preparing your report.",
-                allowOutsideClick: false,
-                didOpen: () => {
-                    Swal.showLoading();
-                }
-            });
-
-            $.ajax({
-                url: "{{ route('report.get') }}",
-                type: "POST",
-                dataType: "json",
-                data: formData,
-                processData: false,
-                contentType: false,
-                headers: {
-                    "X-CSRF-TOKEN": "{{ csrf_token() }}"
-                },
-                beforeSend: function() {
-                    $('.error').remove();
-                    $('.is-invalid').removeClass('is-invalid');
-                },
-                success: function(response) {
-                    Swal.close();
-
-                    if (response.error == 1) {
-                        $.each(response.errors, function(field, messages) {
-                            let inputField = $('[name="' + field + '"]');
-                            if (inputField.length > 0) {
-                                inputField.addClass("is-invalid");
-
-                                if (inputField.closest('.input-group').length > 0) {
-                                    inputField.closest('.input-group').after('<div class="text-danger error">' + messages[0] + '</div>');
-                                } else if (inputField.hasClass('select2-hidden-accessible')) {
-                                    inputField.next('.select2-container').after('<div class="text-danger error">' + messages[0] + '</div>');
-                                } else {
-                                    inputField.after('<div class="text-danger error">' + messages[0] + '</div>');
-                                }
-                            }
-                        });
-
-                        Swal.fire({
-                            icon: "warning",
-                            title: "Warning!",
-                            text: "Please check the form carefully!",
-                            toast: true,
-                            position: "center",
-                            showConfirmButton: false,
-                            timer: 3000
-                        });
-
-
-
-
-
-                    } else if (response.error == 0) {
-                        $('#report-result').html(response.html);
-                        Swal.fire({
-                            icon: "success",
-                            title: "Report Generated Successfully!",
-                            text: response.message,
-                            toast: false,
-                            position: "center",
-                            showConfirmButton: false,
-                            timer: 2000
-                        }).then(function() {
-                            // Redirect after the alert closes
-                            //window.location.href = "{{ route('invoice.list') }}";
-                        });
-
-
-
-                    }
-                },
-                error: function(xhr, status, error) {
-                    console.log("Error:", xhr.responseText);
-                }
-            });
-        });
-    </script>
-
 
 
     <script>
