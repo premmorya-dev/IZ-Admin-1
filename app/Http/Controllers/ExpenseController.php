@@ -558,7 +558,7 @@ class ExpenseController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 // 'client_id' => 'required',
-                'expense_number' => 'required|string|max:255',
+                'expense_number' => 'required|string|max:255|unique:expenses,expense_number',
                 'upload' => 'nullable|image|mimes:jpg,jpeg,png,webp|max:2048',
                 'currency_code' => 'required',
                 'template_id' => 'required',
@@ -568,6 +568,7 @@ class ExpenseController extends Controller
                 // 'client_id.required' => 'Please select a client for the expenses.',
                 'expense_number.required' => 'expense number is required.',
                 'expense_number.max' => 'expense number should not exceed 255 characters.',
+                'expense_number.unique' => 'This expense number already exists. Please use a different number.',
                 'currency_code.required' => 'Currency is required.',
                 'template_id.required' => 'Please select template for expenses.',
                 'expense_date.required' => 'expense date is required.',

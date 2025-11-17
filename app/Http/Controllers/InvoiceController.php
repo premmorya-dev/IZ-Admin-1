@@ -667,7 +667,7 @@ class InvoiceController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'client_id' => 'required',
-                'invoice_number' => 'required|string|max:255',
+                'invoice_number' => 'required|string|max:255|unique:invoices,invoice_number',
                 'currency_code' => 'required',
                 'template_id' => 'required',
                 'invoice_date' => 'required|date',
@@ -678,6 +678,7 @@ class InvoiceController extends Controller
                 'client_id.required' => 'Please select a client for the invoice.',
                 'invoice_number.required' => 'Invoice number is required.',
                 'invoice_number.max' => 'Invoice number should not exceed 255 characters.',
+                'invoice_number.unique' => 'This invoice number already exists. Please use a different number.',
                 'currency_code.required' => 'Currency is required.',
                 'template_id.required' => 'Please select template for invoice.',
                 'invoice_date.required' => 'Invoice date is required.',

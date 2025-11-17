@@ -465,7 +465,7 @@ class EstimateController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'client_id' => 'required',
-                'estimate_number' => 'required|string|max:255',
+                'estimate_number' => 'required|string|max:255|unique:estimates,estimate_number',
                 'currency_code' => 'required',
                 'template_id' => 'required',
                 'issue_date' => 'required|date',
@@ -474,6 +474,7 @@ class EstimateController extends Controller
                 'client_id.required' => 'Please select a client for the estimate.',
                 'estimate_number.required' => 'estimate number is required.',
                 'estimate_number.max' => 'estimate number should not exceed 255 characters.',
+                'estimate_number.unique' => 'This estimate number already exists. Please use a different number.',
                 'currency_code.required' => 'Currency is required.',
                 'template_id.required' => 'Please select template for estimate.',
                 'issue_date.required' => 'estimate date is required.',
