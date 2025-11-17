@@ -316,7 +316,7 @@
                     </div>
 
 
-                  
+
 
                     <!-- Remaining Balance -->
                     <div class="row">
@@ -996,12 +996,14 @@
                 $('#clientAddress').html(addressHTML).show();
 
                 $('#currency_code').val(client.currency_code).trigger('change');
-                if (client.notes) {
-                    $('#id_invoice_terms').summernote('code', client.notes);
 
+                
+                if (client.notes && client.notes.replace(/<[^>]*>/g, '').trim() !== '') { 
+                    $('#id_invoice_notes').summernote('code', client.notes);
                 }
-                if (client.terms) {
-                    $('#id_invoice_notes').summernote('code', client.terms);
+
+                if (client.terms && client.terms.replace(/<[^>]*>/g, '').trim() !== '') {
+                    $('#id_invoice_terms').summernote('code', client.terms);
                 }
                 $('#clientSearchBox').hide();
                 $('.change-client').show();
