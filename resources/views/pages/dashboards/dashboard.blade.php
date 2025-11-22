@@ -47,8 +47,16 @@
 
     <h2 class="py-3">Dashboard</h2>
    
-   
- 
+<div class="d-flex justify-content-end mb-4">
+    <a href="{{ route('invoice.add') }}" 
+       class="btn btn-primary shadow-sm d-flex align-items-center gap-3 fw-semibold w-100 w-md-auto"
+       style="border-radius: 12px; padding: 18px 32px; font-size: 1.45rem;">
+         <i class="bi bi-lightning-charge-fill" style="font-size: 2.2rem;"></i>
+        Create New Invoice
+    </a>
+</div>
+
+
 
     <!-- ApexCharts -->
     <script src="https://cdn.jsdelivr.net/npm/apexcharts"></script>

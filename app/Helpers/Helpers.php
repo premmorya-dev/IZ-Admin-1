@@ -273,7 +273,7 @@ if (!function_exists('getShortcode')) {
             '{{' . $party . '_country}}' => $doc->{$party . '_country'} ?? '',
             '{{' . $party . '_zip}}' => $doc->{$party . '_zip'} ?? '',
             '{{' . $party . '_gst_number}}' => $doc->{$party . '_gst_number'} ?? '',
-            '{{show_' . $party . '_gst_number}}' => !empty($doc->{$party . '_gst_number'}) ? 'Gstin: ' . $doc->{$party . '_gst_number'} : '',
+            '{{show_' . $party . '_gst_number}}' => !empty($doc->{$party . '_gst_number'}) ? 'GSTIN: ' . $doc->{$party . '_gst_number'} : '',
 
             '{{' . $party . '_shipping_name}}' => $doc->{$party . '_shipping_name'} ?? '',
             '{{' . $party . '_shipping_phone}}' => $doc->{$party . '_shipping_phone'} ?? '',

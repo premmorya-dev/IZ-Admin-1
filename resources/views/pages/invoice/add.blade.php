@@ -1,6 +1,7 @@
 <x-default-layout>
     <link href="{{ asset('assets/css/is.css') }}" rel="stylesheet">
 
+
     <style>
         #invoice_number {
             transition: all 0.4s ease;
@@ -40,7 +41,7 @@
 
         <div class="row">
 
-            <div class="col-md-3 mt-3 text-md-start text-center">
+            <div class="col-md-3 mt-3 text-md-start text-center" id="company-logo-section">
                 <img src="{{ asset($data['setting']->logo_path) }}" style="height: 80px;">
             </div>
 
@@ -72,7 +73,7 @@
             </div>
 
             <!-- Language -->
-            <div class="col-md-3 mt-3">
+            <div class="col-md-3 mt-3" id="template-section">
                 <label for="template" class="form-label text-danger">Template *</label>
                 <select class="form-select" id="template_id" name="template_id">
                     <option value="">Please Select</option>
@@ -124,7 +125,7 @@
                 <div>
                     <div class="mb-1 mt-4 d-flex justify-content-between align-items-center">
                         <h4 class="mb-1 text-danger">To *</h4>
-                        <a href="{{ route('client.add') }}" target="__blank" class="clientActionBtn new-client" style="text-decoration: none;display:none;">✏️ New Client</a>
+                        <a href="{{ route('client.add') }}" target="__blank" class="clientActionBtn new-client" id="new-client-btn" style="text-decoration: none;display:none;">✏️ New Client</a>
                         <a href="#" onclick="event.preventDefault()" class="clientActionBtn change-client" style="text-decoration: none;">✏️ Change Client</a>
 
                     </div>
@@ -290,7 +291,7 @@
 
                 <div id="form-container"></div>
 
-                <button type="button" class="btn btn-outline btn-sm  btn-outline-primary w-100" onclick="addItemRow()"><i data-lucide="plus"></i> Add Item</button>
+                <button type="button" id="add-item-btn" class="btn btn-outline btn-sm  btn-outline-primary w-100" onclick="addItemRow()"><i data-lucide="plus"></i> Add Item</button>
 
                 <!-- Invoice Summary Section -->
                 <div class="summary-box mt-5">
@@ -367,12 +368,12 @@
 
 
             <div class="col-md-12 mt-3">
-                <div class="col-12">
+                <div class="col-12" id="terms-section">
                     <label for="terms" class="form-label fw-semibold">Terms and Conditions:</label>
                     <textarea name="terms" id="id_invoice_terms" class="form-control" placeholder="Enter Terms">{{ old('notes', setting('terms') ) }}</textarea>
                 </div>
 
-                <div class="col-12">
+                <div class="col-12" id="notes-section">
                     <label for="notes" class="form-label fw-semibold">Notes:</label>
                     <textarea name="notes" id="id_invoice_notes" class="form-control " placeholder="Enter Notes">{{ old('notes', setting('notes') ) }}</textarea>
                 </div>
@@ -421,7 +422,7 @@
         <div class="modal-dialog  modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="clientModalLabel">Edit Client</h4>
+                    <h4 class="modal-title" id="clientModalLabel">Add Client</h4>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="client-modal-body py-3 px-3">
@@ -494,9 +495,108 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://unpkg.com/intro.js/minified/intro.min.js"></script>
+
+    <script>
+        var onboarding_status = "{{ setting('invoice_onboarding') }}";
+        document.addEventListener("DOMContentLoaded", function() {
+
+            if (onboarding_status == 'N') {
+                Swal.fire({
+                    title: "Welcome to InvoiceZy!",
+                    text: "We will guide you step-by-step to create your first invoice. This will take less than 20 seconds.",
+                    icon: "info",
+                    confirmButtonText: "Start Guide",
+                    allowOutsideClick: false,
+                    allowEscapeKey: false
+                }).then(() => {
+                    startInvoiceOnboarding();
+                });
+            }
 
 
-  <script>
+
+
+        });
+
+
+        function startInvoiceOnboarding() {
+            introJs().setOptions({
+                steps: [{
+                        element: '#company-logo-section',
+                        intro: 'This is your company logo, which appears on all invoices. You can update it anytime from: Menu → Business Settings → Business Info → Company Logo.'
+                    },
+                    {
+                        element: '#new-client-btn',
+                        intro: 'Click here to add a new client. This helps you quickly create invoices for first-time customers.'
+                    },
+                    {
+                        element: '#client',
+                        intro: 'Start by selecting an existing client. Simply type the name, email, or mobile number to search.You can see all customer from: Menu → Client.'
+                    },
+                    {
+                        element: '#add-item-btn',
+                        intro: 'Add your first invoice item here — including product name, quantity, price, and taxes.'
+                    },
+                    {
+                        element: '#invoice_date',
+                        intro: 'Choose the invoice issue date. This is the date when the invoice becomes active.'
+                    },
+                    {
+                        element: '#due_date',
+                        intro: 'Select the payment due date. This helps your client know the last day to pay.'
+                    },
+                    {
+                        element: '#invoiceModeSwitch',
+                        intro: 'Switch to Custom Mode if you want to enter your own invoice number manually.'
+                    },
+                    {
+                        element: '#template-section',
+                        intro: 'Choose an invoice template. Pick the one that best matches your branding and business style.'
+                    },
+                    {
+                        element: '#useUpiToggle',
+                        intro: 'Enable this to show your UPI ID and QR Code on the invoice. Add or manage UPI IDs from the left menu’s UPI section.'
+                    },
+                    {
+                        element: '#terms-section',
+                        intro: 'Here you can review or update the Terms & Conditions for this invoice. When client-specific terms are not provided, Invoicezy automatically applies your default business Terms & Conditions.'
+                    },
+                    {
+                        element: '#notes-section',
+                        intro: 'Here you can review or update the Notes for this invoice. When client-specific notes are not provided, Invoicezy automatically applies your default business Notes.'
+                    },
+                    {
+                        element: '#action-btn',
+                        intro: 'Once everything is set, click here to save the invoice or send it directly to your client.'
+                    }
+                ],
+
+                showProgress: true,
+                exitOnOverlayClick: false,
+                highlightClass: 'intro-highlight'
+            }).oncomplete(function() {
+                updateOnboardingStatus();
+            }).start();
+        }
+
+        function updateOnboardingStatus() {
+            $.ajax({
+                url: "{{ route('settings.user.onboarding') }}",
+                type: "POST",
+                data: {
+                    _token: "{{ csrf_token() }}",
+                    onboarding_update: "invoice_onboarding"
+                },
+                success: function(response) {
+                    console.log("Onboarding status updated in DB");
+                }
+            });
+        }
+    </script>
+
+
+    <script>
         $(document).on('click', '.edit-client', function(e) {
             e.preventDefault();
             $('.client-modal-body').empty();
@@ -518,7 +618,7 @@
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
                     beforeSend: function() {
-                      
+
                     },
                     success: function(response) {
 
@@ -528,7 +628,7 @@
                         $('#editClient-modal').on('shown.bs.modal', function() {
                             // Initialize Choices.js (always safe to re-init)
 
-                            ['#id_country_id', '#id_state_id', '#id_currency_code' ,'#id_shipping_state_id', '#id_shipping_country_id'].forEach(function(selector) {
+                            ['#id_country_id', '#id_state_id', '#id_currency_code', '#id_shipping_state_id', '#id_shipping_country_id'].forEach(function(selector) {
                                 const el = document.querySelector(selector);
                                 if (!el) return; // skip if element not found
 
@@ -583,7 +683,7 @@
 
         });
     </script>
- 
+
     <script>
         $(document).on("change", ".discount-select", function() {
             let selectedVal = $(this).val();
@@ -1127,14 +1227,14 @@
                 $('#client_state_id').val(client.state_id);
                 $('#clientList').hide();
 
-                 let edit_client = `<button client-code="${client.client_code}"  class="edit-client btn btn-primary btn-sm rounded-circle d-flex align-items-center justify-content-center 
+                let edit_client = `<button client-code="${client.client_code}"  class="edit-client btn btn-primary btn-sm rounded-circle d-flex align-items-center justify-content-center 
                    position-absolute shadow" style="width: 36px; height: 36px; bottom: 10px; right: 10px;" data-bs-toggle="modal" data-bs-target="#editClientAddressModal">
         <i class="bi bi-pencil-fill"></i>
     </button>`;
 
                 $('#clientAddress').html(addressHTML + edit_client).show();
 
-                
+
 
                 $('#currency_code').val(client.currency_code).trigger('change');
 
