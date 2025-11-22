@@ -33,22 +33,27 @@ class Kernel extends ConsoleKernel
     {
         $schedule->command('invoices:send-emails')
             ->everyMinute()
+            ->timezone('Asia/Kolkata')
             ->appendOutputTo(storage_path('logs/cron_send_email.log'));
 
         $schedule->command('send-estimate-email')
             ->everyMinute()
+            ->timezone('Asia/Kolkata')
             ->appendOutputTo(storage_path('logs/send_estimate_email.log'));
 
         $schedule->command('invoices:dashboard-summary')
             ->everyTenMinutes()
+            ->timezone('Asia/Kolkata')
             ->appendOutputTo(storage_path('logs/cron_dashboard_summary.log'));
 
         $schedule->command('app:send-invoice-reminders-before-due-date')
             ->dailyAt('10:00')
+            ->timezone('Asia/Kolkata')
             ->appendOutputTo(storage_path('logs/send_invoice_reminders_before_due_date.log'));
 
         $schedule->command('app:send-invoice-reminders-after-due-date')
             ->dailyAt('11:00')
+            ->timezone('Asia/Kolkata')
             ->appendOutputTo(storage_path('logs/send_invoice_reminders_after_due_date.log'));
     }
 

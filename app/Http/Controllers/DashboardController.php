@@ -91,7 +91,7 @@ class DashboardController extends Controller
 
             session(['registration' => 'success']);
 
-            return redirect('/user/login');
+            return redirect('/invoice/add');
         } catch (\Exception $e) {
 
 
