@@ -1,4 +1,11 @@
 <x-default-layout>
+
+ @if( !empty($data['registration']) && $data['registration'] == 'success')
+<script>
+gtag('event', 'user_registered_create_invoice_page');
+</script>
+
+ @endif
     <link href="{{ asset('assets/css/is.css') }}" rel="stylesheet">
 
 
@@ -125,7 +132,7 @@
                 <div>
                     <div class="mb-1 mt-4 d-flex justify-content-between align-items-center">
                         <h4 class="mb-1 text-danger">To *</h4>
-                        <a href="{{ route('client.add') }}" target="__blank" class="clientActionBtn new-client" id="new-client-btn" style="text-decoration: none;display:none;">✏️ New Client</a>
+                        <a href="{{ route('client.add') }}"  onclick="gtag('event', 'add_client');" target="__blank" class="clientActionBtn new-client" id="new-client-btn" style="text-decoration: none;display:none;">✏️ New Client</a>
                         <a href="#" onclick="event.preventDefault()" class="clientActionBtn change-client" style="text-decoration: none;">✏️ Change Client</a>
 
                     </div>
