@@ -271,8 +271,8 @@ class SettingController extends Controller
             'notes' => $request->input('notes') ?? null,
             'terms' => $request->input('terms') ?? null,
             'invoice_start_number' => $request->input('invoice_start_number'),
-            'display_gst_number' => $request->input('display_gst_number') ?? 'N' ,
-            'user_gst_number' => $request->input('user_gst_number') ?? Null ,
+            'display_gst_number' => $request->input('display_gst_number') ?? 'N',
+            'user_gst_number' => $request->input('user_gst_number') ?? Null,
             'company_footer' => $request->input('company_footer'),
             'pagination_limit' => $data['pagination_limit'],
             'company_name' => $data['company_name'],
@@ -301,7 +301,14 @@ class SettingController extends Controller
         return redirect()->back()->with('success', 'Settings updated successfully!');
     }
 
+    public function onboardingUpdate(Request $request) {          
+        
+        $data = [       
+            $request->input('onboarding_update') => 'Y',     
+        ];       
+         SettingModel::where('user_id',Auth::id() )->update($data );
 
+    }
 
     public function getStates(Request $request)
     {

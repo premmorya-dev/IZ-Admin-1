@@ -51,6 +51,7 @@ class SettingModel extends Model
         'everyday_reminder_after_due_day',
         'shipping_status',
         'user_gst_number',
+        'invoice_onboarding',
         'display_gst_number'
     ];
 

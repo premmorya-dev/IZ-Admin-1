@@ -278,6 +278,8 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/account/edit', [SettingController::class, 'account'])->name('settings.account');
     Route::post('/account/update', [SettingController::class, 'updateAccount'])->name('settings.account.update');
 
+     Route::post('/user-onboarding', [SettingController::class, 'onboardingUpdate'])->name('settings.user.onboarding');
+
     Route::get('/search-client', [ClientController::class, 'searchClient'])->name('client.search2');
      Route::get('/search-vendor', [VendorController::class, 'searchVendor'])->name('vendor.search2');
 

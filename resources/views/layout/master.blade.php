@@ -3,6 +3,31 @@
 <!--begin::Head-->
 
 <head>
+
+<script>
+    // Load Google Analytics only on pro.invoicezy.com
+    if (window.location.hostname === "pro.invoicezy.com") {
+
+        // Load GA script dynamically
+        let gaTag = document.createElement("script");
+        gaTag.async = true;
+        gaTag.src = "https://www.googletagmanager.com/gtag/js?id=G-E0NH65K8GD";
+        document.head.appendChild(gaTag);
+
+        // Initialize GA
+        window.dataLayer = window.dataLayer || [];
+        function gtag(){ dataLayer.push(arguments); }
+
+        gtag('js', new Date());
+        gtag('config', 'G-E0NH65K8GD');
+
+        console.log("Google Analytics loaded for: pro.invoicezy.com");
+    } else {
+        console.log("Google Analytics NOT loaded (not pro.invoicezy.com)");
+    }
+</script>
+
+
     <base href="" />
     <title>InvoiceZy</title>
     <meta name="csrf-token" content="{{ csrf_token() }}">
@@ -20,7 +45,7 @@
 
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-
+<link rel="stylesheet" href="https://unpkg.com/intro.js/minified/introjs.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
 
@@ -427,7 +452,7 @@
             }
         });
     </script> -->
-   <script src="{{ asset('assets/js/lucide.min.js') }}"></script>
+
 
     <script>
         lucide.createIcons();
