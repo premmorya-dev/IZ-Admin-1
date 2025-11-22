@@ -22,6 +22,8 @@ abstract class DocumentService
     protected $partyKey;         // 'client_id' or 'vendor_id'
     protected $partyAlias;       // 'client' or 'vendor'
 
+    private $same_state;
+
     public function __construct()
     {
         // override in child
@@ -70,6 +72,12 @@ abstract class DocumentService
             ->where("{$this->table}.{$this->codeField}", $code)
             ->where('users.user_id', $userId)
             ->first();
+
+        if ($document->user_state_id == $document->client_state_id) {
+            $this->same_state = true;
+        } else {
+            $this->same_state = false;
+        }
 
 
 
@@ -152,11 +160,40 @@ abstract class DocumentService
     {
         $rows = '';
         foreach ($items as $item) {
-            $discount = (($item->rate * $item->quantity) / 100) * $item->discount;
+
+            $base = $item->rate * $item->quantity;
+            $discount = ($base / 100) * $item->discount;
             $discountText = $discount > 0 ? "{$item->discount}% <br> {$currencySymbol}{$discount}" : '-';
 
-            $tax = ((($item->rate * $item->quantity) - $discount) / 100) * $item->tax;
+            $tax = (($base - $discount) / 100) * $item->tax;
             $taxText = $tax > 0 ? "{$item->tax}% <br> {$currencySymbol}{$tax}" : '-';
+
+            $taxable = $base - $discount;
+            // Initialize
+            $cgstPercent = 0;
+            $sgstPercent = 0;
+            $igstPercent = 0;
+
+            if ($this->same_state) {
+                // CGST + SGST
+                $cgstPercent = $item->tax / 2;
+                $sgstPercent = $item->tax / 2;
+                $igstPercent = 0;
+            } else {
+                // IGST only
+                $cgstPercent = 0;
+                $sgstPercent = 0;
+                $igstPercent = $item->tax;
+            }
+
+            // Calculate amounts
+            $cgst = ($taxable * $cgstPercent) / 100;
+            $sgst = ($taxable * $sgstPercent) / 100;
+            $igst = ($taxable * $igstPercent) / 100;
+
+            $cgst_text = $cgst > 0 ? "{$cgstPercent}% <br> {$currencySymbol}{$cgst}" : '-';
+            $sgst_text = $sgst > 0 ? "{$sgstPercent}% <br> {$currencySymbol}{$sgst}" : '-';
+            $igst_text = $igst > 0 ? "{$igstPercent}% <br> {$currencySymbol}{$igst}" : '-';
 
             $hsn = $item->hsn ?? '-';
             $item->description = $item->description ?? '';
@@ -166,7 +203,11 @@ abstract class DocumentService
                 <td style='text-align:left;border: 1px solid #ddd; padding: 5px; width: 10%;'>{$item->quantity}</td>
                 <td style='text-align:left;border: 1px solid #ddd; padding: 5px; width: 10%;'>{$currencySymbol}{$item->rate}</td>
                 <td style='border: 1px solid #ddd; padding: 5px; width: 10%;'>{$discountText}</td>
-                <td style='border: 1px solid #ddd; padding: 5px; width: 10%;'>{$taxText}</td>
+                        <td style='border: 1px solid #ddd; padding: 5px; width: 10%;'>{$taxable}</td>
+                             <td style='border: 1px solid #ddd; padding: 5px; width: 10%;'>{$cgst_text}</td>
+                                  <td style='border: 1px solid #ddd; padding: 5px; width: 10%;'>{$sgst_text}</td>
+                                       <td style='border: 1px solid #ddd; padding: 5px; width: 10%;'>{$igst_text}</td>
+               
                 <td style='text-align:right;border: 1px solid #ddd; padding: 5px; width: 10%;'>{$currencySymbol}{$item->amount}</td>
             </tr>";
         }

@@ -214,6 +214,18 @@ if (!function_exists('getShortcode')) {
             $user_gst_number = '';
         }
 
+
+
+        if (!empty($doc->{$party . '_email'}) && !empty($doc->{$party . '_phone'})) {
+            $email_phone_text = $doc->{$party . '_email'} . " | " .  $doc->{$party . '_phone'};
+        } else if (!empty($doc->{$party . '_email'})) {
+            $email_phone_text = $doc->{$party . '_email'};
+        } else if (!empty($doc->{$party . '_phone'})) {
+            $email_phone_text =  $doc->{$party . '_phone'};
+        } else {
+            $email_phone_text = '';
+        }
+
         $return_array =  [
             // Common placeholders
             '{{' . $type . '_id}}' => $doc->{$service->getAttribute('idField')},
@@ -225,6 +237,12 @@ if (!function_exists('getShortcode')) {
             '{{' . $type . '_template_id}}' => $doc->template_id,
             '{{' . $type . '_sub_total}}' => $doc->sub_total,
             '{{' . $type . '_total_tax}}' => $doc->total_tax,
+
+            '{{' . $type . '_cgst_amount}}' => $doc->cgst_amount,
+            '{{' . $type . '_sgst_amount}}' => $doc->sgst_amount,
+            '{{' . $type . '_igst_amount}}' => $doc->igst_amount,
+
+
             '{{' . $type . '_total_discount}}' => $doc->total_discount,
             '{{' . $type . '_grand_total}}' => $doc->grand_total,
             '{{' . $type . '_round_off}}' => $doc->round_off,
@@ -246,7 +264,8 @@ if (!function_exists('getShortcode')) {
             '{{' . $party . '_name}}' => $doc->{$party . '_name'} ?? '',
             '{{' . $party . '_company_name}}' => $doc->{$party . '_company_name'} ?? $doc->{$party . '_name'} ?? '',
             '{{' . $party . '_email}}' => $doc->{$party . '_email'} ?? '',
-            '{{' . $party . '_phone}}' => $doc->{$party . '_phone'} ?? '',
+            '{{' . $party . '_phone}}' => $doc->{$party . '_phone'} ?? '',  
+             '{{' . $party . '_email_phone_text}}' => $email_phone_text,
             '{{' . $party . '_address_1}}' => $doc->{$party . '_address_1'} ?? '',
             '{{' . $party . '_address_2}}' => $doc->{$party . '_address_2'} ?? '',
             '{{' . $party . '_city}}' => $doc->{$party . '_city'} ?? '',

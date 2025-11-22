@@ -24,7 +24,7 @@ class InvoiceModel extends Model
      */
     // The attributes that are mass assignable.
     protected $fillable = [
-        'user_id',
+     'user_id',
         'client_id',
         'invoice_number',
         'invoice_date',
@@ -32,6 +32,12 @@ class InvoiceModel extends Model
         'status',
         'sub_total',
         'total_tax',
+        'total_tax_percent',
+        'taxable_value',
+    
+        'cgst_amount',
+        'sgst_amount',
+        'igst_amount',
         'total_discount',
         'grand_total',
         'round_off',
@@ -40,13 +46,19 @@ class InvoiceModel extends Model
         'notes',
         'terms',
         'currency_code',
-        'upi_id',
         'item_json',
-        'notes',
-        'terms',
+        'upi_id',
         'invoice_code',
         'template_id',
+        'is_sent',
+        'is_paid',
+        'is_overdue',
+        'is_cancelled',
         'display_shipping_status',
+        'sent_at',
+        'paid_at',
+        'cancelled_at',
+        'overdue_at',
     ];
 
     // The attributes that should be hidden for arrays.

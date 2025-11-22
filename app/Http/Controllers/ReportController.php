@@ -450,7 +450,7 @@ class ReportController extends Controller
         $pdf = Pdf::loadView('pages/report.statement', compact('data'))
             ->setPaper('a4', 'landscape');
 
-        return $pdf->download('invoice_report.pdf');
+        return $pdf->download('report.pdf');
     }
 
     public function parseDateRange($dateTimeRange)

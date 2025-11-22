@@ -33,7 +33,7 @@
 
             <!-- Upgrade Banner -->
             <div class="menu-item">
-                <div class="alert bg-primary text-center mb-3 upgrade cursor-pointer shadow-sm"
+                <div class="py-2 rounded-pill bg-primary text-center mb-3 upgrade cursor-pointer shadow-sm"
                      id="upgrade"
                      onclick='window.location.href="{{ route('plan.upgrade') }}"'>
                     <span class="text-white fw-bold fs-5">🚀 Upgrade Plan</span>

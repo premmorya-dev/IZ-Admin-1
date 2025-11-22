@@ -88,6 +88,7 @@
                 <div class="mt-8 ">
                     <div class="mb-1 mt-2 d-flex justify-content-between">
                         <h4 class="mb-1">From </h4>
+                        <input type="hidden" name="user_state_id" id="user_state_id" value="{{ setting('state_id') }}">
                         <a href="{{ route('settings.edit') }}" target="__blank" style="text-decoration: none;"> ✏️ Edit Business Profile </a>
                     </div>
 
@@ -131,12 +132,13 @@
                     <div id="clientSearchBox">
                         <input type="text" class="form-control " id="client" name="client_name" placeholder="Type client name, email, contact number to search client" autocomplete="off">
                         <input type="hidden" name="client_id" id="client_id">
+                        <input type="hidden" name="client_state_id" id="client_state_id">
                         <!-- Dropdown results -->
                         <div id="clientList" class="list-group w-100 z-3 shadow-sm" style="max-height: 200px; overflow-y: auto; display: none;"></div>
                     </div>
 
                     <!-- Display client address here -->
-                    <div id="clientAddress" class="mt-3 border p-2 rounded bg-light" style="display: none;"></div>
+                    <div id="clientAddress" class="mt-3 border p-3 rounded bg-light position-relative" style="display: none;"></div>
                 </div>
 
 
@@ -297,10 +299,28 @@
                         <div class="col-8 col-md-7 col-label">Subtotal:</div>
                         <div class="col-4 col-md-5 text-end" id="subtotal">−$0.00</div>
                     </div>
+
                     <div class="row">
                         <div class="col-8 col-md-7 col-label">Total Discount:</div>
                         <div class="col-4 col-md-5 text-end" id="total-discount">−$0.00</div>
                     </div>
+
+                    <div class="row same-state-class">
+                        <div class="col-8 col-md-7 col-label">Total CGST:</div>
+                        <div class="col-4 col-md-5 text-end" id="total-cgst">$0.00</div>
+                    </div>
+
+                    <div class="row same-state-class">
+                        <div class="col-8 col-md-7 col-label">Total SGST:</div>
+                        <div class="col-4 col-md-5 text-end" id="total-sgst">$0.00</div>
+                    </div>
+
+                    <div class="row diffrent-state-class">
+                        <div class="col-8 col-md-7 col-label">Total IGST:</div>
+                        <div class="col-4 col-md-5 text-end" id="total-igst">$0.00</div>
+                    </div>
+
+
                     <div class="row">
                         <div class="col-8 col-md-7 col-label">Total Tax:</div>
                         <div class="col-4 col-md-5 text-end" id="total-tax">$0.00</div>
@@ -330,6 +350,12 @@
 
                 <input type="hidden" name="hidden_sub_total" value="" id="hidden_sub_total">
                 <input type="hidden" name="hidden_total_discount" value="" id="hidden_total_discount">
+
+                <input type="hidden" name="hidden_total_taxable" value="" id="hidden_total_taxable">
+                <input type="hidden" name="hidden_total_cgst" value="" id="hidden_total_cgst">
+                <input type="hidden" name="hidden_total_sgst" value="" id="hidden_total_sgst">
+                <input type="hidden" name="hidden_total_igst" value="" id="hidden_total_igst">
+
                 <input type="hidden" name="hidden_total_tax" value="" id="hidden_total_tax">
                 <input type="hidden" name="hidden_grand_total" value="" id="hidden_grand_total">
                 <input type="hidden" name="hidden_round_off" value="" id="hidden_round_off">
@@ -408,6 +434,23 @@
         </div>
     </div>
 
+    <!-- Edit Client Model -->
+    <div class="modal fade" id="editClient-modal" tabindex="-1" aria-labelledby="editClientModalLabel" aria-hidden="true">
+        <div class="modal-dialog  modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white rounded-top-3">
+                    <h4 class="modal-title" id="editClientModalLabel">Edit Client</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="editClient-modal-body py-3 px-3">
+
+                </div>
+                <div class="modal-footer">
+
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Add Tax Model -->
     <div class="modal fade" id="tax-modal" tabindex="-1" aria-labelledby="taxModalLabel" aria-hidden="true">
@@ -453,6 +496,94 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 
+  <script>
+        $(document).on('click', '.edit-client', function(e) {
+            e.preventDefault();
+            $('.client-modal-body').empty();
+            $('.editClient-modal-body').empty();
+
+            var client_code = $(this).attr('client-code');
+
+            try {
+
+                var editors = {}; // store editors globally so they are not reinitialized
+
+                $.ajax({
+                    url: "{{ route('client.edit') }}",
+                    data: {
+                        client_code: client_code
+                    },
+                    type: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    beforeSend: function() {
+                      
+                    },
+                    success: function(response) {
+
+                        $('.editClient-modal-body').html(response);
+                        $('#editClient-modal').modal('show');
+
+                        $('#editClient-modal').on('shown.bs.modal', function() {
+                            // Initialize Choices.js (always safe to re-init)
+
+                            ['#id_country_id', '#id_state_id', '#id_currency_code' ,'#id_shipping_state_id', '#id_shipping_country_id'].forEach(function(selector) {
+                                const el = document.querySelector(selector);
+                                if (!el) return; // skip if element not found
+
+                                if (!el.choices) {
+                                    // Only initialize if not already done
+                                    el.choices = new Choices(el, {
+                                        searchEnabled: true,
+                                        itemSelectText: '',
+                                        shouldSort: false
+                                    });
+                                }
+                            });
+
+
+                            $('#id_notes').summernote({
+                                placeholder: 'Enter notes...',
+                                height: 120,
+                                toolbar: [
+                                    ['style', ['bold', 'italic', 'underline']],
+                                    ['para', ['ul', 'ol', 'paragraph']],
+                                    ['insert', ['link']],
+                                    ['view', ['codeview']]
+                                ]
+                            });
+
+                            $('#id_terms').summernote({
+                                placeholder: 'Enter terms...',
+                                height: 120,
+                                toolbar: [
+                                    ['style', ['bold', 'italic', 'underline']],
+                                    ['para', ['ul', 'ol', 'paragraph']],
+                                    ['insert', ['link']],
+                                    ['view', ['codeview']]
+                                ]
+                            });
+
+
+
+                        });
+
+
+
+
+
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error:', error);
+            }
+
+
+        });
+    </script>
+ 
     <script>
         $(document).on("change", ".discount-select", function() {
             let selectedVal = $(this).val();
@@ -924,12 +1055,14 @@
                                     $('#clientList').append(`
                 <a href="javascript:void(0);" class="list-group-item list-group-item-action mb-2 rounded shadow-sm p-3 select-client"
                    data-id="${client.client_id}"
+                     data-client_code="${client.client_code}"
                    data-company_name="${client.company_name ?? ''}"
                    data-client_name="${client.client_name ?? ''}"
                    data-address_1="${client.address_1 ?? ''}"
                    data-address_2="${client.address_2 ?? ''}"
                    data-city="${client.city ?? ''}"
                    data-state_name="${client.state_name ?? ''}"
+                    data-state_id="${client.state_id ?? ''}"
                    data-country_name="${client.country_name ?? ''}"
                    data-currency_code="${client.currency_code ?? ''}"
                    data-notes="${client.notes ?? ''}"
@@ -991,14 +1124,22 @@
 
                 $('#client').val(client.client_name);
                 $('#client_id').val(client.id);
+                $('#client_state_id').val(client.state_id);
                 $('#clientList').hide();
 
-                $('#clientAddress').html(addressHTML).show();
+                 let edit_client = `<button client-code="${client.client_code}"  class="edit-client btn btn-primary btn-sm rounded-circle d-flex align-items-center justify-content-center 
+                   position-absolute shadow" style="width: 36px; height: 36px; bottom: 10px; right: 10px;" data-bs-toggle="modal" data-bs-target="#editClientAddressModal">
+        <i class="bi bi-pencil-fill"></i>
+    </button>`;
+
+                $('#clientAddress').html(addressHTML + edit_client).show();
+
+                
 
                 $('#currency_code').val(client.currency_code).trigger('change');
 
-                
-                if (client.notes && client.notes.replace(/<[^>]*>/g, '').trim() !== '') { 
+
+                if (client.notes && client.notes.replace(/<[^>]*>/g, '').trim() !== '') {
                     $('#id_invoice_notes').summernote('code', client.notes);
                 }
 
@@ -1199,6 +1340,11 @@
             let totalDiscount = 0;
             let totalTax = 0;
 
+            let total_cgstAmount = 0;
+            let total_sgstAmount = 0;
+            let total_igstAmount = 0;
+            let total_taxable = 0;
+
             const items = document.querySelectorAll('[data-item-id]');
             items.forEach((item) => {
                 const quantity = parseFloat(item.querySelector('.quantity').value || 0);
@@ -1208,6 +1354,36 @@
 
                 const base = quantity * rate;
                 const discount = (discountPercent / 100) * base;
+                const taxable = base - discount;
+
+                let isSameState = $('#user_state_id').val() == $('#client_state_id').val();
+
+                let cgstPercent = 0;
+                let sgstPercent = 0;
+                let igstPercent = 0;
+
+                if (isSameState) {
+                    $('.same-state-class').removeClass('d-none');
+                    $('.diffrent-state-class').addClass('d-none');
+                    // CGST + SGST
+                    cgstPercent = taxPercent / 2;
+                    sgstPercent = taxPercent / 2;
+                    igstPercent = 0;
+                } else {
+                    $('.same-state-class').addClass('d-none');
+                    $('.diffrent-state-class').removeClass('d-none');
+                    // IGST only
+                    cgstPercent = 0;
+                    sgstPercent = 0;
+                    igstPercent = taxPercent;
+                }
+
+                // Calculate GST amount
+                let cgstAmount = (taxable * cgstPercent) / 100;
+                let sgstAmount = (taxable * sgstPercent) / 100;
+                let igstAmount = (taxable * igstPercent) / 100;
+
+
                 const tax = (taxPercent / 100) * (base - discount);
                 const amount = base - discount + tax;
 
@@ -1224,11 +1400,23 @@
                 subtotal += base;
                 totalDiscount += discount;
                 totalTax += tax;
+
+                total_taxable += taxable;
+                total_cgstAmount += cgstAmount;
+                total_sgstAmount += sgstAmount;
+                total_igstAmount += igstAmount;
+
             });
 
             // Update summary
             document.getElementById('subtotal').innerText = `${currencySymbol}${subtotal.toFixed(2)}`;
             document.getElementById('total-discount').innerText = `−${currencySymbol}${totalDiscount.toFixed(2)}`;
+
+            document.getElementById('total-cgst').innerText = `${currencySymbol}${total_cgstAmount.toFixed(2)}`;
+            document.getElementById('total-sgst').innerText = `${currencySymbol}${total_sgstAmount.toFixed(2)}`;
+            document.getElementById('total-igst').innerText = `${currencySymbol}${total_igstAmount.toFixed(2)}`;
+
+
             document.getElementById('total-tax').innerText = `${currencySymbol}${totalTax.toFixed(2)}`;
             const grandTotal = subtotal - totalDiscount + totalTax;
             document.getElementById('grand-total').innerText = `${currencySymbol}${grandTotal.toFixed(2)}`;
@@ -1245,6 +1433,12 @@
 
             $("#hidden_sub_total").val(subtotal.toFixed(2));
             $("#hidden_total_discount").val(totalDiscount.toFixed(2));
+
+            $("#hidden_total_taxable").val(total_taxable.toFixed(2));
+            $("#hidden_total_cgst").val(total_cgstAmount.toFixed(2));
+            $("#hidden_total_sgst").val(total_sgstAmount.toFixed(2));
+            $("#hidden_total_igst").val(total_igstAmount.toFixed(2));
+
             $("#hidden_total_tax").val(totalTax.toFixed(2));
             $("#hidden_grand_total").val(grandTotal.toFixed(2));
             $("#hidden_total_due").val(remainingBalance.toFixed(2));

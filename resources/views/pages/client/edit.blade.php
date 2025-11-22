@@ -323,7 +323,55 @@
                         timer: 2000 // show for 2 seconds
                     }).then(function() {
                         $('#editClient-modal').modal('hide');
-                        location.reload();
+                        if (window.location.href.includes("/invoice/add") || window.location.href.includes("/invoice/edit") ||
+                            window.location.href.includes("/estimate/add") || window.location.href.includes("/estimate/edit")
+
+                        ) {
+
+                            let addressHTML = '';
+
+                            if ($('#id_company_name').val()) {
+                                addressHTML += $('#id_company_name').val() + '<br>';
+                            } else {
+                                addressHTML += $('#id_client_name').val() + '<br>';
+                            }
+                            if ($('#id_address_1').val()) addressHTML += $('#id_address_1').val() + '<br>';
+                            if ($('#id_address_2').val()) addressHTML += $('#id_address_2').val() + '<br>';
+                            if ($('#id_state_id option:selected').text()) addressHTML += $('#id_state_id option:selected').text() + ' ';
+                            if ($('#id_country_id option:selected').text()) addressHTML += $('#id_country_id option:selected').text() + ' ';
+                            if ($('#id_zip').val()) addressHTML += $('#id_zip').val();
+
+                            $('#client').val($('#id_client_name').val());
+                            $('#client_id').val(response.client_id);
+                            $('#clientList').hide();
+
+                            let edit_client = `<button client-code="${response.client_code}"  class="edit-client btn btn-primary btn-sm rounded-circle d-flex align-items-center justify-content-center 
+                   position-absolute shadow" style="width: 36px; height: 36px; bottom: 10px; right: 10px;" data-bs-toggle="modal" data-bs-target="#editClientAddressModal">
+        <i class="bi bi-pencil-fill"></i>
+    </button>`;
+
+                            $('#clientAddress').html(addressHTML + edit_client).show();
+
+
+
+
+                            $('#id_currency_code').val($('#client_id').val(response.client_id)).trigger('change');
+                            if ($('#id_notes').val()) {
+                                $('#id_invoice_terms').summernote('code', $('#id_notes').val());
+
+                            }
+                            if ($('#id_notes').val()) {
+                                $('#id_invoice_notes').summernote('code', $('#id_notes').val());
+                            }
+                            $('#clientSearchBox').hide();
+                            $('.change-client').show();
+                            $('.new-client').hide();
+
+
+                        } else {
+                            location.reload();
+                        }
+
                     });
                 }
             },

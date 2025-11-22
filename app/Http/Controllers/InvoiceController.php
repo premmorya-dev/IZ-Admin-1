@@ -396,7 +396,6 @@ class InvoiceController extends Controller
 
 
 
-
         if (empty($data['invoice'])) {
             return abort(404);
         }
@@ -429,7 +428,12 @@ class InvoiceController extends Controller
             $data['client_details_html'] .= $data['invoice']->zip;
         }
 
+ $edit_client = '<button client-code="'. $data['invoice']->client_code.'"  class="edit-client btn btn-primary btn-sm rounded-circle d-flex align-items-center justify-content-center 
+                   position-absolute shadow" style="width: 36px; height: 36px; bottom: 10px; right: 10px;" data-bs-toggle="modal" data-bs-target="#editClientAddressModal">
+        <i class="bi bi-pencil-fill"></i>
+    </button>';
 
+      $data['client_details_html'] .=  $edit_client;
 
         $data['currencies'] = \DB::table('currencies')->orderBy('currency_name', 'ASC')->get();
         $data['templates'] = \DB::table('templates')->orderBy('template_name', 'ASC')->get();
@@ -543,11 +547,18 @@ class InvoiceController extends Controller
                 'invoice_date'     => $request->input('invoice_date'),
                 'due_date'         => $request->input('due_date'),
                 'sub_total'        => $request->input('hidden_sub_total'),
+
+
+                'taxable_value'        => $request->input('hidden_total_taxable'),
+                'cgst_amount'        => $request->input('hidden_total_cgst'),
+                'sgst_amount'        => $request->input('hidden_total_sgst'),
+                'igst_amount'        => $request->input('hidden_total_igst'),
+
                 'total_tax'        => $request->input('hidden_total_tax'),
                 'total_discount'   => $request->input('hidden_total_discount'),
                 'grand_total'      => $request->input('hidden_grand_total'),
                 'round_off'      => $request->input('hidden_round_off'),
-             
+
                 'total_due'        => $request->input('hidden_total_due'),
                 'notes'            => $request->input('notes'),
                 'terms'            => $request->input('terms'),
@@ -762,6 +773,10 @@ class InvoiceController extends Controller
                 'total_discount' => $totalDiscount,
                 'grand_total' => $grandTotal,
                 'round_off'      => $request->input('hidden_round_off'),
+                'taxable_value'        => $request->input('hidden_total_taxable'),
+                'cgst_amount'        => $request->input('hidden_total_cgst'),
+                'sgst_amount'        => $request->input('hidden_total_sgst'),
+                'igst_amount'        => $request->input('hidden_total_igst'),
                 'total_due' => $totalDue,
                 'notes' => $notes,
                 'terms' => $terms,
