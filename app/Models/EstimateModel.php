@@ -36,18 +36,23 @@ class EstimateModel extends Model
         'status',
         'sub_total',
         'total_tax',
+        'total_tax_percent',
+        'taxable_value',
+        'cgst_amount',
+        'sgst_amount',
+        'igst_amount',
+        'is_sent',
         'total_discount',
         'grand_total',
+        'round_off',
         'notes',
         'terms',
+        'display_shipping_status',
         'currency_code',
         'sent_at',
         'item_json',
         'template_id',
-        'display_shipping_status',
-        
     ];
-
     public $sortable = [
         'user_id',
         'client_id',

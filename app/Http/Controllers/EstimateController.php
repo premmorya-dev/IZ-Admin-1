@@ -306,6 +306,12 @@ class EstimateController extends Controller
             $data['client_details_html'] .= $data['estimate']->zip;
         }
 
+        $edit_client = '<button client-code="' . $data['estimate']->client_code . '"  class="edit-client btn btn-primary btn-sm rounded-circle d-flex align-items-center justify-content-center 
+                   position-absolute shadow" style="width: 36px; height: 36px; bottom: 10px; right: 10px;" data-bs-toggle="modal" data-bs-target="#editClientAddressModal">
+        <i class="bi bi-pencil-fill"></i>
+    </button>';
+
+        $data['client_details_html'] .=  $edit_client;
 
 
         $data['currencies'] = \DB::table('currencies')->orderBy('currency_name', 'ASC')->get();
@@ -410,9 +416,18 @@ class EstimateController extends Controller
                 'issue_date'     => $request->input('issue_date'),
                 'expiry_date'         => $request->input('expiry_date'),
                 'sub_total'        => $request->input('hidden_sub_total'),
+
+                'taxable_value'        => $request->input('hidden_total_taxable'),
+                'cgst_amount'        => $request->input('hidden_total_cgst'),
+                'sgst_amount'        => $request->input('hidden_total_sgst'),
+                'igst_amount'        => $request->input('hidden_total_igst'),
+
+
                 'total_tax'        => $request->input('hidden_total_tax'),
                 'total_discount'   => $request->input('hidden_total_discount'),
                 'grand_total'      => $request->input('hidden_grand_total'),
+                'round_off'      => $request->input('hidden_round_off'),
+
                 'notes'            => $request->input('notes'),
                 'terms'            => $request->input('terms'),
                 'currency_code'    => $request->input('currency_code'),
@@ -541,6 +556,14 @@ class EstimateController extends Controller
                 'issue_date' => $issueDate,
                 'expiry_date' => $expiryDate,
                 'status' => $status,
+
+                'taxable_value'        => $request->input('hidden_total_taxable'),
+                'cgst_amount'        => $request->input('hidden_total_cgst'),
+                'sgst_amount'        => $request->input('hidden_total_sgst'),
+                'igst_amount'        => $request->input('hidden_total_igst'),
+                'round_off'      => $request->input('hidden_round_off'),
+
+
                 'sub_total' => $subTotal,
                 'total_tax' => $totalTax,
                 'total_discount' => $totalDiscount,
