@@ -249,6 +249,7 @@ if (!function_exists('getShortcode')) {
             '{{invoice_advance_payment}}' => $doc->advance_payment ?? 0,
 
             '{{' . $type . '_total_due}}' => $doc->total_due ?? 0,
+            '{{' . $type . '_final_amount}}' => ($doc->grand_total +  $doc->round_off )  ?? 0 ,
             '{{' . $type . '_notes}}' => $doc->notes,
             '{{' . $type . '_terms}}' => $doc->terms,
             '{{' . $type . '_currency_code}}' => $doc->currency_code,

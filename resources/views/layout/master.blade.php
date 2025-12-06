@@ -258,6 +258,44 @@
 <!--end::Head-->
 <!-- Modal -->
 
+<!-- Floating Need Help Button -->
+<a href="https://wa.me/918750101087?text=Hi%20I%20need%20help%20with%20Invoicezy"
+   target="_blank"
+   class="floating-help-btn">
+    <i class="bi bi-whatsapp text-white"></i> Need Help?
+</a>
+
+<style>
+    .floating-help-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #25D366;
+        color: #fff;
+        padding: 12px 18px;
+        border-radius: 40px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.20);
+        text-decoration: none;
+        transition: 0.3s ease;
+        z-index: 9999;
+    }
+
+    .floating-help-btn i {
+        font-size: 22px;
+    }
+
+    .floating-help-btn:hover {
+        transform: scale(1.08);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+    }
+</style>
+
+
 <div class="spinner-border text-primary spinner-format" id="loader" style="display:none;" role="status">
     <span class="visually-hidden"></span>
 </div>
