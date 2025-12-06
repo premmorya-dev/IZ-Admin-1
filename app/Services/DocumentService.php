@@ -73,11 +73,25 @@ abstract class DocumentService
             ->where('users.user_id', $userId)
             ->first();
 
-        if ($document->user_state_id == $document->client_state_id) {
-            $this->same_state = true;
-        } else {
-            $this->same_state = false;
+
+        if ($partyTable  == 'clients') {
+            if ($document->user_state_id == $document->client_state_id) {
+                $this->same_state = true;
+            } else {
+                $this->same_state = false;
+            }
         }
+
+        if ($partyTable  == 'vendors') {
+            if ($document->user_state_id == $document->vendor_state_id) {
+                $this->same_state = true;
+            } else {
+                $this->same_state = false;
+            }
+        }
+
+
+
 
 
 

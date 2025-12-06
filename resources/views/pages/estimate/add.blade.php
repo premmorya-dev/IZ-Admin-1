@@ -29,14 +29,14 @@
     <h2 class="py-3">Add Estimate</h2>
 
 
-    <form action="#" id="invoice-generate" method="POST">
+    <form action="#" id="estimate-generate" method="POST">
         @csrf
 
 
         <div class="page-header-fixed mb-3 d-flex justify-content-between align-items-center">
-            <div><a href="{{ route('invoice.list') }}" class="btn btn-outline-secondary btn-sm"> <i data-lucide="arrow-left"></i> Back </a> </div>
+            <div><a href="{{ route('estimate.list') }}" class="btn btn-outline-secondary btn-sm"> <i data-lucide="arrow-left"></i> Back </a> </div>
 
-            @include('pages/invoice/actions.create_invoice_action')
+            @include('pages/estimate/actions.create_estimate_action')
         </div>
 
 
@@ -90,7 +90,7 @@
                 <div class="mt-8 ">
                     <div class="mb-1 mt-2 d-flex justify-content-between">
                         <h4 class="mb-1">From </h4>
-                         <input type="hidden" name="user_state_id" id="user_state_id" value="{{ setting('state_id') }}">
+                        <input type="hidden" name="user_state_id" id="user_state_id" value="{{ setting('state_id') }}">
                         <a href="{{ route('settings.edit') }}" target="__blank" style="text-decoration: none;"> ✏️ Edit Business Profile </a>
                     </div>
 
@@ -133,7 +133,7 @@
                     <div id="clientSearchBox">
                         <input type="text" class="form-control " id="client" name="client_name" placeholder="Type client name, email, contact number to search client" autocomplete="off">
                         <input type="hidden" name="client_id" id="client_id">
-                         <input type="hidden" name="client_state_id" id="client_state_id">
+                        <input type="hidden" name="client_state_id" id="client_state_id">
                         <!-- Dropdown results -->
                         <div id="clientList" class="list-group w-100 z-3 shadow-sm" style="max-height: 200px; overflow-y: auto; display: none;"></div>
                     </div>
@@ -152,7 +152,7 @@
                 <div class="mt-3">
                     <div class="form-check form-switch">
                         <input class="form-check-input" type="checkbox" id="display_shipping_status" name="display_shipping_status"
-                          {{ old('display_shipping_status',setting('shipping_status')) == 'Y' ? 'checked' : '' }}>
+                            {{ old('display_shipping_status',setting('shipping_status')) == 'Y' ? 'checked' : '' }}>
 
                         <label class="form-check-label" for="display_shipping_status">Show Shipping</label>
                     </div>
@@ -169,7 +169,7 @@
                 <div class="mt-3">
                     <label for="expiry_date" class="form-label text-danger">Expiry Date *</label>
                     <div class="input-group">
-                        <input type="text" id="expiry_date" class="form-control" name="expiry_date" placeholder="Select Invoice Due Date">
+                        <input type="text" id="expiry_date" class="form-control" name="expiry_date" placeholder="Select Estimate Expiry Date">
                         <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
                     </div>
                 </div>
@@ -351,7 +351,7 @@
         </div>
     </div>
 
- <!-- Edit Client Model -->
+    <!-- Edit Client Model -->
     <div class="modal fade" id="editClient-modal" tabindex="-1" aria-labelledby="editClientModalLabel" aria-hidden="true">
         <div class="modal-dialog  modal-xl">
             <div class="modal-content">
@@ -395,7 +395,7 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 
- <script>
+    <script>
         $(document).on('click', '.edit-client', function(e) {
             e.preventDefault();
             $('.client-modal-body').empty();
@@ -502,7 +502,7 @@
     <script>
         $(document).ready(function() {
 
-            function generateInvoiceNumber() {
+            function generateEstimateNumber() {
                 let prefix = "{{ setting('estimate_prefix') }}";
                 let now = new Date();
                 let formattedDate = now.getFullYear().toString() +
@@ -515,7 +515,7 @@
                 return `${prefix}-${formattedDate}-${uniqueId}`;
             }
 
-            function updateInvoiceField() {
+            function updateEstimateField() {
                 const isCustom = $("#estimateModeSwitch").is(":checked");
 
                 if (isCustom) {
@@ -525,7 +525,7 @@
                         .removeClass("bg-light")
                         .attr("placeholder", "Enter manually");
                 } else {
-                    let autoValue = generateInvoiceNumber();
+                    let autoValue = generateEstimateNumber();
                     $("#estimate_number")
                         .val(autoValue)
                         .prop("readonly", true)
@@ -538,11 +538,11 @@
 
             // When the switch is toggled
             $("#estimateModeSwitch").change(function() {
-                updateInvoiceField();
+                updateEstimateField();
             });
 
             // On page load
-            updateInvoiceField();
+            updateEstimateField();
         });
     </script>
 
@@ -588,10 +588,14 @@
                 ]
             });
 
-            $('.save-invoice').on('click', function(e) {
+            $('.save-estimate').on('click', function(e) {
                 e.preventDefault();
 
                 $('#send_status').val($(this).attr('send-status'))
+
+                if ($(this).attr('estimate-accept')) {
+                    $('#estimate_accept').val($(this).attr('estimate-accept'))
+                }
 
 
                 // 🛠️ Update textarea values before creating FormData
@@ -600,7 +604,7 @@
                     document.getElementById(id).value = data;
                 });
 
-                let formData = new FormData(document.getElementById('invoice-generate'));
+                let formData = new FormData(document.getElementById('estimate-generate'));
 
                 Swal.fire({
                     title: "Processing...",
@@ -784,10 +788,10 @@
 
                 $('#client').val(client.client_name);
                 $('#client_id').val(client.id);
-                 $('#client_state_id').val(client.state_id);
+                $('#client_state_id').val(client.state_id);
                 $('#clientList').hide();
 
-                   let edit_client = `<button client-code="${client.client_code}"  class="edit-client btn btn-primary btn-sm rounded-circle d-flex align-items-center justify-content-center 
+                let edit_client = `<button client-code="${client.client_code}"  class="edit-client btn btn-primary btn-sm rounded-circle d-flex align-items-center justify-content-center 
                    position-absolute shadow" style="width: 36px; height: 36px; bottom: 10px; right: 10px;" data-bs-toggle="modal" data-bs-target="#editClientAddressModal">
         <i class="bi bi-pencil-fill"></i>
     </button>`;
@@ -795,7 +799,7 @@
                 $('#clientAddress').html(addressHTML + edit_client).show();
 
                 $('#currency_code').val(client.currency_code).trigger('change');
-                if (client.notes && client.notes.replace(/<[^>]*>/g, '').trim() !== '') { 
+                if (client.notes && client.notes.replace(/<[^>]*>/g, '').trim() !== '') {
                     $('#id_estimate_notes').summernote('code', client.notes);
                 }
 
@@ -1040,7 +1044,7 @@
             const grandTotal = subtotal - totalDiscount + totalTax;
             document.getElementById('grand-total').innerText = `${currencySymbol}${grandTotal.toFixed(2)}`;
 
-             // Round to nearest rupee
+            // Round to nearest rupee
             let roundedTotal = Math.round(grandTotal);
             // Calculate round-off difference
             let roundOff = (roundedTotal - grandTotal).toFixed(2);

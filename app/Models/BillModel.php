@@ -12,7 +12,7 @@ class BillModel extends Model
     protected $table = 'bills';
     protected $primaryKey = 'bill_id';
 
-    protected $fillable = [
+       protected $fillable = [
         'user_id',
         'vendor_id',
         'bill_number',
@@ -23,6 +23,10 @@ class BillModel extends Model
         'bill_status',
         'sub_total',
         'total_tax',
+        'taxable_value',
+        'cgst_amount',
+        'sgst_amount',
+        'igst_amount',
         'total_discount',
         'grand_total',
         'round_off',
@@ -33,9 +37,7 @@ class BillModel extends Model
         'bill_file_path',
         'notes',
         'terms',
-        'supply_source_state_id',
         'template_id',
-        'destination_source_state_id',
         'bill_month',
         'bill_financial_year',
         'is_recurring',
