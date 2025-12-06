@@ -429,6 +429,12 @@ class BillController extends Controller
             $data['vendor_details_html'] .= $data['bill']->zip;
         }
 
+        $edit_vendor = '<button vendor-code="' . $data['bill']->vendor_code . '"  class="edit-vendor btn btn-primary btn-sm rounded-circle d-flex align-items-center justify-content-center 
+                   position-absolute shadow" style="width: 36px; height: 36px; bottom: 10px; right: 10px;" data-bs-toggle="modal" data-bs-target="#editVendorAddressModal">
+        <i class="bi bi-pencil-fill"></i>
+    </button>';
+
+        $data['vendor_details_html'] .=  $edit_vendor;
 
 
         $data['currencies'] = \DB::table('currencies')->orderBy('currency_name', 'ASC')->get();
@@ -544,6 +550,14 @@ class BillController extends Controller
                 'total_tax'        => $request->input('hidden_total_tax'),
                 'total_discount'   => $request->input('hidden_total_discount'),
                 'grand_total'      => $request->input('hidden_grand_total'),
+
+                'taxable_value'        => $request->input('hidden_total_taxable'),
+                'cgst_amount'        => $request->input('hidden_total_cgst'),
+                'sgst_amount'        => $request->input('hidden_total_sgst'),
+                'igst_amount'        => $request->input('hidden_total_igst'),
+
+
+
                 'round_off'      => $request->input('hidden_round_off'),
                 'total_due'        => $request->input('hidden_total_due'),
                 'notes'            => $request->input('notes'),
@@ -717,6 +731,15 @@ class BillController extends Controller
                 'total_tax'        => $request->input('hidden_total_tax'),
                 'total_discount'   => $request->input('hidden_total_discount'),
                 'grand_total'      => $request->input('hidden_grand_total'),
+
+                'taxable_value'        => $request->input('hidden_total_taxable'),
+                'cgst_amount'        => $request->input('hidden_total_cgst'),
+                'sgst_amount'        => $request->input('hidden_total_sgst'),
+                'igst_amount'        => $request->input('hidden_total_igst'),
+
+
+
+
                 'round_off'      => $request->input('hidden_round_off'),
                 'total_due'        => $request->input('hidden_total_due'),
                 'notes'            => $request->input('notes'),

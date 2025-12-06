@@ -93,6 +93,7 @@
                 <div class="mt-8 ">
                     <div class="mb-1 mt-2 d-flex justify-content-between">
                         <h4 class="mb-1">To </h4>
+                         <input type="hidden" name="user_state_id" id="user_state_id" value="{{ setting('state_id') }}">
                         <a href="{{ route('settings.edit') }}" target="__blank" style="text-decoration: none;"> ✏️ Edit Business Profile </a>
                     </div>
 
@@ -138,12 +139,13 @@
                     <div id="vendorSearchBox">
                         <input type="text" class="form-control " id="vendor" name="vendor_name" placeholder="Type vendor name, email, contact number to search vendor" autocomplete="off">
                         <input type="hidden" name="vendor_id" id="vendor_id">
+                         <input type="hidden" name="vendor_state_id" id="vendor_state_id">
                         <!-- Dropdown results -->
                         <div id="vendorList" class="list-group w-100 z-3 shadow-sm" style="max-height: 200px; overflow-y: auto; display: none;"></div>
                     </div>
 
                     <!-- Display vendor address here -->
-                    <div id="vendorAddress" class="mt-3 border p-2 rounded bg-light" style="display: none;"></div>
+                    <div id="vendorAddress" class="mt-3 border p-3 rounded bg-light position-relative" style="display: none;"></div>
                 </div>
 
 
@@ -277,34 +279,6 @@
                             <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
                         </div>
                     </div>
-
-
-
-                    <div class="col-md-6 mt-3">
-                        <label for="supply_source_state_id" class="form-label text-danger">Source of Supply *</label>
-                        <select name="supply_source_state_id" id="supply_source_state_id" class="form-select">
-                            <option value="">Please Select</option>
-                            @foreach($data['states'] as $state)
-                            <option value="{{ $state->state_id }}" {{ old('supply_source_state_id') == $state->state_id ? 'selected' : '' }}>
-                                {{ $state->state_name }}
-                            </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-                    <div class="col-md-6 mt-3">
-                        <label for="destination_source_state_id" class="form-label text-danger">Source of Destination *</label>
-                        <select name="destination_source_state_id" id="destination_source_state_id" class="form-select">
-                            <option value="">Please Select</option>
-                            @foreach($data['states'] as $state)
-                            <option value="{{ $state->state_id }}" {{ old('destination_source_state_id') == $state->state_id ? 'selected' : '' }}>
-                                {{ $state->state_name }}
-                            </option>
-                            @endforeach
-                        </select>
-                    </div>
-
-
 
 
                 </div>
@@ -451,7 +425,7 @@
                 <!-- bill Summary Section -->
                 <div class="summary-box mt-5">
                     <h5>Bill Summary</h5>
-                    <div class="row">
+                      <div class="row">
                         <div class="col-8 col-md-7 col-label">Subtotal:</div>
                         <div class="col-4 col-md-5 text-end" id="subtotal">−$0.00</div>
                     </div>
@@ -459,6 +433,23 @@
                         <div class="col-8 col-md-7 col-label">Total Discount:</div>
                         <div class="col-4 col-md-5 text-end" id="total-discount">−$0.00</div>
                     </div>
+
+                    <div class="row same-state-class">
+                        <div class="col-8 col-md-7 col-label">Total CGST:</div>
+                        <div class="col-4 col-md-5 text-end" id="total-cgst">$0.00</div>
+                    </div>
+
+                    <div class="row same-state-class">
+                        <div class="col-8 col-md-7 col-label">Total SGST:</div>
+                        <div class="col-4 col-md-5 text-end" id="total-sgst">$0.00</div>
+                    </div>
+
+                    <div class="row diffrent-state-class">
+                        <div class="col-8 col-md-7 col-label">Total IGST:</div>
+                        <div class="col-4 col-md-5 text-end" id="total-igst">$0.00</div>
+                    </div>
+
+
                     <div class="row">
                         <div class="col-8 col-md-7 col-label">Total Tax:</div>
                         <div class="col-4 col-md-5 text-end" id="total-tax">$0.00</div>
@@ -480,19 +471,22 @@
                         <div class="col-8 col-md-7 col-label">Remaining Balance:</div>
                         <div class="col-4 col-md-5 text-end" id="remaining-balance">$0.00</div>
                     </div>
+
                 </div>
 
 
 
 
-                <input type="hidden" name="hidden_sub_total" value="" id="hidden_sub_total">
+                 <input type="hidden" name="hidden_sub_total" value="" id="hidden_sub_total">
                 <input type="hidden" name="hidden_total_discount" value="" id="hidden_total_discount">
+                <input type="hidden" name="hidden_total_taxable" value="" id="hidden_total_taxable">
+                <input type="hidden" name="hidden_total_cgst" value="" id="hidden_total_cgst">
+                <input type="hidden" name="hidden_total_sgst" value="" id="hidden_total_sgst">
+                <input type="hidden" name="hidden_total_igst" value="" id="hidden_total_igst">
                 <input type="hidden" name="hidden_total_tax" value="" id="hidden_total_tax">
                 <input type="hidden" name="hidden_grand_total" value="" id="hidden_grand_total">
-                <input type="hidden" name="hidden_advance_payment" value="" id="hidden_advance_payment">
                 <input type="hidden" name="hidden_round_off" value="" id="hidden_round_off">
                 <input type="hidden" name="hidden_total_due" value="" id="hidden_total_due">
-
 
 
 
@@ -560,6 +554,24 @@
         </div>
     </div>
 
+<!-- Edit vendor Model -->
+
+    <div class="modal fade" id="editvendor-modal" tabindex="-1" aria-labelledby="editvendorModalLabel" aria-hidden="true">
+        <div class="modal-dialog  modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white rounded-top-3">
+                    <h4 class="modal-title" id="editvendorModalLabel">Edit Vendor</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="editvendor-modal-body py-3 px-3">
+
+                </div>
+                <div class="modal-footer">
+
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Add Tax Model -->
     <div class="modal fade" id="tax-modal" tabindex="-1" aria-labelledby="taxModalLabel" aria-hidden="true">
@@ -620,6 +632,99 @@
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+      <script>
+        $(document).on('click', '.edit-vendor', function(e) {
+            e.preventDefault();
+            $('.vendor-modal-body').empty();
+
+            var vendor_code = $(this).attr('vendor-code');
+
+            try {
+
+                var editors = {}; // store editors globally so they are not reinitialized
+
+                $.ajax({
+                    url: "{{ route('vendor.edit') }}",
+                    data: {
+                        vendor_code: vendor_code
+                    },
+                    type: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    beforeSend: function() {
+                        // Destroy any existing CKEditor instances before loading new HTML
+                        for (let id in editors) {
+                            if (editors[id]) {
+                                editors[id].destroy().catch(() => {});
+                                editors[id] = null;
+                            }
+                        }
+                    },
+                    success: function(response) {
+
+                        $('.editvendor-modal-body').html(response);
+                        $('#editvendor-modal').modal('show');
+
+                        $('#editvendor-modal').on('shown.bs.modal', function() {
+                            // Initialize Choices.js (always safe to re-init)
+
+                            ['#id_country_id', '#id_state_id', '#id_currency_code'].forEach(function(selector) {
+                                const el = document.querySelector(selector);
+                                if (!el) return; // skip if element not found
+
+                                if (!el.choices) {
+                                    // Only initialize if not already done
+                                    el.choices = new Choices(el, {
+                                        searchEnabled: true,
+                                        itemSelectText: '',
+                                        shouldSort: false
+                                    });
+                                }
+                            });
+
+
+                            $('#id_notes').summernote({
+                                placeholder: 'Enter notes...',
+                                height: 120,
+                                toolbar: [
+                                    ['style', ['bold', 'italic', 'underline']],
+                                    ['para', ['ul', 'ol', 'paragraph']],
+                                    ['insert', ['link']],
+                                    ['view', ['codeview']]
+                                ]
+                            });
+
+                            $('#id_terms').summernote({
+                                placeholder: 'Enter terms...',
+                                height: 120,
+                                toolbar: [
+                                    ['style', ['bold', 'italic', 'underline']],
+                                    ['para', ['ul', 'ol', 'paragraph']],
+                                    ['insert', ['link']],
+                                    ['view', ['codeview']]
+                                ]
+                            });
+
+
+
+                        });
+
+
+
+
+
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error:', error);
+            }
+
+
+        });
+    </script>
 
 
     <script>
@@ -953,7 +1058,7 @@
     <script>
         $(document).ready(function() {
 
-            $('#template_id, #upi_id, #currency_code,#supply_source_state_id,#destination_source_state_id').select2({
+            $('#template_id, #upi_id, #currency_code').select2({
                 placeholder: "Please select",
                 allowClear: true
             });
@@ -1117,12 +1222,14 @@
                                     $('#vendorList').append(`
                 <a href="javascript:void(0);" class="list-group-item list-group-item-action mb-2 rounded shadow-sm p-3 select-vendor"
                    data-id="${vendor.vendor_id}"
+                     data-vendor_code="${vendor.vendor_code}"
                    data-company_name="${vendor.company_name ?? ''}"
                    data-vendor_name="${vendor.vendor_name ?? ''}"
                    data-address_1="${vendor.address_1 ?? ''}"
                    data-address_2="${vendor.address_2 ?? ''}"
                    data-city="${vendor.city ?? ''}"
                    data-state_name="${vendor.state_name ?? ''}"
+                     data-state_id="${vendor.state_id ?? ''}"
                    data-country_name="${vendor.country_name ?? ''}"
                    data-currency_code="${vendor.currency_code ?? ''}"
                    data-notes="${vendor.notes ?? ''}"
@@ -1184,9 +1291,15 @@
 
                 $('#vendor').val(vendor.vendor_name);
                 $('#vendor_id').val(vendor.id);
+                $('#vendor_state_id').val(vendor.state_id);
                 $('#vendorList').hide();
 
-                $('#vendorAddress').html(addressHTML).show();
+                   let edit_vendor = `<button vendor-code="${vendor.vendor_code}"  class="edit-vendor btn btn-primary btn-sm rounded-circle d-flex align-items-center justify-content-center 
+                   position-absolute shadow" style="width: 36px; height: 36px; bottom: 10px; right: 10px;" data-bs-toggle="modal" data-bs-target="#editVendorAddressModal">
+        <i class="bi bi-pencil-fill"></i>
+    </button>`;
+
+                $('#vendorAddress').html(addressHTML + edit_vendor).show();
 
                 $('#currency_code').val(vendor.currency_code).trigger('change');
 
@@ -1381,6 +1494,12 @@
             let totalDiscount = 0;
             let totalTax = 0;
 
+                 let total_cgstAmount = 0;
+            let total_sgstAmount = 0;
+            let total_igstAmount = 0;
+            let total_taxable = 0;
+
+
             const items = document.querySelectorAll('[data-item-id]');
             items.forEach((item) => {
                 const quantity = parseFloat(item.querySelector('.quantity').value || 0);
@@ -1388,8 +1507,38 @@
                 const discountPercent = parseFloat(item.querySelector('.discount-select').value || 0);
                 const taxPercent = parseFloat(item.querySelector('.tax-select').value || 0);
 
-                const base = quantity * rate;
+                          const base = quantity * rate;
                 const discount = (discountPercent / 100) * base;
+                const taxable = base - discount;
+
+                let isSameState = $('#user_state_id').val() == $('#vendor_state_id').val();
+
+                let cgstPercent = 0;
+                let sgstPercent = 0;
+                let igstPercent = 0;
+
+                if (isSameState) {
+                    $('.same-state-class').removeClass('d-none');
+                    $('.diffrent-state-class').addClass('d-none');
+                    // CGST + SGST
+                    cgstPercent = taxPercent / 2;
+                    sgstPercent = taxPercent / 2;
+                    igstPercent = 0;
+                } else {
+                    $('.same-state-class').addClass('d-none');
+                    $('.diffrent-state-class').removeClass('d-none');
+                    // IGST only
+                    cgstPercent = 0;
+                    sgstPercent = 0;
+                    igstPercent = taxPercent;
+                }
+
+                // Calculate GST amount
+                let cgstAmount = (taxable * cgstPercent) / 100;
+                let sgstAmount = (taxable * sgstPercent) / 100;
+                let igstAmount = (taxable * igstPercent) / 100;
+
+
                 const tax = (taxPercent / 100) * (base - discount);
                 const amount = base - discount + tax;
 
@@ -1406,16 +1555,26 @@
                 subtotal += base;
                 totalDiscount += discount;
                 totalTax += tax;
+                total_taxable += taxable;
+
+                total_cgstAmount += cgstAmount;
+                total_sgstAmount += sgstAmount;
+                total_igstAmount += igstAmount;
             });
 
-            // Update summary
-            document.getElementById('subtotal').innerText = `${currencySymbol}${subtotal.toFixed(2)}`;
+             document.getElementById('subtotal').innerText = `${currencySymbol}${subtotal.toFixed(2)}`;
             document.getElementById('total-discount').innerText = `−${currencySymbol}${totalDiscount.toFixed(2)}`;
+
+            document.getElementById('total-cgst').innerText = `${currencySymbol}${total_cgstAmount.toFixed(2)}`;
+            document.getElementById('total-sgst').innerText = `${currencySymbol}${total_sgstAmount.toFixed(2)}`;
+            document.getElementById('total-igst').innerText = `${currencySymbol}${total_igstAmount.toFixed(2)}`;
+
+
             document.getElementById('total-tax').innerText = `${currencySymbol}${totalTax.toFixed(2)}`;
             const grandTotal = subtotal - totalDiscount + totalTax;
-            document.getElementById('grand-total').innerText = `${currencySymbol}${grandTotal.toFixed(2)}`;
+            document.getElementById('grand-total').innerText = `${currencySymbol}${grandTotal.toFixed(2)}`;    
 
-            // Round to nearest rupee
+              // Round to nearest rupee
             let roundedTotal = Math.round(grandTotal);
 
 
@@ -1429,9 +1588,12 @@
             const remainingBalance = roundedTotal;
             document.getElementById('remaining-balance').innerText = `${currencySymbol}${remainingBalance.toFixed(2)}`;
 
-
             $("#hidden_sub_total").val(subtotal.toFixed(2));
             $("#hidden_total_discount").val(totalDiscount.toFixed(2));
+            $("#hidden_total_taxable").val(total_taxable.toFixed(2));
+            $("#hidden_total_cgst").val(total_cgstAmount.toFixed(2));
+            $("#hidden_total_sgst").val(total_sgstAmount.toFixed(2));
+            $("#hidden_total_igst").val(total_igstAmount.toFixed(2));
             $("#hidden_total_tax").val(totalTax.toFixed(2));
             $("#hidden_grand_total").val(grandTotal.toFixed(2));
             $("#hidden_total_due").val(remainingBalance.toFixed(2));

@@ -3,10 +3,11 @@
     <div class="dropdown-menu custom-dropdown">
         <a href="{{ route('estimate.update') }}" class="update-estimate"  send-status="false" ><i data-lucide="save" class="text-primary"></i> Update</a>
         <a href="#" class="update-estimate" send-status="true" ><i data-lucide="send" class="text-info"></i> Update & Send Estimate</a>
-        <a href="#"  send-status="false" ><i data-lucide="indian-rupee" class="text-success"></i> Update & Paid</a>
+        <a href="#"  class="update-estimate" estimate-accept="true" send-status="false" ><i data-lucide="indian-rupee" class="text-success"></i> Update & Accept</a>
     </div>
 </div>
 <input type="hidden" name="send_status" id="send_status"  value="" >
+<input type="hidden" name="estimate_accept" id="estimate_accept"  value="" >
 
 <script>
     function toggleDropdown(button) {

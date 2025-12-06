@@ -655,7 +655,11 @@
                 e.preventDefault();
 
                 $('#send_status').val($(this).attr('send-status'))
-
+                
+                if($(this).attr('estimate-accept')){
+                   $('#estimate_accept').val($(this).attr('estimate-accept'))
+                }
+               
 
                 // 🛠️ Update textarea values before creating FormData
                 Object.keys(editors).forEach(id => {

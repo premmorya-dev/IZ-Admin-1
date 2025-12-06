@@ -456,6 +456,12 @@ class EstimateController extends Controller
                         ->update(['is_sent' => 'submitted']);
                 }
             }
+            if ($request->has('estimate_accept') && $request->input('estimate_accept') == 'true') {
+                DB::table('estimates')->where('estimate_id', $estimate->estimate_id) // Use the estimate_id here
+                    ->update([
+                        'status' => 'accepted',
+                    ]);
+            }
 
             return response()->json([
                 "error" => 0,
@@ -614,6 +620,13 @@ class EstimateController extends Controller
                 }
             }
 
+
+            if ( !empty($lastInsertedId) &&  $request->has('estimate_accept') && $request->input('estimate_accept') == 'true') {
+                DB::table('estimates')->where('estimate_id', $lastInsertedId) // Use the estimate_id here
+                    ->update([
+                        'status' => 'accepted',
+                    ]);
+            }
 
 
 
