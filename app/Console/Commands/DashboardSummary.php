@@ -145,6 +145,7 @@ class DashboardSummary extends Command
 
       $data['total_revenue'] = DB::table('invoices')
         ->where('user_id', $dashboard->user_id)
+        ->where('status', 'paid')
         ->sum('grand_total');
 
       $data['status_pie_chart'] = json_encode([

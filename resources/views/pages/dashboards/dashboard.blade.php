@@ -110,7 +110,7 @@
                 <div class="card card-summary p-3 text-center">
                     <i class="bi bi-cash-coin mb-2"></i>
                     <h5 class="fw-bold">Revenue</h5>
-                    <p class="fs-4 text-success">${{ number_format($data['summary']->total_revenue ?? 0, 2)  }}</p>
+                    <p class="fs-4 text-success">{{$data['currency_symbol']}}{{ number_format($data['summary']->total_revenue ?? 0, 2)  }}</p>
                 </div>
             </div>
             <div class="col-md-3 col-sm-6">
