@@ -109,6 +109,7 @@ class SendInvoiceEmails extends Command
         'clients.email as client_email',
         'users.first_name as first_name',
         'users.last_name as last_name',
+        'settings.company_name as company_name',
 
       )
       ->leftJoin('settings', 'settings.user_id', 'invoices.user_id')
