@@ -76,7 +76,7 @@
                                 data-order_id="{{ $data['razorpay_order_id'] }}"
                                 data-name="InvoiceZy"
                                 data-description="InvoiceZy Subcription Plan {{ $plan->name }} {{  $data['plan_start'] }} to {{ $data['plan_end'] }} | user_code: {{ auth()->id() }} "
-                                data-image="https://pro.invoicezy.com/logo.png"
+                                data-image="{{ asset('razorpay_invoicezy_logo.jpg') }}"
                                 data-notes.user_code="{{ auth()->id() }}"
                                 data-prefill.name="{{ $user->first_name }} {{ $user->last_name }}"
                                 data-prefill.email="{{ $user->email }}"
