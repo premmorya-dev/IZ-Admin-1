@@ -25,8 +25,7 @@ class DashboardSummary extends Command
 
     $user_id = $this->option('user_id');
 
-    $dashboards = DB::table('dashboard_summary')->select('user_id')
-      ->limit(10)
+    $dashboards = DB::table('dashboard_summary')->select('user_id')      
       ->get();
 
 
