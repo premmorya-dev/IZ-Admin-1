@@ -99,26 +99,12 @@ class SettingController extends Controller
 
         $user = Auth::user();
         $validator = Validator::make($request->all(), [
-
             'first_name' => 'required|string|max:100',
             'last_name' => 'required|string|max:100',
             'email' => 'required|email|max:191|unique:users,email,' . $user->user_id . ',user_id',
             'current_password' => 'nullable|required_with:new_password,confirm_password|string',
             'new_password' => 'nullable|required_with:current_password,confirm_password|string|min:8|different:current_password',
-            'confirm_password' => 'nullable|required_with:new_password|same:new_password',
-
-
-            'company_name' => 'required|string|max:100',
-            'pincode' => 'nullable|string|max:10',
-            'state_id' => 'required|integer',
-            'country_id' => 'required|integer',
-            'is_company' => 'required|in:Y,N',
-        ], [
-
-            'state_id.required' => 'Please select a state.',
-            'country_id.required' => 'Please select a country.',
-            'is_company.required' => 'Please indicate if you are representing a company.',
-            'is_company.in' => 'Invalid value for company status.',
+            'confirm_password' => 'nullable|required_with:new_password|same:new_password',         
         ]);
 
         if ($validator->fails()) {
@@ -140,23 +126,7 @@ class SettingController extends Controller
             $user->password = Hash::make($request->new_password);
         }
 
-        $user->save();
-
-
-        $setting = SettingModel::where('user_id', $id)->first();
-
-
-        // === Update Settings ===
-        SettingModel::where('user_id', $id)->update([
-            'default_currency' => $data['default_currency'] ?? null,
-            'company_name' => $data['company_name'],
-            'is_company' => $data['is_company'],
-            'address_1' => $request->input('address_1'),
-            'address_2' => $request->input('address_2'),
-            'state_id' => $data['state_id'],
-            'country_id' => $data['country_id'],
-            'pincode' => $data['pincode'] ?? null,
-        ]);
+        $user->save();       
 
         return redirect()->back()->with('success', 'Account updated successfully!');
     }

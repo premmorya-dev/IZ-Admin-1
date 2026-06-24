@@ -20,26 +20,11 @@
                 <div class="accordion-body">
                     <div class="accordion-body">
                         <form action="" method="GET" class="row g-3 mb-4">
-                            <div class="col-md-3">
-                                <label for="select_estimate_param" class="form-label">Estimate Parameter</label>
-                                <select id="select_estimate_param" name="select_estimate_param" class="form-select">                                  
-                                    <option value="estimate_number_is" {{ request('select_estimate_param') ==   'estimate_number_is' ? 'selected' : '' }}>Estimate # IS</option>                                  
-                                    <option value="estimate_number_multiline" {{ request('select_estimate_param') ==   'estimate_number_multiline' ? 'selected' : '' }}>Estimate # IN (Multi Line)</option>
-                                </select>
-                            </div>
 
-                          
                             <div class="col-md-3 " id="estimate-number-section">
                                 <label for="estimate_number" class="form-label">Estimate Number</label>
-                                <input type="text" name="estimate_number" value="{{ request('estimate_number') }}" id="estimate_number" placeholder="Registration Id" class="form-control">
+                                <input type="text" name="estimate_number" value="{{ request('estimate_number') }}" id="estimate_number" placeholder="EST-202606241516" class="form-control">
                             </div>
-
-                            <div class="col-md-3 " id="estimate-number-multiline-section">
-                                <label for="estimate_number_multiline" class="form-label">Estimate Number</label>
-                                <textarea name="estimate_number_multiline" id="estimate_number_multiline" class="form-control">{{ request('estimate_number_multiline') }}</textarea>
-                            </div>
-
-
 
                             <div class="col-md-3">
                                 <label for="status" class="form-label">Status</label>
@@ -50,24 +35,6 @@
                                     <option value="rejected" {{ in_array('rejected', (array) explode("," , request('status') )  ) ? 'selected' : '' }}>Rejected</option>
                                     <option value="expired" {{ in_array('expired', (array) explode("," , request('status') )  ) ? 'selected' : '' }}>Expired</option>
                                 </select>
-                            </div>
-
-                            <div class="col-md-3 ">
-                                <label for="sub_total" class="form-label">Sub Total</label>
-                                <input type="number" name="sub_total" value="{{ request('sub_total') }}" id="sub_total" placeholder="Sub Total" class="form-control">
-                            </div>
-                            <div class="col-md-3 ">
-                                <label for="tax_total" class="form-label">Tax Total</label>
-                                <input type="number" name="tax_total" value="{{ request('tax_total') }}" id="tax_total" placeholder="Tax Total" class="form-control">
-                            </div>
-                            <div class="col-md-3 ">
-                                <label for="discount" class="form-label">Discount</label>
-                                <input type="number" name="discount" value="{{ request('discount') }}" id="discount" placeholder="Discount" class="form-control">
-                            </div>
-
-                            <div class="col-md-3 ">
-                                <label for="total" class="form-label">Total</label>
-                                <input type="number" name="grand_total" value="{{ request('grand_total') }}" id="grand_total" placeholder="Total" class="form-control">
                             </div>
 
                             <div class="col-md-3">
@@ -134,7 +101,7 @@
             collapseInstance.hide();
         } else {
             collapseInstance.show();
-           
+
         }
     }
 </script>
@@ -144,70 +111,7 @@
 
 
 
-<script>
 
-$(document).ready(function() {
-
-    function refreshSelectCustomerParam(select_estimate_param) {
-            if (select_estimate_param == 'estimate_id_is') {
-                $('#estimate_id').attr('placeholder', '12345')
-            } else if (select_estimate_param == 'estimate_id_in') {
-                $('#estimate_id').attr('placeholder', '12345,1265')
-            } else if (select_estimate_param == 'estimate_id_multiline') {
-                $('#estimate_id_multiline').attr('placeholder', '12345\n1265')
-            } else if (select_estimate_param == 'estimate_number_is') {
-                $('#estimate_number').attr('placeholder', 'EST-2023')
-            } else if (select_estimate_param == 'estimate_number_in') {
-                $('#estimate_number').attr('placeholder', 'EST-2023,EST-20232')
-            } else if (select_estimate_param == 'estimate_number_multiline') {
-                $('#estimate_number_multiline').attr('placeholder', 'EST-2023\nEST-20232')
-            }
-        }
-
-        function refreshCustomerParam(select_estimate_param) {
-            if (select_estimate_param == 'estimate_id_is' || select_estimate_param == 'estimate_id_in') {
-                $('#estimate-id-section').show();
-                $('#estimate-number-section').hide();             
-                $('#estimate-id-multiline-section').hide();
-                $('#estimate-number-multiline-section').hide();
-            } else if (select_estimate_param == 'estimate_id_multiline') {
-                $('#estimate-id-multiline-section').show();
-                $('#estimate-id-section').hide();
-                $('#estimate-number-section').hide();            
-                $('#estimate-number-multiline-section').hide();
-            } else if (select_estimate_param == 'estimate_number_is' || select_estimate_param == 'estimate_number_in') {
-                $('#estimate-id-section').hide();
-                $('#estimate-number-section').show();              
-                $('#estimate-id-multiline-section').hide();
-                $('#estimate-number-multiline-section').hide();
-            } else if (select_estimate_param == 'estimate_number_multiline') {
-                $('#estimate-number-multiline-section').show();
-                $('#estimate-id-multiline-section').hide();
-                $('#estimate-id-section').hide();
-                $('#estimate-number-section').hide();
-            
-
-            }else {
-                $('#estimate-id-section').show();
-                $('#estimate-number-section').hide();           
-                $('#estimate-id-multiline-section').hide();
-                $('#estimate-number-multiline-section').hide();
-            }
-        }
-
-        let select_estimate_param = $('#select_estimate_param').val();
-        refreshCustomerParam(select_estimate_param);
-        refreshSelectCustomerParam(select_estimate_param)
-
-        $('#select_estimate_param').change(function() {
-            let customer_param = this.value;
-            refreshCustomerParam(customer_param);
-            refreshSelectCustomerParam(customer_param)
-
-        });
-
-})
-</script>
 
 <script>
     $(document).ready(function() {
@@ -223,31 +127,21 @@ $(document).ready(function() {
                 }
             }
 
-            // Handle select elements
-            addParam('select_estimate_param', 'select');   
-            addParam('pagination_per_page', 'select');     
-          
-           
-
+            // Handle select elements          
+            addParam('pagination_per_page', 'select');
             // Handle input elements
             addParam('estimate_id');
-            addParam('estimate_id_multiline','textarea');
             addParam('estimate_number');
-            addParam('estimate_number_multiline','textarea');
-            addParam('sub_total');
-            addParam('tax_total');
-            addParam('discount');
-            addParam('grand_total');
             addParam('issue_date');
             addParam('expiry_date');
-           
-     
+
+
 
             var status = $('select[name=\'status\']').val();
 
             if (status) {
                 url += '&status=' + encodeURIComponent(status);
-            }   
+            }
 
 
 
@@ -260,9 +154,6 @@ $(document).ready(function() {
 </script>
 
 <script>
- 
-
-
     $("#issue_date").daterangepicker({
         timePicker: true,
         timePicker24Hour: true,
@@ -305,8 +196,4 @@ $(document).ready(function() {
     $('#expiry_date').on('cancel.daterangepicker', function(ev, picker) {
         $(this).val('');
     });
-
-
-
-
 </script>

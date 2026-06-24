@@ -57,11 +57,7 @@ class EstimateController extends Controller
             'estimate_number' => 'estimates.estimate_number',
             'issue_date' => 'estimates.issue_date',
             'expiry_date' => 'estimates.expiry_date',
-            'expiry_date' => 'estimates.expiry_date',
             'status' => 'estimates.status',
-            'total' => 'estimates.total',
-            'grand_total' => 'estimates.grand_total',
-
         ];
 
         $order_by = $request->input('direction', 'desc');
@@ -107,22 +103,6 @@ class EstimateController extends Controller
                 $query->where('estimates.issue_date', '<=',  $this->convertToUTC($issue_date['end_date']));
             }
 
-            if ($request->filled('sub_total')) {
-                $query->where('estimates.sub_total', '=', $request->input('sub_total'));
-            }
-
-            if ($request->filled('tax_total')) {
-                $query->where('estimates.tax_total', '=', $request->input('tax_total'));
-            }
-            if ($request->filled('total_discount')) {
-                $query->where('estimates.total_discount', '=', $request->input('total_discount'));
-            }
-            if ($request->filled('grand_total')) {
-                $query->where('estimates.grand_total', '=', $request->input('grand_total'));
-            }
-            if ($request->filled('currency')) {
-                $query->where('estimates.currency', '=', $request->input('currency'));
-            }
 
 
             $query->where('estimates.user_id', '=', Auth::id());
@@ -621,7 +601,7 @@ class EstimateController extends Controller
             }
 
 
-            if ( !empty($lastInsertedId) &&  $request->has('estimate_accept') && $request->input('estimate_accept') == 'true') {
+            if (!empty($lastInsertedId) &&  $request->has('estimate_accept') && $request->input('estimate_accept') == 'true') {
                 DB::table('estimates')->where('estimate_id', $lastInsertedId) // Use the estimate_id here
                     ->update([
                         'status' => 'accepted',

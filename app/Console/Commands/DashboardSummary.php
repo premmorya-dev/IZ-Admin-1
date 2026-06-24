@@ -22,41 +22,28 @@ class DashboardSummary extends Command
     $error = '';
     $log = '';
 
-
     $user_id = $this->option('user_id');
 
-    $dashboards = DB::table('dashboard_summary')->select('user_id')      
+    $dashboards = DB::table('dashboard_summary')->select('user_id')
       ->get();
-
-
 
     if ($dashboards->isEmpty()) {
       $log = "\n dashboard queue is empty\n";
       echo $log;
     }
 
-
     if (!empty($dashboards)) {
-
       foreach ($dashboards  as $dashboard) {
-
-
         $this->refreshUserDashboard($dashboard);
       }
     }
   }
 
 
-
-
-
-
   public function refreshUserDashboard($dashboard)
   {
 
     try {
-
-
 
       $data['total_invoice'] = DB::table('invoices')
         ->select(
@@ -254,8 +241,6 @@ class DashboardSummary extends Command
           'recent_invoices' => $data['recent_invoices'],
           'upcoming_dues' => $data['upcoming_dues'],
           'updated_at' => Carbon::now('UTC')->format('Y-m-d H:i:s')
-
-
         ]);
     } catch (Exception $e) {
       \Log::channel('info')->error('Error while running dashboard summary cron job: ' . $e->getMessage());
