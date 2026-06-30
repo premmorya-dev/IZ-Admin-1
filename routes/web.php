@@ -1,8 +1,11 @@
 <?php
 
-use App\Http\Controllers\Auth\SocialiteController;
 use App\Http\Controllers\DashboardController;
 use Illuminate\Support\Facades\Route;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Http\Request;
+use App\Models\User;
+use Spatie\Permission\Models\Role;
 use App\Http\Controllers\InvoiceController;
 use App\Http\Controllers\BillController;
 use App\Http\Controllers\ClientController;
@@ -32,34 +35,6 @@ use App\Http\Middleware\CheckActiveSubscription;
 | contains the "web" middleware group. Now create something great!
 |
 */
-// you can use verified middleware for verify email address.
-
-// Route::get('/', function (){ return 'test'; });
-
-//Email tracking route
-Route::get('/email-open/{id}', function ($id) { 
-    // Log email open into DB
-    \DB::table('leads')
-        ->where('id', $id)
-        ->update([
-            'is_opened' => 'Y',
-            'opened_at' => now()
-        ]);
-
-    // Return a 1x1 transparent PNG
-    $transparentImage = base64_decode(
-        'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAA
-         AAC0lEQVR42mP8z8AARwMDgP8BAG0BBsdo7FYAAAAASUVORK5CYII='
-    );
-
-    return response($transparentImage)
-        ->header('Content-Type', 'image/png');
-})->name('email.tracking');
-//Email tracking route end
-
-Route::get('/auth/callback', [DashboardController::class, 'handleCallback'])->name('auth.callback')->middleware('web');
-
-Route::get('estimate/acceptance/{estimate_code}', [EstimateController::class, 'estimateAcceptance'])->name('estimate.acceptance');
 
 Route::middleware(['auth'])->group(function () {
     Route::get('/', function () {
@@ -71,6 +46,108 @@ Route::middleware(['auth'])->group(function () {
     });
     Route::get('/dashboard', [DashboardController::class, 'dashboard'])->name('dashboard');
 
+    Route::get('/user/list', function () {
+        $users = User::orderByDesc('created_at')->paginate(10);
+        $roles = Role::orderBy('name')->get();
+        return view('pages.user-management.users', compact('users', 'roles'));
+    })->name('user.list');
+
+    Route::get('/user/add', function () {
+        $users = User::orderByDesc('created_at')->paginate(10);
+        $roles = Role::orderBy('name')->get();
+        return view('pages.user-management.users', compact('users', 'roles'));
+    })->name('user.add');
+
+    Route::post('/user/store', function (Request $request) {
+        $data = $request->validate([
+            'first_name' => 'required|string|max:100',
+            'last_name' => 'required|string|max:100',
+            'email' => 'required|email|unique:users,email',
+            'user_name' => 'nullable|string|max:100|unique:users,user_name',
+            'role' => 'required|string|exists:roles,name',
+        ]);
+
+        $userName = $data['user_name'] ?? explode('@', $data['email'])[0];
+
+        $user = User::create([
+            'name' => $data['first_name'] . ' ' . $data['last_name'],
+            'first_name' => $data['first_name'],
+            'last_name' => $data['last_name'],
+            'email' => $data['email'],
+            'user_name' => $userName,
+            'status' => 'active',
+            'user_type' => 'staff',
+            'password' => Hash::make('Password123!'),
+        ]);
+
+        $user->assignRole($data['role']);
+
+        return redirect()->route('user.list')->with('success', 'New user created successfully.');
+    })->name('user.store');
+
+    Route::get('/user/edit/{user_id}', function ($user_id) {
+        $users = User::orderByDesc('created_at')->paginate(10);
+        $roles = Role::orderBy('name')->get();
+        $editUser = User::where('user_id', $user_id)->firstOrFail();
+        return view('pages.user-management.users', compact('users', 'roles', 'editUser'));
+    })->name('user.edit');
+
+    Route::post('/user/update/{user_id}', function (Request $request, $user_id) {
+        $user = User::where('user_id', $user_id)->firstOrFail();
+
+        $data = $request->validate([
+            'first_name' => 'required|string|max:100',
+            'last_name' => 'required|string|max:100',
+            'email' => 'required|email|unique:users,email,' . $user->user_id . ',user_id',
+            'user_name' => 'nullable|string|max:100|unique:users,user_name,' . $user->user_id . ',user_id',
+            'role' => 'required|string|exists:roles,name',
+            'status' => 'required|string',
+        ]);
+
+        $user->update([
+            'name' => $data['first_name'] . ' ' . $data['last_name'],
+            'first_name' => $data['first_name'],
+            'last_name' => $data['last_name'],
+            'email' => $data['email'],
+            'user_name' => $data['user_name'] ?? $user->user_name,
+            'status' => $data['status'],
+        ]);
+
+        $user->syncRoles($data['role']);
+
+        return redirect()->route('user.list')->with('success', 'User updated successfully.');
+    })->name('user.update');
+
+    Route::post('/user/delete/{user_id}', function ($user_id) {
+        $user = User::where('user_id', $user_id)->firstOrFail();
+        $user->delete();
+        return redirect()->route('user.list')->with('success', 'User deleted successfully.');
+    })->name('user.delete');
+
+    Route::get('/roles', function () {
+        $roles = Role::with('users')->orderBy('name')->get();
+        return view('pages.user-management.roles', compact('roles'));
+    })->name('user-management.roles.index');
+
+    Route::post('/roles/store', function (Request $request) {
+        $data = $request->validate([
+            'name' => 'required|string|max:100|unique:roles,name',
+        ]);
+
+        Role::create(['name' => $data['name'], 'guard_name' => 'web']);
+
+        return redirect()->route('user-management.roles.index')->with('success', 'Role created successfully.');
+    })->name('user-management.roles.store');
+
+    Route::post('/roles/delete/{role}', function (Role $role) {
+        $role->delete();
+        return redirect()->route('user-management.roles.index')->with('success', 'Role deleted successfully.');
+    })->name('user-management.roles.delete');
+
+    Route::get('/roles/{role}', function ($role) {
+        $roles = Role::with('users')->orderBy('name')->get();
+        return view('pages.user-management.roles', compact('roles'));
+    })->name('user-management.roles.show');
 
 
     Route::group(['prefix' => '/invoice'], function () {
@@ -278,10 +355,10 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/account/edit', [SettingController::class, 'account'])->name('settings.account');
     Route::post('/account/update', [SettingController::class, 'updateAccount'])->name('settings.account.update');
 
-     Route::post('/user-onboarding', [SettingController::class, 'onboardingUpdate'])->name('settings.user.onboarding');
+    Route::post('/user-onboarding', [SettingController::class, 'onboardingUpdate'])->name('settings.user.onboarding');
 
     Route::get('/search-client', [ClientController::class, 'searchClient'])->name('client.search2');
-     Route::get('/search-vendor', [VendorController::class, 'searchVendor'])->name('vendor.search2');
+    Route::get('/search-vendor', [VendorController::class, 'searchVendor'])->name('vendor.search2');
 
 
     Route::group(['prefix' => '/policy'], function () {
@@ -296,21 +373,5 @@ Route::middleware(['auth'])->group(function () {
     });
 });
 
-
-
-Route::get('/coming-soon', function () {
-    return view('pages/system.coming_soon');
-})->name('coming_soon');
-
-
-Route::get('/payment', function () {
-    return view('pages.test');
-});
-
-Route::get('/error', function () {
-    abort(500);
-});
-
-Route::get('/auth/redirect/{provider}', [SocialiteController::class, 'redirect']);
-
 require __DIR__ . '/auth.php';
+require __DIR__ . '/guest.php';
