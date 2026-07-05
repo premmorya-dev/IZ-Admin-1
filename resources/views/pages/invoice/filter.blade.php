@@ -25,12 +25,12 @@
 
                             <div class="col-md-3 ">
                                 <label for="invoice_number" class="form-label">Invoice Number</label>
-                                <input type="text" name="invoice_number" value="{{ request('invoice_number') }}" id="invoice_number" placeholder="Invoice Number" class="form-control">
+                                <input type="text" name="invoice_number" value="{{ request('invoice_number') }}" id="invoice_number" placeholder="INV-202606241402" class="form-control">
                             </div>
 
                             <div class="col-md-3 ">
                                 <label for="client_name" class="form-label">Client Name</label>
-                                <input type="text" name="client_name" value="{{ request('client_name') }}" id="client_name" placeholder="Client" class="form-control">
+                                <input type="text" name="client_name" value="{{ request('client_name') }}" id="client_name" placeholder="John" class="form-control">
                             </div>
 
 
@@ -46,24 +46,7 @@
                                 </select>
                             </div>
 
-                            <div class="col-md-3 ">
-                                <label for="sub_total" class="form-label">Sub Total</label>
-                                <input type="number" name="sub_total" value="{{ request('sub_total') }}" id="sub_total" placeholder="Sub Total" class="form-control">
-                            </div>
-                            <div class="col-md-3 ">
-                                <label for="tax_total" class="form-label">Tax Total</label>
-                                <input type="number" name="tax_total" value="{{ request('tax_total') }}" id="tax_total" placeholder="Tax Total" class="form-control">
-                            </div>
-                            <div class="col-md-3 ">
-                                <label for="discount" class="form-label">Discount</label>
-                                <input type="number" name="discount" value="{{ request('discount') }}" id="discount" placeholder="Discount" class="form-control">
-                            </div>
-
-                            <div class="col-md-3 ">
-                                <label for="total" class="form-label">Total</label>
-                                <input type="number" name="total" value="{{ request('total') }}" id="total" placeholder="Total" class="form-control">
-                            </div>
-
+                         
                             <div class="col-md-3">
                                 <label class="form-label">Issue Date</label>
                                 <div class="input-group">
@@ -162,11 +145,7 @@
             // Handle input elements
 
             addParam('invoice_number');
-            addParam('client_name');
-            addParam('sub_total');
-            addParam('tax_total');
-            addParam('discount');
-            addParam('total');
+            addParam('client_name');        
             addParam('issue_date');
             addParam('due_date');
 
@@ -177,9 +156,6 @@
             if (status) {
                 url += '&status=' + encodeURIComponent(status);
             }
-
-
-
 
             location = '{{url("/")}}' + '/invoice/list?filters=true' + url;
 

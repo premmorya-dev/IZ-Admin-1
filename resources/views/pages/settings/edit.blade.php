@@ -53,7 +53,7 @@
 
 
                 <div class="col-md-4 mt-4">
-                    <label for="email" class="form-label">Email</label>  <span data-bs-toggle="tooltip" title="Your registered business email address. Cannot be changed.">
+                    <label for="email" class="form-label">Email</label> <span data-bs-toggle="tooltip" title="Your registered business email address. Cannot be changed.">
                         <i class="bi bi-question-circle-fill text-primary ms-1"></i>
                     </span>
                     <input type="email" name="email" id="email" readonly class="form-control @error('email') is-invalid @enderror" value="{{ old('email', $data['setting']->email ?? '') }}">
@@ -61,7 +61,7 @@
                 </div>
 
                 <div class="col-md-4 mt-4">
-                    <label for="mobile_no" class="form-label">Mobile No</label>  <span data-bs-toggle="tooltip" title="Enter your valid business mobile number.">
+                    <label for="mobile_no" class="form-label">Mobile No</label> <span data-bs-toggle="tooltip" title="Enter your valid business mobile number.">
                         <i class="bi bi-question-circle-fill text-primary ms-1"></i>
                     </span>
                     <div class="input-group">
@@ -82,7 +82,7 @@
 
             <div class="row">
                 <div class="col-md-4 mt-4">
-                    <label for="company_name" class="form-label">Company Name</label>  <span data-bs-toggle="tooltip" title="Enter your registered business or company name.">
+                    <label for="company_name" class="form-label">Company Name</label> <span data-bs-toggle="tooltip" title="Enter your registered business or company name.">
                         <i class="bi bi-question-circle-fill text-primary ms-1"></i>
                     </span>
                     <input type="text" name="company_name" id="company_name" class="form-control @error('company_name') is-invalid @enderror" value="{{ old('company_name', $data['setting']->company_name ?? '') }}">
@@ -90,7 +90,7 @@
                 </div>
 
                 <div class="col-md-3 mt-4">
-                    <label for="is_company" class="form-label">Buisness Type</label>  <span data-bs-toggle="tooltip" title="Select whether you are an organisation or an individual.">
+                    <label for="is_company" class="form-label">Buisness Type</label> <span data-bs-toggle="tooltip" title="Select whether you are an organisation or an individual.">
                         <i class="bi bi-question-circle-fill text-primary ms-1"></i>
                     </span>
                     <select name="is_company" id="is_company" class="form-select @error('is_company') is-invalid @enderror">
@@ -144,7 +144,7 @@
                 </div>
 
                 <div class="col-md-6 mt-4">
-                    <label for="address_1" class="form-label">Address Line 1</label>  <span data-bs-toggle="tooltip" title="Enter the first line of your business address.">
+                    <label for="address_1" class="form-label">Address Line 1</label> <span data-bs-toggle="tooltip" title="Enter the first line of your business address.">
                         <i class="bi bi-question-circle-fill text-primary ms-1"></i>
                     </span>
                     <input type="text" name="address_1" id="address_1" class="form-control" value="{{ old('address_1', $data['setting']->address_1 ?? '') }}">
@@ -189,7 +189,7 @@
 
 
                 <div class="col-md-4 mt-4">
-                    <label for="pincode" class="form-label">Pincode</label>  <span data-bs-toggle="tooltip" title="Enter the postal or ZIP code for your business address.">
+                    <label for="pincode" class="form-label">Pincode</label> <span data-bs-toggle="tooltip" title="Enter the postal or ZIP code for your business address.">
                         <i class="bi bi-question-circle-fill text-primary ms-1"></i>
                     </span>
                     <input type="text" name="pincode" id="pincode" class="form-control @error('pincode') is-invalid @enderror" value="{{ old('pincode', $data['setting']->pincode ?? '') }}">
@@ -238,8 +238,8 @@
 
                 <div class="col-md-4 mt-3">
                     <label for="default_currency" class="form-label">Default Currency</label> <span data-bs-toggle="tooltip" title="Select the currency that will be used by default for all invoices and estimates.">
-            <i class="bi bi-question-circle-fill text-primary ms-1"></i>
-        </span>
+                        <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+                    </span>
                     <select id="default_currency" name="default_currency" class="form-select">
                         <option value="">Please Select</option>
                         @foreach($data['currencies'] as $currency )
@@ -252,8 +252,8 @@
 
                 <div class="col-md-4 mt-3">
                     <label for="default_tax_id" class="form-label">Default Tax %</label> <span data-bs-toggle="tooltip" title="Choose a default tax percentage that will automatically apply to all new invoices.">
-            <i class="bi bi-question-circle-fill text-primary ms-1"></i>
-        </span>
+                        <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+                    </span>
                     <select id="default_tax_id" name="default_tax_id" class="form-select">
                         <option value="0">No Tax</option>
                         @foreach($data['taxes'] as $tax )
@@ -263,9 +263,9 @@
                 </div>
 
                 <div class="col-md-4 mt-3">
-                    <label for="default_discount_id" class="form-label">Default Discount %</label>  <span data-bs-toggle="tooltip" title="Select a default discount percentage to apply automatically to new invoices.">
-            <i class="bi bi-question-circle-fill text-primary ms-1"></i>
-        </span>
+                    <label for="default_discount_id" class="form-label">Default Discount %</label> <span data-bs-toggle="tooltip" title="Select a default discount percentage to apply automatically to new invoices.">
+                        <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+                    </span>
                     <select id="default_discount_id" name="default_discount_id" class="form-select">
                         <option value="0">No Discount</option>
                         @foreach($data['discounts'] as $discount )
@@ -281,30 +281,30 @@
 
                 <div class="col-md-6 mt-3">
                     <label class="form-label">Notes</label> <span data-bs-toggle="tooltip" title="Enter a default note that will appear at the bottom of all invoices and estimates.">
-            <i class="bi bi-question-circle-fill text-primary ms-1"></i>
-        </span>
+                        <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+                    </span>
                     <textarea name="notes" id="id_notes" class="form-control">{{ old('notes', $data['setting']->notes) }}</textarea>
                 </div>
 
                 <div class="col-md-6 mt-3">
-                    <label class="form-label">Terms And Conditions</label>  <span data-bs-toggle="tooltip" title="Add your company's standard terms and conditions to be displayed on invoices.">
-            <i class="bi bi-question-circle-fill text-primary ms-1"></i>
-        </span>
+                    <label class="form-label">Terms And Conditions</label> <span data-bs-toggle="tooltip" title="Add your company's standard terms and conditions to be displayed on invoices.">
+                        <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+                    </span>
                     <textarea name="terms" id="id_terms" class="form-control">{{ old('terms', $data['setting']->terms) }}</textarea>
                 </div>
 
                 <div class="col-md-3 mt-3">
                     <label for="pagination_limit" class="form-label">Pagination Limit</label> <span data-bs-toggle="tooltip" title="Set how many records you want to display per page in list views.">
-            <i class="bi bi-question-circle-fill text-primary ms-1"></i>
-        </span>
+                        <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+                    </span>
                     <input type="number" name="pagination_limit" id="pagination_limit" class="form-control @error('pagination_limit') is-invalid @enderror" value="{{ old('pagination_limit', $data['setting']->pagination_limit ?? 10) }}">
                     @error('pagination_limit')<div class="invalid-feedback">{{ $message }}</div>@enderror
                 </div>
 
                 <div class="col-md-3 mt-3">
                     <label for="default_upi_id" class="form-label">Default Upi Id</label> <span data-bs-toggle="tooltip" title="Select your default UPI account that UPI QR code will be shown on invoices for payment.">
-            <i class="bi bi-question-circle-fill text-primary ms-1"></i>
-        </span>
+                        <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+                    </span>
                     <select id="default_upi_id" name="default_upi_id" class="form-select">
                         <option value="0">Please Select</option>
                         @foreach($data['upi_payment_id'] as $upi_id )
@@ -330,8 +330,8 @@
 
                 <div class="col-md-3 mt-3">
                     <label for="date_format" class="form-label">Default Date Format</label> <span data-bs-toggle="tooltip" title="Select the date format that will appear on your invoices, estimate and reports.">
-            <i class="bi bi-question-circle-fill text-primary ms-1"></i>
-        </span>
+                        <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+                    </span>
                     <select id="date_format" name="date_format" class="form-select">
                         @foreach($formats as $key => $sample)
                         <option value="{{ $key }}" {{ $selectedFormat == $key ? 'selected' : '' }}>
@@ -393,22 +393,29 @@
                             <span style="display: none;">Click to upload<br>or drag & drop</span>
 
                             @error('logo_path')<div class="text-danger">{{ $message }}</div>@enderror
-                        </label>  <span data-bs-toggle="tooltip" title="Upload your business logo to appear on invoices and estimates. Recommended size: 200x200px.">
-                <i class="bi bi-question-circle-fill text-primary ms-1"></i>
-            </span>
+                        </label> <span data-bs-toggle="tooltip" title="Upload your business logo to appear on invoices and estimates. Recommended size: 200x200px.">
+                            <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+                        </span>
 
                         @if ($showLogo)
                         <button type="button" class="btn btn-lg mt-2" onclick="removeSavedImage('logo_path')">X</button>
                         <input type="hidden" name="remove_logo_path" id="remove_logo_path" value="0">
                         @endif
 
-
+                        <div class="mt-2 p-2 rounded bg-light border-start border-4 border-primary">
+                            <small class="text-muted">
+                                <i class="bi bi-lightbulb-fill text-warning me-1"></i>
+                                <strong>Logo Guidelines:</strong>
+                                Use a high-quality logo up to <strong>600×400 px</strong> and keep the file size below
+                                <strong>100 KB</strong> for optimal placement and professional-looking invoices.
+                            </small>
+                        </div>
                     </div>
 
                     <div class="col-md-6 mt-3">
-                        <label for="signature" class="form-label mt-4">Digital Signature</label>  <span data-bs-toggle="tooltip" title="Upload your authorized signature to be printed on invoices automatically. Recommended size: 200x100px.">
-                <i class="bi bi-question-circle-fill text-primary ms-1"></i>
-            </span> <br>
+                        <label for="signature" class="form-label mt-4">Digital Signature</label> <span data-bs-toggle="tooltip" title="Upload your authorized signature to be printed on invoices automatically. Recommended size: 200x100px.">
+                            <i class="bi bi-question-circle-fill text-primary ms-1"></i>
+                        </span> <br>
                         <label class="upload-area mt-3" id="upload-box-signature">
                             <input type="file" class="image-upload form-control" name="signature" accept="image/*"
                                 data-preview="preview-signature" data-upload-box="upload-box-signature" data-clear-btn="clear-signature"

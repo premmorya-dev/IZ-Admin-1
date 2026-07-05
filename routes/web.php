@@ -36,7 +36,11 @@ use App\Http\Middleware\CheckActiveSubscription;
 |
 */
 
+<<<<<<< HEAD
 Route::middleware(['auth', 'tenant'])->group(function () {
+=======
+Route::middleware(['auth'])->group(function () {
+>>>>>>> 6e0657b9e4c561505d6b11e273a4159e93f2eb7c
     Route::get('/', function () {
         return redirect()->route('dashboard');
     });

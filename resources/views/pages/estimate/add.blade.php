@@ -943,6 +943,17 @@
           <input type="text" name="item[${itemCount}][amount]" placeholder="Amount" class="form-control form-control-sm amount" readonly>
         </div>
       </div>
+
+           <div class="w-100 mt-2">
+                                <textarea
+                                        class="id_description"
+                                        name="item[${itemCount}][description]"
+                                        class="form-control form-control-sm"
+                                        placeholder="Item Description"
+                                        rows="2"></textarea>
+                            </div>
+
+
       <div class="col-12">
         <button type="button" class="btn btn-outline btn-sm btn-outline-danger w-100" onclick="removeRow(this)"><i data-lucide="minus"></i> Remove</button>
       </div>
@@ -950,6 +961,16 @@
 
             formContainer.appendChild(itemRow);
             lucide.createIcons();
+
+             $('.id_description').summernote({
+                placeholder: 'Enter Description...',
+                height: 120,
+                toolbar: [
+                    ['style', ['bold', 'italic', 'underline']],
+                    ['para', ['ul', 'ol', 'paragraph']],
+                    ['view', ['codeview']]
+                ]
+            });
         }
 
 

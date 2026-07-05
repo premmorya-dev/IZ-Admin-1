@@ -132,7 +132,11 @@
 
             <div class="row justify-content-center">
 
+<<<<<<< HEAD
                 <div class="col-lg-6 col-md-8">
+=======
+                <div class="col-lg-12 col-md-8">
+>>>>>>> 6e0657b9e4c561505d6b11e273a4159e93f2eb7c
 
                     <div class="forget-password">
 

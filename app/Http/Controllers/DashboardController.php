@@ -36,6 +36,11 @@ class DashboardController extends Controller
             ->latest('refreshed_at')
             ->first();
 
+             $currency_sym = \DB::table('settings')
+             ->leftJoin('currencies','settings.default_currency','currencies.currency_code')
+            ->where('settings.user_id', $userId) 
+            ->select('currencies.currency_symbol')          
+            ->first();
 
 
         if (!$summary) {
@@ -61,6 +66,7 @@ class DashboardController extends Controller
             'statusChart' => json_decode($summary->status_pie_chart, true),
             'recentInvoices' => json_decode($summary->recent_invoices, true),
             'upcomingDues' => json_decode($summary->upcoming_dues, true),
+             'currency_symbol' =>  $currency_sym->currency_symbol
         ];
 
         $data['registration'] =  $registration_status;

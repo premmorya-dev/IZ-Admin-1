@@ -80,7 +80,7 @@ class CheckActiveSubscription
         }
         // Example: Check if the user exceeds their allowed invoice limit
 
-        if (str_starts_with($routeName, 'client') && $plan_id != 4  ) {
+        if (str_starts_with($routeName, 'client') && $plan_id == 1  ) {
 
             if (isset($plan->client_limit) && $plan->client_limit < $this->getUserClientCount($user)) {
                 $msg = 'You have exceeded your client limit. Please upgrade your plan.';
@@ -115,12 +115,14 @@ class CheckActiveSubscription
 
     private function getUserClientCount($user)
     {
-        $startOfMonth = Carbon::now()->startOfMonth()->toDateTimeString();
-        $endOfMonth = Carbon::now()->endOfMonth()->toDateTimeString();
-
+       
         return DB::table('clients')
+<<<<<<< HEAD
             ->where('account_id', $user->account_id)
             ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
+=======
+            ->where('user_id', $user->user_id)           
+>>>>>>> 6e0657b9e4c561505d6b11e273a4159e93f2eb7c
             ->count();
     }
 }

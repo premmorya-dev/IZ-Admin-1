@@ -55,7 +55,7 @@
                 <label for="estimate_number" class="form-label d-flex justify-content-between align-items-center text-danger">
                     <span>Estimate Number *</span>
                 </label>
-                <input type="text" class="form-control form-control-sm" id="estimate_number" value="{{ old('estimate_number', $data['estimate']->estimate_number ) }}" name="estimate_number" placeholder="Auto-generated" readonly>
+                <input type="text" class="form-control form-control-sm" id="estimate_number" value="{{ old('estimate_number', $data['estimate']->estimate_number ) }}" name="estimate_number" placeholder="Auto-generated">
             </div>
 
 
@@ -190,6 +190,7 @@
 
                 <div id="form-container">
                     @php $itemCount = 0; @endphp
+                     @if(!empty($data['items']))
                     @foreach($data['items'] as $itemCount => $item)
                     @php $itemCount++; @endphp
                     <div class="row g-3 p-3 border rounded shadow-sm bg-light align-items-start mb-3 mt-3 position-relative" data-item-id="{{ $itemCount }}">
@@ -260,6 +261,7 @@
                         </div>
                     </div>
                     @endforeach
+                    @endif
                 </div>
 
 

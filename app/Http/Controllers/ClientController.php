@@ -38,11 +38,12 @@ class ClientController extends Controller
             ->take(5)
             ->get();
 
-        // $queryString = vsprintf(
-        //     str_replace('?', "'%s'", $clients->toSql()),
-        //     $clients->getBindings()
-        // );
+      
+        // $sql = str_replace('?', "'%s'", $clients->toSql());
 
+        // $sql = vsprintf($sql, $clients->getBindings());
+
+        // dd($sql);
 
         return response()->json($clients);
     }

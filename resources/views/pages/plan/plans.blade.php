@@ -71,9 +71,9 @@
                             @endif
                         </h2>
                         <ul class="list-unstyled my-3">
-                            <li><i class="fas fa-file-invoice text-success me-2"></i>Invoices: {{  $plan->plan_id == '4' ? 'Unlimited' : $plan->invoice_limit }}/per month</li>
-                            <li><i class="fas fa-user-friends text-success me-2"></i>Clients: {{ $plan->plan_id == '4' ? 'Unlimited' : $plan->client_limit }}</li>
-                            <li><i class="fa-solid fa-bag-shopping text-success me-2"></i>Products Listing: {{ $plan->plan_id == '4' ? 'Unlimited' : $plan->product_listing_limit }}</li>
+                            <li><i class="fas fa-file-invoice text-success me-2"></i>Invoices: {{  $plan->plan_id != '1' ? 'Unlimited' : $plan->invoice_limit . '/per month' }}</li>
+                            <li><i class="fas fa-user-friends text-success me-2"></i>Clients: {{ $plan->plan_id != '1' ? 'Unlimited' : $plan->client_limit }}</li>
+                            <li><i class="fa-solid fa-bag-shopping text-success me-2"></i>Products Listing: {{ $plan->plan_id != '1' ? 'Unlimited' : $plan->product_listing_limit }}</li>
                             <li><i class="fas fa-clock text-success me-2"></i>Duration: {{ ucfirst($plan->duration_days) }} days</li>
 
                             @php

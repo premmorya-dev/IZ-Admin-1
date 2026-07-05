@@ -19,6 +19,7 @@ use ZipArchive;
 
 use App\Services\EstimateService;
 use App\Services\InvoiceService;
+use Illuminate\Validation\Rule;
 
 
 class EstimateController extends Controller
@@ -57,11 +58,7 @@ class EstimateController extends Controller
             'estimate_number' => 'estimates.estimate_number',
             'issue_date' => 'estimates.issue_date',
             'expiry_date' => 'estimates.expiry_date',
-            'expiry_date' => 'estimates.expiry_date',
             'status' => 'estimates.status',
-            'total' => 'estimates.total',
-            'grand_total' => 'estimates.grand_total',
-
         ];
 
         $order_by = $request->input('direction', 'desc');
@@ -107,22 +104,6 @@ class EstimateController extends Controller
                 $query->where('estimates.issue_date', '<=',  $this->convertToUTC($issue_date['end_date']));
             }
 
-            if ($request->filled('sub_total')) {
-                $query->where('estimates.sub_total', '=', $request->input('sub_total'));
-            }
-
-            if ($request->filled('tax_total')) {
-                $query->where('estimates.tax_total', '=', $request->input('tax_total'));
-            }
-            if ($request->filled('total_discount')) {
-                $query->where('estimates.total_discount', '=', $request->input('total_discount'));
-            }
-            if ($request->filled('grand_total')) {
-                $query->where('estimates.grand_total', '=', $request->input('grand_total'));
-            }
-            if ($request->filled('currency')) {
-                $query->where('estimates.currency', '=', $request->input('currency'));
-            }
 
 
             $query->where('estimates.user_id', '=', Auth::id());
@@ -360,7 +341,13 @@ class EstimateController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'client_id' => 'required',
-                'estimate_number' => 'required|string|max:255',
+                'estimate_number' => [
+                    'required',
+                    'string',
+                    'max:255',
+                    Rule::unique('estimates', 'estimate_number')
+                        ->ignore($request->estimate_code, 'estimate_code'),
+                ],
                 'currency_code' => 'required',
                 'template_id' => 'required',
                 'issue_date' => 'required|date',
@@ -369,6 +356,7 @@ class EstimateController extends Controller
                 'client_id.required' => 'Please select a client for the estimate.',
                 'estimate_number.required' => 'estimate number is required.',
                 'estimate_number.max' => 'estimate number should not exceed 255 characters.',
+                'estimate_number.unique' => 'This estimate number already exists. Please use a different number.',
                 'currency_code.required' => 'Currency is required.',
                 'template_id.required' => 'Please select template for estimate.',
                 'issue_date.required' => 'estimate date is required.',
@@ -621,7 +609,7 @@ class EstimateController extends Controller
             }
 
 
-            if ( !empty($lastInsertedId) &&  $request->has('estimate_accept') && $request->input('estimate_accept') == 'true') {
+            if (!empty($lastInsertedId) &&  $request->has('estimate_accept') && $request->input('estimate_accept') == 'true') {
                 DB::table('estimates')->where('estimate_id', $lastInsertedId) // Use the estimate_id here
                     ->update([
                         'status' => 'accepted',
