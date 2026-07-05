@@ -17,6 +17,7 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
 use ZipArchive;
+use Illuminate\Validation\Rule;
 
 
 class InvoiceController extends Controller
@@ -164,18 +165,6 @@ class InvoiceController extends Controller
             $data['invoice_string'] = implode(",", array_column($query, 'invoice_id'));
         }
 
-
-
-
-        // else {
-        //     $query->orderBy('notification_job_queue.registration_id', $order_by);
-        // }
-
-        // $actual_row = $query;
-        // if($request->has('filters') && $request->input('filters') == 'true' ) {
-        //     $data['totalRecords'] =  $actual_row->count();
-        //     $data['totalPages'] = ceil($data['totalRecords'] / $data['perPage']);
-        // }
 
 
 
@@ -428,12 +417,12 @@ class InvoiceController extends Controller
             $data['client_details_html'] .= $data['invoice']->zip;
         }
 
- $edit_client = '<button client-code="'. $data['invoice']->client_code.'"  class="edit-client btn btn-primary btn-sm rounded-circle d-flex align-items-center justify-content-center 
+        $edit_client = '<button client-code="' . $data['invoice']->client_code . '"  class="edit-client btn btn-primary btn-sm rounded-circle d-flex align-items-center justify-content-center 
                    position-absolute shadow" style="width: 36px; height: 36px; bottom: 10px; right: 10px;" data-bs-toggle="modal" data-bs-target="#editClientAddressModal">
         <i class="bi bi-pencil-fill"></i>
     </button>';
 
-      $data['client_details_html'] .=  $edit_client;
+        $data['client_details_html'] .=  $edit_client;
 
         $data['currencies'] = \DB::table('currencies')->orderBy('currency_name', 'ASC')->get();
         $data['templates'] = \DB::table('templates')->orderBy('template_name', 'ASC')->get();
@@ -487,7 +476,13 @@ class InvoiceController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'client_id' => 'required',
-                'invoice_number' => 'required|string|max:255',
+                'invoice_number' => [
+                    'required',
+                    'string',
+                    'max:255',
+                    Rule::unique('invoices', 'invoice_number')
+                        ->ignore($request->invoice_code, 'invoice_code'),
+                ],
                 'currency_code' => 'required',
                 'template_id' => 'required',
                 'invoice_date' => 'required|date',
@@ -497,6 +492,7 @@ class InvoiceController extends Controller
                 'client_id.required' => 'Please select a client for the invoice.',
                 'invoice_number.required' => 'Invoice number is required.',
                 'invoice_number.max' => 'Invoice number should not exceed 255 characters.',
+                'invoice_number.unique' => 'This invoice number already exists. Please use a different number.',
                 'currency_code.required' => 'Currency is required.',
                 'template_id.required' => 'Please select template for invoice.',
                 'invoice_date.required' => 'Invoice date is required.',

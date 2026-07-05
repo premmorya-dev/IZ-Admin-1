@@ -55,7 +55,7 @@
                 <label for="estimate_number" class="form-label d-flex justify-content-between align-items-center text-danger">
                     <span>Estimate Number *</span>
                 </label>
-                <input type="text" class="form-control form-control-sm" id="estimate_number" value="{{ old('estimate_number', $data['estimate']->estimate_number ) }}" name="estimate_number" placeholder="Auto-generated" readonly>
+                <input type="text" class="form-control form-control-sm" id="estimate_number" value="{{ old('estimate_number', $data['estimate']->estimate_number ) }}" name="estimate_number" placeholder="Auto-generated">
             </div>
 
 
