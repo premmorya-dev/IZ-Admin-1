@@ -8,13 +8,15 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Kyslik\ColumnSortable\Sortable;
+use Spatie\Permission\Traits\HasRoles;
 use Illuminate\Support\Facades\Storage;
 
 class User extends Authenticatable implements MustVerifyEmail
 {
-    use HasApiTokens, HasFactory, Notifiable;
-    use Sortable;
+    use HasApiTokens, HasFactory, Notifiable, HasRoles, Sortable;
+
     protected $primaryKey = 'user_id';
+    protected $guard_name = 'web';
     /**
      * The attributes that are mass assignable.
      *
@@ -22,6 +24,8 @@ class User extends Authenticatable implements MustVerifyEmail
      */
     protected $fillable = [
         'user_id',
+        'account_id',
+        'name',
         'user_name',
         'first_name',
         'last_name',
@@ -84,17 +88,15 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function getProfilePhotoUrlAttribute()
     {
-
-
         if (Storage::disk('public')->exists('uploads/user_profile_image/'  . $this->profile_photo_path)) {
             return asset('uploads/user_profile_image/' . $this->profile_photo_path);
-        } else {
-            return asset('uploads/user_profile_image/no-image.png');
-        }      
+        }
 
-      
-     
+        return asset('uploads/user_profile_image/no-image.png');
     }
 
-  
+    public function account()
+    {
+        return $this->belongsTo(Account::class, 'account_id', 'account_id');
+    }
 }

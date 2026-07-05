@@ -23,7 +23,7 @@ class CheckActiveSubscription
         }
 
         $activeSubscription = DB::table('subscriptions')
-            ->where('user_id', $user->user_id)
+            ->where('account_id', $user->account_id)
             ->where('payment_status', 'paid')
             ->where('starts_at', '<=', Carbon::now())
             ->where('ends_at', '>=', Carbon::now())
@@ -108,7 +108,7 @@ class CheckActiveSubscription
         $endOfMonth = Carbon::now()->endOfMonth()->toDateString();     // e.g., 2025-06-30
 
         return DB::table('invoices')
-            ->where('user_id', $user->user_id)
+            ->where('account_id', $user->account_id)
             ->whereBetween('invoice_date', [$startOfMonth, $endOfMonth])
             ->count();
     }
@@ -119,7 +119,7 @@ class CheckActiveSubscription
         $endOfMonth = Carbon::now()->endOfMonth()->toDateTimeString();
 
         return DB::table('clients')
-            ->where('user_id', $user->user_id)
+            ->where('account_id', $user->account_id)
             ->whereBetween('created_at', [$startOfMonth, $endOfMonth])
             ->count();
     }
