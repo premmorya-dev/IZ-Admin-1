@@ -9,14 +9,11 @@ use Illuminate\Validation\ValidationException;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Validator;
-// use App\Models\InvoiceModel;
 use App\Models\SettingModel;
-// use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
-// use Barryvdh\DomPDF\Facade\Pdf;
-// use ZipArchive;
+use App\Models\InvoiceSequence;
 
 
 class SettingController extends Controller
@@ -59,8 +56,19 @@ class SettingController extends Controller
         $data['upi_payment_id'] = \DB::table('upi_payment_id')->where('user_id',  Auth::id())->orderBy('upi_name', 'ASC')->get();
 
 
+        $invoiceSequence = InvoiceSequence::firstOrCreate(
+            [
+                'user_id' => Auth::id(),
+            ],
+            [
+                'prefix' => 'INV-',
+                'padding' => 4,
+                'start_from' => 1,
+                'next_number' => 1,
+            ]
+        );
 
-        return view('pages/settings.edit', compact('data'));
+        return view('pages/settings.edit', compact('data', 'invoiceSequence'));
     }
 
 
@@ -104,7 +112,7 @@ class SettingController extends Controller
             'email' => 'required|email|max:191|unique:users,email,' . $user->user_id . ',user_id',
             'current_password' => 'nullable|required_with:new_password,confirm_password|string',
             'new_password' => 'nullable|required_with:current_password,confirm_password|string|min:8|different:current_password',
-            'confirm_password' => 'nullable|required_with:new_password|same:new_password',         
+            'confirm_password' => 'nullable|required_with:new_password|same:new_password',
         ]);
 
         if ($validator->fails()) {
@@ -126,7 +134,7 @@ class SettingController extends Controller
             $user->password = Hash::make($request->new_password);
         }
 
-        $user->save();       
+        $user->save();
 
         return redirect()->back()->with('success', 'Account updated successfully!');
     }
@@ -137,6 +145,9 @@ class SettingController extends Controller
 
 
         $validator = Validator::make($request->all(), [
+            'invoice_sequence_prefix' => 'required|string|max:20',
+            'invoice_sequence_padding' => 'required|integer|min:1|max:10',
+            'invoice_sequence_start_from' => 'required|integer|min:1',
             'mobile_no' => 'required|string|max:15',
             'mobile_country_code_id' => 'required|string|max:5',
             'company_name' => 'required|string|max:100',
@@ -267,17 +278,30 @@ class SettingController extends Controller
             'time_zone_id' => 28,
         ]);
 
+        InvoiceSequence::updateOrCreate(
+            [
+                'user_id' => $id,
+            ],
+            [
+                'prefix' => $request->invoice_sequence_prefix,
+                'padding' => $request->invoice_sequence_padding,
+                'start_from' => $request->invoice_sequence_start_from,
+                'next_number' => InvoiceSequence::where('user_id', $id)->exists()
+                    ? InvoiceSequence::where('user_id', $id)->value('next_number')
+                    : $request->invoice_sequence_start_from,
+            ]
+        );
 
         return redirect()->back()->with('success', 'Settings updated successfully!');
     }
 
-    public function onboardingUpdate(Request $request) {          
-        
-        $data = [       
-            $request->input('onboarding_update') => 'Y',     
-        ];       
-         SettingModel::where('user_id',Auth::id() )->update($data );
+    public function onboardingUpdate(Request $request)
+    {
 
+        $data = [
+            $request->input('onboarding_update') => 'Y',
+        ];
+        SettingModel::where('user_id', Auth::id())->update($data);
     }
 
     public function getStates(Request $request)

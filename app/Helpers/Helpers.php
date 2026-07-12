@@ -141,7 +141,6 @@ if (!function_exists('getShortcode')) {
             'bill' => new \App\Services\BillService(),
             default => null,
         };
-
         if ($type == 'bill') {
             $party = 'vendor';
         } else {
@@ -150,6 +149,7 @@ if (!function_exists('getShortcode')) {
 
         if (!$service) return [];
 
+    
         $doc = $service->getDocumentData($code, $userId);
 
 
@@ -161,7 +161,6 @@ if (!function_exists('getShortcode')) {
         }
 
         $dynamicItemRow = $service->generateDynamicItemRows($items, $doc->currency_symbol);
-
 
 
         if (app()->runningInConsole()) {

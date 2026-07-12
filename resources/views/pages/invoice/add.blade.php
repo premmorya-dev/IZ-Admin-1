@@ -890,16 +890,9 @@ gtag('event', 'user_registered_create_invoice_page');
         $(document).ready(function() {
 
             function generateInvoiceNumber() {
-                let prefix = "{{ setting('invoice_prefix') }}";
-                let now = new Date();
-                let formattedDate = now.getFullYear().toString() +
-                    (now.getMonth() + 1).toString().padStart(2, '0') +
-                    now.getDate().toString().padStart(2, '0') +
-                    now.getHours().toString().padStart(2, '0') +
-                    now.getMinutes().toString().padStart(2, '0');
-
-                let uniqueId = Math.floor(Math.random() * 9000 + 1000); // Random 4-digit
-                return `${prefix}-${formattedDate}-${uniqueId}`;
+                let invoice_number = "{{ $data['invoice_number'] }}";
+               
+                return invoice_number;
             }
 
             function updateInvoiceField() {
@@ -916,7 +909,7 @@ gtag('event', 'user_registered_create_invoice_page');
                     let autoValue = generateInvoiceNumber();
                     $("#invoice_number")
                         .val(autoValue)
-                        .prop("readonly", true)
+                        .prop("readonly", false)
                         .addClass("bg-light")
                         .attr("placeholder", "Auto-generated");
                 }
@@ -1076,12 +1069,7 @@ gtag('event', 'user_registered_create_invoice_page');
                                     }
                                 }
                             });
-
-
-
-
-
-                            if (response.errors.item[0]) {
+                            if (response.errors && response.errors.item && response.errors.item[0]) {
                                 Swal.fire({
                                     icon: "error",
                                     title: "Error!",

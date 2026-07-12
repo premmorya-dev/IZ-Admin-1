@@ -574,7 +574,11 @@
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
                         success: function(response) {
-                            location.reload();
+                            if (response.error === 0) {
+                                location.reload();
+                            } else {
+                                alert(response.message || "Failed to delete invoices.");
+                            }
                         }
 
                     });
@@ -710,8 +714,12 @@
                         invoices_code: selected
                     },
                     success: function(response) {
-                        $('#emailConfirmModal').modal('hide');
-                        location.reload();
+                        if (response.error === 0) {
+                            $('#emailConfirmModal').modal('hide');
+                            location.reload();
+                        } else {
+                            alert(response.message || "An error occurred. Please try again.");
+                        }
                     },
                     error: function(xhr) {
                         alert("An error occurred. Please try again.");

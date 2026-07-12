@@ -1148,7 +1148,7 @@
                                 }
                             });
 
-                            if (response.errors.item[0]) {
+                            if (response.errors && response.errors.item && response.errors.item[0]) {
                                 Swal.fire({
                                     icon: "error",
                                     title: "Error!",

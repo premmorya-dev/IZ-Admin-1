@@ -113,30 +113,29 @@ abstract class DocumentService
 
 
 
-
-
+        
         // Convert logo and signature to base64 if available
         $document->logo_base64 = $document->logo_path && file_exists(public_path($document->logo_path))
-            ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path($document->logo_path))) : '';
-
+        ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path($document->logo_path))) : '';
+        
         $document->logo_image = $document->logo_path && file_exists(public_path($document->logo_path))
-            ? url('/') . "/" . $document->logo_path : '';
-
+        ? url('/') . "/" . $document->logo_path : '';
+        
         $document->signature_base64 = $document->signature && file_exists(public_path($document->signature))
-            ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path($document->signature))) : '';
-
+        ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path($document->signature))) : '';
+        
         $document->signature_image = $document->signature && file_exists(public_path($document->signature))
-            ?   url('/') . "/" . $document->signature : '';
-
-
+        ?   url('/') . "/" . $document->signature : '';
+        
+        
         $document->qr_base64 = '';
         if (!empty($document->upi_id)) {
             $note = "Payment|{$document->company_name}|{$document->{$this->numberField}}";
             $upiUrl = "upi://pay?pa={$document->upi_id}&pn={$document->company_name}&am={$document->total_due}&cu={$document->currency_code}&tn={$note}";
             $qrCode = QrCode::format('png')->size(100)->generate($upiUrl);
             $document->qr_base64 = 'data:image/png;base64,' . base64_encode($qrCode);
-        }
-
+            }
+            
 
 
         $document->qr_code_image = '';
