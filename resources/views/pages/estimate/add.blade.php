@@ -738,12 +738,14 @@
                    
                    <div class="d-flex justify-content-between align-items-center">
                        <div>
-                           <h6 class="mb-1 fw-bold text-primary">
-                               <i class="bi bi-building me-1"></i> ${client.client_name ?? ''}
-                           </h6>
-                           <p class="mb-0 text-muted small">
-                               <i class="bi bi-geo-alt me-1"></i> ${client.address_1 ?? ''}, ${client.city ?? ''}
-                           </p>
+                            <h6 class="mb-1 fw-bold text-primary">
+                                <i class="bi bi-person-circle me-1"></i> ${client.client_name ?? ''}
+                            </h6>
+
+                            <p class="mb-1 text-dark small fw-semibold">
+                                <i class="bi bi-buildings me-1"></i>
+                                ${client.company_name || 'N/A'}
+                            </p>
                            <p class="mb-0 text-muted small">
                                <i class="bi bi-envelope me-1"></i> ${client.email ?? ''}
                            </p>
@@ -839,13 +841,16 @@
         flatpickr("#issue_date", {
             enableTime: false,
             dateFormat: "Y-m-d", // Format: 2025-04-17 14:00
-            time_24hr: true
+            time_24hr: true,
+            defaultDate: "today"
+
         });
 
         flatpickr("#expiry_date", {
             enableTime: false,
             dateFormat: "Y-m-d", // Format: 2025-04-17 14:00
-            time_24hr: true
+            time_24hr: true,
+            defaultDate: "today"
         });
     </script>
 
@@ -962,7 +967,7 @@
             formContainer.appendChild(itemRow);
             lucide.createIcons();
 
-             $('.id_description').summernote({
+            $('.id_description').summernote({
                 placeholder: 'Enter Description...',
                 height: 120,
                 toolbar: [

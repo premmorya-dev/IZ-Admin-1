@@ -1,15 +1,69 @@
 <x-default-layout>
 
- @if( !empty($data['registration']) && $data['registration'] == 'success')
-<script>
-gtag('event', 'user_registered_create_invoice_page');
-</script>
+    @if( !empty($data['registration']) && $data['registration'] == 'success')
+    <script>
+        gtag('event', 'user_registered_create_invoice_page');
+    </script>
 
- @endif
+    @endif
     <link href="{{ asset('assets/css/is.css') }}" rel="stylesheet">
 
 
     <style>
+        .remove-item-btn {
+
+            position: absolute;
+
+            top: 12px;
+
+            right: 12px;
+
+            width: 40px;
+
+            height: 40px;
+
+            border: none;
+
+            border-radius: 50%;
+
+            background: #FEF2F2;
+
+            color: #DC2626;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            cursor: pointer;
+
+            transition: .25s;
+
+            z-index: 20;
+
+        }
+
+        .remove-item-btn:hover {
+
+            background: #DC2626;
+
+            color: #fff;
+
+            transform: scale(1.08);
+
+            box-shadow: 0 8px 18px rgba(220, 38, 38, .25);
+
+        }
+
+        .remove-item-btn svg {
+
+            width: 18px;
+
+            height: 18px;
+
+        }
+
         #invoice_number {
             transition: all 0.4s ease;
             font-weight: 500;
@@ -132,7 +186,7 @@ gtag('event', 'user_registered_create_invoice_page');
                 <div>
                     <div class="mb-1 mt-4 d-flex justify-content-between align-items-center">
                         <h4 class="mb-1 text-danger">To *</h4>
-                        <a href="{{ route('client.add') }}"  onclick="gtag('event', 'add_client');" target="__blank" class="clientActionBtn new-client" id="new-client-btn" style="text-decoration: none;display:none;">✏️ New Client</a>
+                        <a href="{{ route('client.add') }}" onclick="gtag('event', 'add_client');" target="__blank" class="clientActionBtn new-client" id="new-client-btn" style="text-decoration: none;display:none;">✏️ New Client</a>
                         <a href="#" onclick="event.preventDefault()" class="clientActionBtn change-client" style="text-decoration: none;">✏️ Change Client</a>
 
                     </div>
@@ -298,63 +352,15 @@ gtag('event', 'user_registered_create_invoice_page');
 
                 <div id="form-container"></div>
 
-                <button type="button" id="add-item-btn" class="btn btn-outline btn-sm  btn-outline-primary w-100" onclick="addItemRow()"><i data-lucide="plus"></i> Add Item</button>
+
+                <x-invoice.add-item-button
+                    id="add-item-btn"
+                    text="Add Item"
+                    onclick="addItemRow()" />
 
                 <!-- Invoice Summary Section -->
-                <div class="summary-box mt-5">
-                    <h5>Invoice Summary</h5>
-                    <div class="row">
-                        <div class="col-8 col-md-7 col-label">Subtotal:</div>
-                        <div class="col-4 col-md-5 text-end" id="subtotal">−$0.00</div>
-                    </div>
 
-                    <div class="row">
-                        <div class="col-8 col-md-7 col-label">Total Discount:</div>
-                        <div class="col-4 col-md-5 text-end" id="total-discount">−$0.00</div>
-                    </div>
-
-                    <div class="row same-state-class">
-                        <div class="col-8 col-md-7 col-label">Total CGST:</div>
-                        <div class="col-4 col-md-5 text-end" id="total-cgst">$0.00</div>
-                    </div>
-
-                    <div class="row same-state-class">
-                        <div class="col-8 col-md-7 col-label">Total SGST:</div>
-                        <div class="col-4 col-md-5 text-end" id="total-sgst">$0.00</div>
-                    </div>
-
-                    <div class="row diffrent-state-class">
-                        <div class="col-8 col-md-7 col-label">Total IGST:</div>
-                        <div class="col-4 col-md-5 text-end" id="total-igst">$0.00</div>
-                    </div>
-
-
-                    <div class="row">
-                        <div class="col-8 col-md-7 col-label">Total Tax:</div>
-                        <div class="col-4 col-md-5 text-end" id="total-tax">$0.00</div>
-                    </div>
-                    <div class="row">
-                        <div class="col-8 col-md-7 col-label">Grand Total:</div>
-                        <div class="col-4 col-md-5 text-end" id="grand-total">$0.00</div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-8 col-md-7 col-label">Round Off:</div>
-                        <div class="col-4 col-md-5 text-end" id="round-off">$0.00</div>
-                    </div>
-
-
-
-
-                    <!-- Remaining Balance -->
-                    <div class="row">
-                        <div class="col-8 col-md-7 col-label">Remaining Balance:</div>
-                        <div class="col-4 col-md-5 text-end" id="remaining-balance">$0.00</div>
-                    </div>
-                </div>
-
-
-
+                <x-invoice.summary />
 
                 <input type="hidden" name="hidden_sub_total" value="" id="hidden_sub_total">
                 <input type="hidden" name="hidden_total_discount" value="" id="hidden_total_discount">
@@ -374,13 +380,13 @@ gtag('event', 'user_registered_create_invoice_page');
             <!-- test -->
 
 
-            <div class="col-md-12 mt-3">
-                <div class="col-12" id="terms-section">
+            <div class="row mt-3">
+                <div class="col-md-6" id="terms-section">
                     <label for="terms" class="form-label fw-semibold">Terms and Conditions:</label>
                     <textarea name="terms" id="id_invoice_terms" class="form-control" placeholder="Enter Terms">{{ old('notes', setting('terms') ) }}</textarea>
                 </div>
 
-                <div class="col-12" id="notes-section">
+                <div class="col-md-6" id="notes-section">
                     <label for="notes" class="form-label fw-semibold">Notes:</label>
                     <textarea name="notes" id="id_invoice_notes" class="form-control " placeholder="Enter Notes">{{ old('notes', setting('notes') ) }}</textarea>
                 </div>
@@ -891,7 +897,7 @@ gtag('event', 'user_registered_create_invoice_page');
 
             function generateInvoiceNumber() {
                 let invoice_number = "{{ $data['invoice_number'] }}";
-               
+
                 return invoice_number;
             }
 
@@ -1170,8 +1176,13 @@ gtag('event', 'user_registered_create_invoice_page');
                    <div class="d-flex justify-content-between align-items-center">
                        <div>
                            <h6 class="mb-1 fw-bold text-primary">
-                               <i class="bi bi-building me-1"></i> ${client.client_name ?? ''}
-                           </h6>
+                                <i class="bi bi-person-circle me-1"></i> ${client.client_name ?? ''}
+                            </h6>
+
+                            <p class="mb-1 text-dark small fw-semibold">
+                                <i class="bi bi-buildings me-1"></i>
+                                ${client.company_name || 'N/A'}
+                            </p>
                            <p class="mb-0 text-muted small">
                                <i class="bi bi-geo-alt me-1"></i> ${client.address_1 ?? ''}, ${client.city ?? ''}
                            </p>
@@ -1274,13 +1285,15 @@ gtag('event', 'user_registered_create_invoice_page');
         flatpickr("#invoice_date", {
             enableTime: false,
             dateFormat: "Y-m-d", // Format: 2025-04-17 14:00
-            time_24hr: true
+            time_24hr: true,
+            defaultDate: "today"
         });
 
         flatpickr("#due_date", {
             enableTime: false,
             dateFormat: "Y-m-d", // Format: 2025-04-17 14:00
-            time_24hr: true
+            time_24hr: true,
+            defaultDate: "today"
         });
     </script>
 
@@ -1411,7 +1424,14 @@ gtag('event', 'user_registered_create_invoice_page');
 
       </div>
       <div class="col-12">
-        <button type="button" class="btn btn-outline btn-sm btn-outline-danger w-100" onclick="removeRow(this)"><i data-lucide="minus"></i> Remove</button>
+        <button
+    type="button"
+    class="remove-item-btn"
+    onclick="removeRow(this)"
+    title="Remove Item">
+
+    <i data-lucide="x"></i>
+
       </div>
     `;
 

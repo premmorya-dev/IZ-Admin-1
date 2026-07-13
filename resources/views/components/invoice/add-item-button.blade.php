@@ -1,0 +1,92 @@
+<style>
+
+    .add-item-btn{
+
+    width:100%;
+
+    background:#fff;
+
+    border:2px dashed #C7D2FE;
+
+    border-radius:16px;
+
+    padding:16px;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+    gap:12px;
+
+    font-weight:600;
+
+    color:#4F46E5;
+
+    transition:.25s ease;
+
+}
+
+.add-item-btn:hover{
+
+    background:#EEF2FF;
+
+    border-color:#4F46E5;
+
+    color:#4338CA;
+
+    transform:translateY(-2px);
+
+    box-shadow:0 12px 24px rgba(79,70,229,.12);
+
+}
+
+.add-item-btn:active{
+
+    transform:scale(.98);
+
+}
+
+.icon-box{
+
+    width:34px;
+
+    height:34px;
+
+    border-radius:10px;
+
+    background:#EEF2FF;
+
+    display:flex;
+
+    justify-content:center;
+
+    align-items:center;
+
+}
+
+.icon-box svg{
+
+    width:18px;
+
+    height:18px;
+
+}
+
+
+</style>
+
+<button
+    type="button"
+    id="{{ $id }}"
+    class="add-item-btn"
+    onclick="{{ $onclick }}">
+
+    <span class="icon-box">
+        <i data-lucide="plus"></i>
+    </span>
+
+    <span>{{ $text }}</span>
+
+</button>

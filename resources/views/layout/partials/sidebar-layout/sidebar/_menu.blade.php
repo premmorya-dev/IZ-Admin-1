@@ -144,24 +144,7 @@
                 </div>
             </div>
 
-            <!-- Team -->
-            <div class="menu-item pt-4">
-                <div class="menu-content">
-                    <span class="menu-heading fw-bold text-uppercase fs-7 text-gray-400">Team</span>
-                </div>
-            </div>
-            <div class="menu-item">
-                <a href="{{ route('user.list') }}" class="menu-link">
-                    <span class="menu-icon"><i data-lucide="users" class="fs-3 text-white"></i></span>
-                    <span class="menu-title text-white">Users</span>
-                </a>
-            </div>
-            <div class="menu-item">
-                <a href="{{ route('user-management.roles.index') }}" class="menu-link">
-                    <span class="menu-icon"><i data-lucide="shield-check" class="fs-3 text-white"></i></span>
-                    <span class="menu-title text-white">Roles</span>
-                </a>
-            </div>
+          
 
             <!-- Reports -->
             <div class="menu-item pt-4">
