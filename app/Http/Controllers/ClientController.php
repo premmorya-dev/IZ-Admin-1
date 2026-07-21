@@ -38,7 +38,7 @@ class ClientController extends Controller
             ->take(5)
             ->get();
 
-      
+
         // $sql = str_replace('?', "'%s'", $clients->toSql());
 
         // $sql = vsprintf($sql, $clients->getBindings());
@@ -252,10 +252,10 @@ class ClientController extends Controller
 
 
                 $data['clients'][$key]->created_at_utc = $client->created_at;
-                $data['clients'][$key]->created_at =  !empty($client->created_at) ? getTimeDateDisplay($user->time_zone_id, $client->created_at, 'Y-m-d H:i:s', 'Y-m-d H:i:s') : '';
+                $data['clients'][$key]->created_at =  !empty($client->created_at) ? getTimeDateDisplay($user->time_zone_id, $client->created_at, 'Y-m-d', 'Y-m-d H:i:s') : '';
 
                 $data['clients'][$key]->updated_at_utc = $client->updated_at;
-                $data['clients'][$key]->updated_at =  !empty($client->updated_at) ? getTimeDateDisplay($user->time_zone_id, $client->updated_at, 'Y-m-d H:i:s', 'Y-m-d H:i:s') : '';
+                $data['clients'][$key]->updated_at =  !empty($client->updated_at) ? getTimeDateDisplay($user->time_zone_id, $client->updated_at, 'Y-m-d', 'Y-m-d H:i:s') : '';
             }
         }
 
@@ -442,11 +442,8 @@ class ClientController extends Controller
             return abort(404);
         }
 
-        if (empty($data['client']->shipping_address_1)) {
-            $data['show_shipping'] = false;
-        } else {
-            $data['show_shipping'] = true;
-        }
+        $data['is_shipping_different'] = $data['client']->is_shipping_different;
+
 
 
         $data['currencies'] = \DB::table('currencies')->orderBy('currency_name', 'ASC')->get();
@@ -530,6 +527,7 @@ class ClientController extends Controller
 
 
             if (!empty($request->edit_shipping_address) && $request->edit_shipping_address == 'on') {
+                $is_shipping_different = '1';
                 $shipping_client_name = $request->shipping_client_name ??  $request->client_name;
                 $shipping_address_1 = $request->shipping_address_1 ??  $request->address_1;
                 $shipping_address_2 = $request->shipping_address_2 ??  $request->address_2;
@@ -539,6 +537,7 @@ class ClientController extends Controller
                 $shipping_zip = $request->shipping_zip ??  $request->zip;
                 $shipping_phone = $request->shipping_phone ??  $request->phone;
             } else {
+                $is_shipping_different = '0';
                 $shipping_client_name = $request->client_name ?? null;
                 $shipping_address_1 = $request->address_1 ?? null;
                 $shipping_address_2 =  $request->address_2 ?? null;
@@ -567,7 +566,7 @@ class ClientController extends Controller
                 'notes' => $data['notes'] ?? null,
                 'terms' => $data['terms'] ?? null,
                 'status' => $data['status'] ?? 'active',
-
+                'is_shipping_different' => $is_shipping_different,
                 'shipping_client_name' =>  $shipping_client_name,
                 'shipping_address_1' =>  $shipping_address_1,
                 'shipping_address_2' => $shipping_address_2,

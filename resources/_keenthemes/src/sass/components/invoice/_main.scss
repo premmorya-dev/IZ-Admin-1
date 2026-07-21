@@ -1,0 +1,187 @@
+/* slider button */
+
+a {
+    pointer-events: auto;
+    /* Ensures links are clickable */
+    z-index: 1;
+    /* Makes sure the anchor tag is above other elements */
+}
+
+[readonly] {
+    background-color: #eeeeee;
+}
+
+.slider-checkbox {
+    position: relative;
+    display: inline-block;
+    width: 34px;
+    /* Reduced width */
+    height: 17px;
+    /* Reduced height */
+}
+
+/* Hide default checkbox */
+.slider-checkbox input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* Slider background */
+.slider {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    border-radius: 17px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+/* Circle inside slider */
+.slider:before {
+    position: absolute;
+    content: "";
+    height: 13px;
+    /* Reduced size */
+    width: 13px;
+    /* Reduced size */
+    left: 2px;
+    /* Adjusted position */
+    bottom: 2px;
+    /* Adjusted position */
+    background-color: white;
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+}
+
+/* When checkbox is checked, change the background color */
+input:checked+.slider {
+    background-color: #007bff;
+}
+
+/* Move the circle when the checkbox is checked */
+input:checked+.slider:before {
+    transform: translateX(17px);
+    /* Adjusted for the smaller size */
+}
+
+@media (min-width: 992px) {
+    .device-setion-margin {
+        margin-bottom: 0px !important;
+    }
+
+}
+
+.device-setion-margin {
+    margin-bottom: 120px;
+    ;
+}
+
+/* notification */
+.notification-field-set {
+    position: fixed;
+    bottom: 0;
+    right: 0;
+    width: 100%;
+    z-index: 1000;
+    background-color: #ffffff;
+    box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
+    background-color: #0d0e12;
+    border: none !important;
+    opacity: 80%;
+
+}
+
+.select-all-notification-checkbox {
+    font-size: 10px;
+}
+
+.ls-1 {
+    letter-spacing: 0.5px;
+}
+
+.ls-2 {
+    letter-spacing: 1px;
+}
+
+.ls-3 {
+    letter-spacing: 2px;
+}
+
+.custom-alert-danger {
+    border-radius: 8px;
+    font-size: 1.1rem;
+}
+
+.custom-alert-danger li {
+    padding: 5px 0;
+}
+
+.spinner-format {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 50px;
+    height: 50px;
+}
+
+.divider {
+    border: 0;
+    height: 2px;
+    background-color: #007bff;
+    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.page-header-fixed {
+    position: sticky;
+    top: 0;
+    z-index: 1030;
+    background-color: #f8f9fa;
+    padding: 0.75rem 1rem;
+}
+
+.page-header-fixed.scrolled {
+    background-color: rgba(248, 249, 250, 0.6);
+    /* More transparent */
+    backdrop-filter: blur(1px);
+}
+
+.page-header-fixed .btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+
+/* helping button */
+
+  .floating-help-btn {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        background: #25D366;
+        color: #fff;
+        padding: 12px 18px;
+        border-radius: 40px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 16px;
+        font-weight: 600;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.20);
+        text-decoration: none;
+        transition: 0.3s ease;
+        z-index: 9999;
+    }
+
+    .floating-help-btn i {
+        font-size: 22px;
+    }
+
+    .floating-help-btn:hover {
+        transform: scale(1.08);
+        box-shadow: 0 6px 16px rgba(0,0,0,0.25);
+    }

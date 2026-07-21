@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\PlanModel;
 use App\Models\SubscriptionModel;
+use App\Events\SubscriptionUpgraded;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -23,7 +24,7 @@ class PlanController extends Controller
 
         $activePlan = DB::table('subscriptions')
             ->join('plans', 'subscriptions.plan_id', '=', 'plans.plan_id')
-            ->where('subscriptions.user_id', auth()->user()->user_id)
+            ->where('subscriptions.account_id', auth()->user()->account_id)
             ->where('subscriptions.payment_status', 'paid')
             ->where('subscriptions.ends_at', '>=', now())
             ->orderByDesc('subscriptions.ends_at')
@@ -47,7 +48,7 @@ class PlanController extends Controller
                 's.starts_at',
                 's.ends_at'
             )
-            ->where('p.user_id', $userId)
+            ->where('p.account_id', auth()->user()->account_id)
             ->orderByDesc('p.paid_at')
             ->get();
 
@@ -99,7 +100,7 @@ class PlanController extends Controller
 
         $activePlan = DB::table('subscriptions')
             ->join('plans', 'subscriptions.plan_id', '=', 'plans.plan_id')
-            ->where('subscriptions.user_id', auth()->user()->user_id)
+            ->where('subscriptions.account_id', auth()->user()->account_id)
             ->where('subscriptions.payment_status', 'paid')
             ->where('subscriptions.ends_at', '>=', now())
             ->where('plans.plan_id', $plan_id)
@@ -119,7 +120,7 @@ class PlanController extends Controller
 
         $activePlan = DB::table('subscriptions')
             ->join('plans', 'subscriptions.plan_id', '=', 'plans.plan_id')
-            ->where('subscriptions.user_id', auth()->user()->user_id)
+            ->where('subscriptions.account_id', auth()->user()->account_id)
             ->where('subscriptions.payment_status', 'paid')
             ->where('subscriptions.ends_at', '>=', now())
             ->orderByDesc('subscriptions.ends_at')
@@ -179,7 +180,7 @@ class PlanController extends Controller
             if (!empty($payment)   &&   $payment['status'] == 'captured') {
                 // Expire previous active subscriptions
                 DB::table('subscriptions')
-                    ->where('user_id', $userId)
+                    ->where('account_id', auth()->user()->account_id)
                     ->where('payment_status', 'paid')
                     ->whereDate('ends_at', '>=', now())
                     ->update([
@@ -188,8 +189,9 @@ class PlanController extends Controller
                     ]);
 
                 // Create new subscription
-                $subscriptionId = DB::table('subscriptions')->insertGetId([
+                $subscription = SubscriptionModel::create([
                     'user_id'        => $userId,
+                    'account_id'     => auth()->user()->account_id,
                     'plan_id'        => $plan_id,
                     'payment_id'     => $payment_id,
                     'amount_paid'    => $payment['amount'] / 100, // Razorpay stores in paise
@@ -197,16 +199,13 @@ class PlanController extends Controller
                     'payment_status' => 'paid',
                     'starts_at'      => now(),
                     'ends_at'        => now()->addDays((int) $newPlan->duration_days),
-                    'created_at'     => now(),
-                    'updated_at'     => now(),
                 ]);
-
-
 
                 // Record payment
                 DB::table('payments')->insert([
                     'user_id'         => $userId,
-                    'subscription_id' => $subscriptionId,
+                    'account_id'      => auth()->user()->account_id,
+                    'subscription_id' => $subscription->subscription_id,
                     'plan_id'         => $plan_id,
                     'amount'          => $payment['amount'] / 100,
                     'payment_status'  => $payment['status'],
@@ -219,6 +218,8 @@ class PlanController extends Controller
                     'created_at'      => now(),
                     'updated_at'      => now(),
                 ]);
+
+                event(new SubscriptionUpgraded(auth()->user(), $subscription));
 
                 session([
                     'plan_id' => $plan_id,

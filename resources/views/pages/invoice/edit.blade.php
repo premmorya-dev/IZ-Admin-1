@@ -1,34 +1,6 @@
 <x-default-layout>
     <link href="{{ asset('assets/css/is.css') }}" rel="stylesheet">
 
-
-    <style>
-        #invoice_number {
-            transition: all 0.4s ease;
-            font-weight: 500;
-        }
-
-        /* CSS */
-        .custom-dropdown {
-            min-width: 220px;
-            width: 80vw;
-            /* Responsive width: 80% of viewport on mobile */
-            max-width: 300px;
-            /* Limit maximum width on larger screens */
-        }
-
-        /* Optional: fine-tune for very small screens */
-        @media (max-width: 400px) {
-            .custom-dropdown {
-                width: 90vw;
-            }
-        }
-
-        #invoice-generate .invoice-view-model:hover {
-            color: white !important;
-
-        }
-    </style>
     <h2 class="py-3">Edit Invoices</h2>
 
 
@@ -38,10 +10,26 @@
 
         <div class="page-header-fixed mb-3 d-flex justify-content-between align-items-center">
             <div><a href="{{ route('invoice.list') }}" class="btn btn-outline-secondary btn-sm"> <i data-lucide="arrow-left"></i> Back </a> </div>
-            <div class="d-flex justify-content-between">
-                <a href="#" invoice-code="{{ $data['invoice']->invoice_code }}" title="Preview Invoice" class="invoice-view-model btn btn-sm btn-outline-primary"><i class="fa-regular fa-eye text-default"></i> </a>
-                <a class="btn btn-sm btn-outline-primary" href="{{ route('invoice.download',['invoice_code' => $data['invoice']->invoice_code ]) }}?preview=true" target="__blank" title="Print Invoice"><i class="fa-solid fa-print  text-defaults"></i> </a>
-                <a class="btn btn-sm btn-outline-primary" href="{{ route('invoice.download',['invoice_code' => $data['invoice']->invoice_code ]) }}" title="Download Invoice"><i class="fa-solid fa-download text-defaults"></i> </a>
+            <div class="invoice-actions">
+                <a href="#"
+                    invoice-code="{{ $data['invoice']->invoice_code }}"
+                    class="invoice-view-model action-btn"
+                    title="Preview">
+                    <i class="fa-regular fa-eye"></i>
+                </a>
+
+                <a href="{{ route('invoice.download',['invoice_code'=>$data['invoice']->invoice_code]) }}?preview=true"
+                    target="_blank"
+                    class="action-btn"
+                    title="Print">
+                    <i class="fa-solid fa-print"></i>
+                </a>
+
+                <a href="{{ route('invoice.download',['invoice_code'=>$data['invoice']->invoice_code]) }}"
+                    class="action-btn"
+                    title="Download">
+                    <i class="fa-solid fa-download"></i>
+                </a>
             </div>
 
             @include('pages/invoice/actions.update_invoice_action')
@@ -50,265 +38,52 @@
 
         <div class="row">
 
-            <div class="col-md-3 mt-3 text-md-start text-center">
-                <img src="{{ asset($data['setting']->logo_path) }}" style="height: 80px;">
+            <x-invoice.header :data="$data" />
+
+            <!-- From Address Section -->
+            <x-invoice.address-section :setting="$data['setting']" />
+
+            <div class="row g-4">
+
+                <div class="col-lg-6 col-md-6">
+                    <x-date
+                        id="invoice_date"
+                        name="invoice_date"
+                        label="Invoice Date"
+                        icon="calendar-event"
+                        placeholder="Select invoice issue date"
+                        value="{{ old('invoice_date', $data['invoice']->invoice_date) }}"
+                        required />
+                </div>
+
+                <div class="col-lg-6 col-md-6">
+                    <x-date
+                        id="due_date"
+                        name="due_date"
+                        label="Due Date"
+                        icon="calendar-check"
+                        placeholder="Select invoice due date"
+                        value="{{ old('due_date', $data['invoice']->due_date) }}"
+                        required />
+                </div>
+
             </div>
 
-            <!-- Invoice Number with Mode -->
-            <div class="col-md-3 mt-3">
-                <label for="invoice_number" class="form-label d-flex justify-content-between align-items-center text-danger">
-                    <span>Invoice Number *</span>
-                </label>
-                <input type="text" class="form-control form-control-sm" id="invoice_number" value="{{ old('invoice_number', $data['invoice']->invoice_number ) }}" name="invoice_number" placeholder="Auto-generated" >
-            </div>
+            <x-invoice.setting-switch :data="$data" />
+            <x-invoice.recurring-invoice :data="$data" />
 
-
-
-            <!-- Currency -->
-            <div class="col-md-3 mt-3">
-                <label for="currency" class="form-label text-danger">Select Currency *</label>
-                <select name="currency_code" id="currency_code" class="form-select">
+            <!-- UPI Dropdown (Hidden by default) -->
+            <div id="upiDropdownWrapper" class="mt-3" style="display: none;">
+                <label for="upi_id" class="form-label">Select UPI</label>
+                <select id="upi_id" name="upi_id" class="form-select">
                     <option value="">Please Select</option>
-                    @foreach($data['currencies'] as $currency)
-                    <option value="{{ $currency->currency_code }}" {{ old('currency_code',$data['invoice']->currency_code) == $currency->currency_code ? 'selected' : '' }}>
-                        {{ $currency->currency_name }}
+                    @foreach($data['upi_payment_id'] as $upi_payment)
+                    <option value="{{ $upi_payment->upi_id }}" {{ old('upi_id',$data['invoice']->upi_id) == $upi_payment->upi_id ? 'selected' : '' }}>
+                        Name: {{ $upi_payment->upi_name }} | Id: {{ $upi_payment->upi_id }}
                     </option>
                     @endforeach
                 </select>
             </div>
-
-            <!-- Language -->
-            <div class="col-md-3 mt-3">
-                <label for="template" class="form-label text-danger">Template *</label>
-                <select class="form-select" id="template_id" name="template_id">
-                    <option value="">Please Select</option>
-                    @foreach($data['templates'] as $template )
-                    <option value="{{ $template->template_id }}" {{ old('template_id',$data['invoice']->template_id) == $template->template_id ? 'selected' : '' }}>{{ $template->template_name }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-
-            <!-- From Address Section -->
-            <div class="mt-2 col-md-6">
-                <div class="mt-8 ">
-                    <div class="mb-1 mt-2 d-flex justify-content-between">
-                        <h4 class="mb-1">From </h4>
-                        <input type="hidden" name="user_state_id" id="user_state_id" value="{{ setting('state_id') }}">
-                        <a href="{{ route('settings.edit') }}" target="__blank" style="text-decoration: none;"> ✏️ Edit Business Profile </a>
-                    </div>
-
-                    <div>
-                        @if( !empty($data['setting']->company_name) )
-                        {{ $data['setting']->company_name }} <br>
-                        @else
-                        {{ $data['setting']->client_name }} <br>
-                        @endif
-
-                        @if( !empty($data['setting']->address_1) )
-                        {{ $data['setting']->address_1 }} <br>
-                        @endif
-
-                        @if( !empty($data['setting']->address_2) )
-                        {{ $data['setting']->address_2 }} <br>
-                        @endif
-
-                        @if( !empty($data['setting']->state->state_name ) )
-                        {{ $data['setting']->state->state_name }}
-                        @endif
-
-
-                        @if( !empty($data['setting']->country->country_name ) )
-                        {{ $data['setting']->country->country_name }}
-                        @endif
-
-                        @if( !empty($data['setting']->pincode) )
-                        {{ $data['setting']->pincode }}
-                        @endif
-                    </div>
-                </div>
-
-                <!-- To Address Section -->
-                <div>
-                    <div class="mb-1 mt-4 d-flex justify-content-between align-items-center">
-                        <h4 class="mb-1 text-danger">To *</h4>
-                        <a href="{{ route('client.add') }}" target="__blank" class="clientActionBtn new-client" style="text-decoration: none;display:none;">✏️ New Client</a>
-                        <a href="#" onclick="event.preventDefault()" class="clientActionBtn change-client" style="text-decoration: none;">✏️ Change Client</a>
-
-                    </div>
-
-                    <div id="clientSearchBox">
-                        <input type="text" class="form-control " id="client" name="client_name" placeholder="Type client name, email, contact number to search client" autocomplete="off">
-                        <input type="hidden" name="client_id" id="client_id">
-                        <input type="hidden" name="client_state_id" id="client_state_id">
-                        <!-- Dropdown results -->
-                        <div id="clientList" class="list-group w-100 z-3 shadow-sm" style="max-height: 200px; overflow-y: auto; display: none;"></div>
-                    </div>
-
-                    <!-- Display client address here -->
-                    <div id="clientAddress" class="mt-3 border p-3 rounded bg-light position-relative" style="display: none;"></div>
-                </div>
-
-            </div>
-
-
-            <div class="col-md-6">
-
-                <div class="row">
-                    <div class="col-md-6 mt-3">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="display_shipping_status" name="display_shipping_status"
-                                {{ old('display_shipping_status', !empty($data['invoice']->display_shipping_status) && $data['invoice']->display_shipping_status == 'Y' ? 'checked' : '') }}>
-
-                            <label class="form-check-label" for="display_shipping_status">Show Shipping</label>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mt-3">
-                            <!-- Recurring switch -->
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="is_recurring" name="is_recurring"
-                                    {{ old('is_recurring', !empty($data['recurring']) ? 'checked' : '') }}>
-
-                                <label class="form-check-label" for="is_recurring">Enable Recurring Invoice</label>
-                            </div>
-
-
-                        </div>
-                    </div>
-
-                    <!-- Recurring options wrapper -->
-                    <div id="recurringOptions" style="display: none;">
-                        <!-- Frequency -->
-                        <div class="mt-3">
-                            <label for="frequency" class="form-label">Frequency</label>
-                            <select name="frequency" id="frequency" class="form-select">
-                                <option value="monthly" {{ old('frequency', $data['recurring']->frequency ?? '') == 'monthly' ? 'selected' : '' }}>Monthly</option>
-                                <option value="weekly" {{ old('frequency', $data['recurring']->frequency ?? '') == 'weekly' ? 'selected' : '' }}>Weekly</option>
-                                <option value="yearly" {{ old('frequency', $data['recurring']->frequency ?? '') == 'yearly' ? 'selected' : '' }}>Yearly</option>
-                            </select>
-
-                        </div>
-
-                        <!-- Monthly Day -->
-                        <div class="mt-3" id="monthlyDay">
-                            <label for="day_of_month" class="form-label">Day of Month (1–31)</label>
-                            <select name="day_of_month" class="form-select">
-                                @for ($i = 1; $i <= 31; $i++)
-                                    <option value="{{ $i }}"
-                                    {{ old('day_of_month', $data['recurring']->day_of_month ?? '') == $i ? 'selected' : '' }}>
-                                    {{ $i }}
-                                    </option>
-                                    @endfor
-                            </select>
-
-                        </div>
-
-                        <!-- Weekly Day -->
-                        <div class="mt-3" id="weeklyDay" style="display: none;">
-                            <label for="day_of_week" class="form-label">Day of Week</label>
-                            <select name="day_of_week" class="form-select">
-                                @foreach(['sunday','monday','tuesday','wednesday','thursday','friday','saturday'] as $day)
-                                <option value="{{ $day }}"
-                                    {{ old('day_of_week', $data['recurring']->day_of_week ?? '') == $day ? 'selected' : '' }}>
-                                    {{ ucfirst($day) }}
-                                </option>
-                                @endforeach
-                            </select>
-
-                        </div>
-
-                        <!-- Yearly Month + Day -->
-                        <div id="yearlySection" style="display: none;">
-                            <!-- Month -->
-                            <div class="mt-3">
-                                <label for="month_of_year" class="form-label">Month of Year</label>
-                                <select name="month_of_year" class="form-select">
-                                    @foreach([
-                                    1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
-                                    5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
-                                    9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
-                                    ] as $num => $month)
-                                    <option value="{{ $num }}"
-                                        {{ old('month_of_year', $data['recurring']->month_of_year ?? '') == $num ? 'selected' : '' }}>
-                                        {{ $month }}
-                                    </option>
-                                    @endforeach
-                                </select>
-
-                            </div>
-
-                            <!-- Day -->
-                            <div class="mt-3">
-                                <label for="yearly_day_of_month" class="form-label">Day of Month</label>
-                                <select name="yearly_day_of_month" class="form-select">
-                                    @for ($i = 1; $i <= 31; $i++)
-                                        <option value="{{ $i }}"
-                                        {{ old('yearly_day_of_month', $data['recurring']->day_of_month ?? '') == $i ? 'selected' : '' }}>
-                                        {{ $i }}
-                                        </option>
-                                        @endfor
-                                </select>
-
-                            </div>
-                        </div>
-
-                        <!-- Time Picker -->
-                        <div class="mt-3">
-                            <label for="time_of_day" class="form-label">Time to Generate</label>
-                            @php
-                            $time = old('time_of_day', isset($data['recurring']->time_of_day)
-                            ? \Carbon\Carbon::parse($data['recurring']->time_of_day)->setTimezone('Asia/Kolkata')->format('H:i')
-                            : '09:00');
-                            @endphp
-                            <input type="time" name="time_of_day" class="form-control" value="{{ $time }}">
-
-                        </div>
-                    </div>
-                </div>
-
-
-
-
-                <div class="mt-3">
-                    <label for="invoice_date" class="form-label text-danger">Invoice Date *</label>
-
-                    <div class="input-group">
-                        <input type="text" id="invoice_date" class="form-control" name="invoice_date" value="{{ old('invoice_date', $data['invoice']->invoice_date )  }}" placeholder="Select Invoice Issue Date">
-                        <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
-                    </div>
-                </div>
-
-                <div class="mt-3">
-                    <label for="due_date" class="form-label text-danger">Invoice Due *</label>
-                    <div class="input-group">
-                        <input type="text" id="due_date" class="form-control" name="due_date" value="{{ old('due_date', $data['invoice']->due_date )  }}" placeholder="Select Invoice Due Date">
-                        <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
-                    </div>
-                </div>
-
-
-
-                <div class="form-check form-switch mt-3">
-                    <input class="form-check-input" type="checkbox" name="upi_id_payment_status" id="useUpiToggle">
-                    <label class="form-check-label" for="useUpiToggle">Use UPI ID for Payment</label>
-                </div>
-
-                <!-- UPI Dropdown (Hidden by default) -->
-                <div id="upiDropdownWrapper" class="mt-3" style="display: none;">
-                    <label for="upi_id" class="form-label">Select UPI</label>
-                    <select id="upi_id" name="upi_id" class="form-select">
-                        <option value="">Please Select</option>
-                        @foreach($data['upi_payment_id'] as $upi_payment)
-                        <option value="{{ $upi_payment->upi_id }}" {{ old('upi_id',$data['invoice']->upi_id) == $upi_payment->upi_id ? 'selected' : '' }}>
-                            Name: {{ $upi_payment->upi_name }} | Id: {{ $upi_payment->upi_id }}
-                        </option>
-                        @endforeach
-                    </select>
-                </div>
-
-            </div>
-
 
 
             <!-- test -->
@@ -322,7 +97,7 @@
                     @if(!empty($data['items']))
                     @foreach($data['items'] as $itemCount => $item)
                     @php $itemCount++; @endphp
-                    <div class="row g-3 p-3 border rounded shadow-sm bg-light align-items-start mb-3 mt-3 position-relative" data-item-id="{{ $itemCount }}">
+                    <div class="row bg-blue g-3 p-3 border rounded shadow-sm bg-light align-items-start mb-3 mt-3 position-relative" data-item-id="{{ $itemCount }}">
                         <div class="row w-100 g-2">
 
                             <!-- Item Name -->
@@ -428,10 +203,15 @@
                         </div>
 
                         <!-- Remove Button -->
-                        <div class="col-12 mt-2">
-                            <button type="button" class="btn btn-outline btn-sm btn-outline-danger w-100" onclick="removeRow(this)">
-                                <i data-lucide="minus"></i> Remove
-                            </button>
+                        <div class="col-12">
+                            <button
+                                type="button"
+                                class="remove-item-btn"
+                                onclick="removeRow(this)"
+                                title="Remove Item">
+
+                                <i data-lucide="x"></i>
+
                         </div>
                     </div>
                     @endforeach
@@ -440,92 +220,37 @@
 
 
 
-                <button type="button" class="btn btn-outline btn-sm  btn-outline-primary w-100" onclick="addItemRow()"><i data-lucide="plus"></i> Add Item</button>
+                <x-invoice.add-item-button
+                    id="add-item-btn"
+                    text="Add Item"
+                    onclick="addItemRow()" />
 
                 <!-- Invoice Summary Section -->
-                <div class="summary-box mt-5">
-                    <h5>Invoice Summary</h5>
-                    <div class="row">
-                        <div class="col-8 col-md-7 col-label">Subtotal:</div>
-                        <div class="col-4 col-md-5 text-end" id="subtotal">−$0.00</div>
-                    </div>
-                    <div class="row">
-                        <div class="col-8 col-md-7 col-label">Total Discount:</div>
-                        <div class="col-4 col-md-5 text-end" id="total-discount">−$0.00</div>
-                    </div>
-
-                    <div class="row same-state-class">
-                        <div class="col-8 col-md-7 col-label">Total CGST:</div>
-                        <div class="col-4 col-md-5 text-end" id="total-cgst">$0.00</div>
-                    </div>
-
-                    <div class="row same-state-class">
-                        <div class="col-8 col-md-7 col-label">Total SGST:</div>
-                        <div class="col-4 col-md-5 text-end" id="total-sgst">$0.00</div>
-                    </div>
-
-                    <div class="row diffrent-state-class">
-                        <div class="col-8 col-md-7 col-label">Total IGST:</div>
-                        <div class="col-4 col-md-5 text-end" id="total-igst">$0.00</div>
-                    </div>
-
-
-                    <div class="row">
-                        <div class="col-8 col-md-7 col-label">Total Tax:</div>
-                        <div class="col-4 col-md-5 text-end" id="total-tax">$0.00</div>
-                    </div>
-                    <div class="row">
-                        <div class="col-8 col-md-7 col-label">Grand Total:</div>
-                        <div class="col-4 col-md-5 text-end" id="grand-total">$0.00</div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-8 col-md-7 col-label">Round Off:</div>
-                        <div class="col-4 col-md-5 text-end" id="round-off">$0.00</div>
-                    </div>
-
-
-
-                    <!-- Remaining Balance -->
-                    <div class="row">
-                        <div class="col-8 col-md-7 col-label">Remaining Balance:</div>
-                        <div class="col-4 col-md-5 text-end" id="remaining-balance">$0.00</div>
-                    </div>
-                </div>
-
-
-
+                <x-invoice.summary />
 
                 <input type="hidden" name="hidden_sub_total" value="" id="hidden_sub_total">
                 <input type="hidden" name="hidden_total_discount" value="" id="hidden_total_discount">
-
                 <input type="hidden" name="hidden_total_taxable" value="" id="hidden_total_taxable">
                 <input type="hidden" name="hidden_total_cgst" value="" id="hidden_total_cgst">
                 <input type="hidden" name="hidden_total_sgst" value="" id="hidden_total_sgst">
                 <input type="hidden" name="hidden_total_igst" value="" id="hidden_total_igst">
-
-
-
                 <input type="hidden" name="hidden_total_tax" value="" id="hidden_total_tax">
                 <input type="hidden" name="hidden_grand_total" value="" id="hidden_grand_total">
-
                 <input type="hidden" name="hidden_round_off" value="" id="hidden_round_off">
                 <input type="hidden" name="hidden_total_due" value="" id="hidden_total_due">
-
                 <input type="hidden" name="invoice_code" value="{{ $data['invoice']->invoice_code }}" id="invoice_code">
 
 
             </div>
             <!-- test -->
 
-
-            <div class="col-md-12 mt-3">
-                <div class="col-12">
+            <div class="row mt-3 gx-4">
+                <div class="col-md-6 bg-blue" id="terms-section">
                     <label for="terms" class="form-label fw-semibold">Terms and Conditions:</label>
                     <textarea id="id_invoice_terms" name="terms" class="form-control" placeholder="Enter Terms">{{ old('terms', $data['invoice']->terms ) }}</textarea>
                 </div>
 
-                <div class="col-12">
+                <div class="col-md-6 bg-blue" id="notes-section">
                     <label for="notes" class="form-label fw-semibold">Notes:</label>
                     <textarea id="id_invoice_notes" name="notes" class="form-control" placeholder="Enter Notes">{{ old('notes', $data['invoice']->notes ) }}</textarea>
                 </div>
@@ -661,7 +386,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-  <script>
+    <script>
         $(document).on('click', '.edit-client', function(e) {
             e.preventDefault();
             $('.client-modal-body').empty();
@@ -683,7 +408,7 @@
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
                     beforeSend: function() {
-                      
+
                     },
                     success: function(response) {
 
@@ -693,7 +418,7 @@
                         $('#editClient-modal').on('shown.bs.modal', function() {
                             // Initialize Choices.js (always safe to re-init)
 
-                            ['#id_country_id', '#id_state_id', '#id_currency_code' ,'#id_shipping_state_id', '#id_shipping_country_id'].forEach(function(selector) {
+                            ['#id_country_id', '#id_state_id', '#id_currency_code', '#id_shipping_state_id', '#id_shipping_country_id'].forEach(function(selector) {
                                 const el = document.querySelector(selector);
                                 if (!el) return; // skip if element not found
 
@@ -1148,7 +873,7 @@
                                 }
                             });
 
-                            if (response.errors.item[0]) {
+                            if (response.errors && response.errors.item && response.errors.item[0]) {
                                 Swal.fire({
                                     icon: "error",
                                     title: "Error!",
@@ -1318,7 +1043,7 @@
                 if (client.country_name) addressHTML += client.country_name + ' ';
                 if (client.zip) addressHTML += client.zip;
 
-                
+
 
                 $('#client').val(client.client_name);
                 $('#client_id').val(client.id);
@@ -1427,7 +1152,7 @@
             const formContainer = document.getElementById('form-container');
 
             const itemRow = document.createElement('div');
-            itemRow.classList.add('row', 'g-3', 'p-3', 'border', 'rounded', 'shadow-sm', 'bg-light', 'align-items-start', 'mb-3', 'mt-3', 'position-relative');
+            itemRow.classList.add('row', 'bg-blue', 'g-3', 'p-3', 'border', 'rounded', 'shadow-sm', 'bg-light', 'align-items-start', 'mb-3', 'mt-3', 'position-relative');
             itemRow.setAttribute('data-item-id', itemCount);
 
             itemRow.innerHTML = `
@@ -1506,7 +1231,13 @@
                             </div>
 
       <div class="col-12">
-        <button type="button" class="btn btn-outline btn-sm btn-outline-danger w-100" onclick="removeRow(this)"><i data-lucide="minus"></i> Remove</button>
+        <button
+    type="button"
+    class="remove-item-btn"
+    onclick="removeRow(this)"
+    title="Remove Item">
+
+    <i data-lucide="x"></i>
       </div>
     `;
 

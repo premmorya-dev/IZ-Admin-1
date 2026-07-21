@@ -27,7 +27,8 @@ class EventServiceProvider extends ServiceProvider
      */
     public function boot()
     {
-        //
+        parent::boot();
+        $this->app['events']->subscribe(\App\Listeners\AuditLogEventSubscriber::class);
     }
 
     /**

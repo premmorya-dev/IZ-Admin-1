@@ -1,0 +1,203 @@
+    /* ===== Choices.js = Same as Input ===== */
+
+    /* ===== Make Choices Same Height as Bootstrap Input ===== */
+
+    .form-control,
+    .form-select,
+    .choices__inner {
+        min-height: 48px;
+    }
+
+    
+
+    .choices {
+        margin-bottom: 0;
+    }
+
+    .choices__inner {
+        min-height: 48px !important;
+        height: 48px !important;
+        padding: 0 14px !important;
+        border: 1px solid #d7ddea !important;
+        border-radius: 12px !important;
+        background: #fff !important;
+
+        display: flex;
+        align-items: center;
+    }
+
+    .choices__list--single {
+        padding: 0 !important;
+        display: flex;
+        align-items: center;
+        height: 100%;
+    }
+
+    .choices__list--single .choices__item {
+        line-height: 48px;
+    }
+
+    .choices[data-type*=select-one]::after {
+        right: 16px;
+        margin-top: -3px;
+    }
+
+    .choices.is-focused .choices__inner,
+    .choices.is-open .choices__inner {
+        border-color: #5b6cff !important;
+        box-shadow: 0 0 0 .2rem rgba(91, 108, 255, .15) !important;
+    }
+    
+
+
+/*==========================
+Invoice Header
+==========================*/
+
+    .invoice-top-section {
+
+        margin-bottom: 20px;
+
+    }
+
+    .invoice-top-card {
+
+        background: #fff;
+
+        border: 1px solid #E4E7EC;
+
+        border-radius: 14px;
+
+        padding: 14px;
+
+        height: 100%;
+
+        transition: .25s;
+
+    }
+
+    .invoice-top-card:hover {
+
+        border-color: #6F7EF7;
+
+        box-shadow: 0 8px 24px rgba(80, 95, 255, .08);
+
+    }
+
+    .invoice-label {
+
+        display: flex;
+
+        align-items: center;
+
+        gap: 8px;
+
+        font-size: 13px;
+
+        font-weight: 600;
+
+        color: #475467;
+
+        margin-bottom: 10px;
+
+    }
+
+    .invoice-label i {
+
+        color: #5B6EF5;
+
+    }
+
+    .invoice-top-card .input-group {
+
+        border-radius: 10px;
+
+        overflow: hidden;
+
+    }
+
+    .invoice-top-card .input-group-text {
+
+        background: #F8F9FC;
+
+        border-color: #E4E7EC;
+
+        color: #5B6EF5;
+
+    }
+
+    .invoice-top-card .form-control,
+
+    .invoice-top-card .form-select {
+
+       
+
+        font-size: 14px;
+
+        height: 42px;
+
+    }
+
+    .invoice-top-card .form-control:focus,
+
+    .invoice-top-card .form-select:focus {
+
+        box-shadow: none;
+
+    }
+
+    .logo-card {
+
+        display: flex;
+
+        flex-direction: column;
+
+        justify-content: center;
+
+    }
+
+    .company-logo-wrapper {
+
+        height: 70px;
+
+        display: flex;
+
+        align-items: center;
+
+        justify-content: center;
+
+    }
+
+    .company-logo {
+
+        max-height: 60px;
+
+        max-width: 100%;
+
+        object-fit: contain;
+
+    }
+
+    /* Mobile */
+
+    @media(max-width:768px) {
+
+        .invoice-top-card {
+
+            padding: 12px;
+
+        }
+
+        .company-logo-wrapper {
+
+            height: 60px;
+
+        }
+
+        .invoice-label {
+
+            font-size: 12px;
+
+        }
+
+    }

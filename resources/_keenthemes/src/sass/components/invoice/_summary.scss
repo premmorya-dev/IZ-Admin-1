@@ -1,0 +1,495 @@
+
+   /*==================================================
+Invoice Summary
+==================================================*/
+
+.invoice-summary{
+    position: sticky;
+    top: 20px;
+    z-index: 10;
+}
+
+
+/*==================================================
+Header
+==================================================*/
+
+/* ===========================
+Summary Header
+=========================== */
+
+.summary-header{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    margin-bottom:18px;
+
+}
+
+.summary-header-left{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:12px;
+
+}
+
+.summary-icon{
+
+    width:42px;
+
+    height:42px;
+
+    border-radius:12px;
+
+    background:linear-gradient(135deg,#EEF2FF,#E0E7FF);
+
+    display:flex;
+
+    align-items:center;
+
+    justify-content:center;
+
+}
+
+.summary-icon svg{
+
+    width:20px;
+
+    height:20px;
+
+    color:#4F46E5;
+
+}
+
+.summary-header h6{
+
+    margin:0;
+
+    font-size:16px;
+
+    font-weight:700;
+
+    color:#111827;
+
+}
+
+.summary-header span{
+
+    font-size:12px;
+
+    color:#94A3B8;
+
+}
+
+.summary-live{
+
+    display:flex;
+
+    align-items:center;
+
+    gap:6px;
+
+    padding:5px 10px;
+
+    background:#ECFDF5;
+
+    color:#16A34A;
+
+    border-radius:20px;
+
+    font-size:12px;
+
+    font-weight:600;
+
+}
+
+.live-dot{
+
+    width:7px;
+
+    height:7px;
+
+    border-radius:50%;
+
+    background:#22C55E;
+
+    animation:pulse 1.5s infinite;
+
+}
+
+@keyframes pulse{
+
+    0%{
+        transform:scale(1);
+        opacity:1;
+    }
+
+    50%{
+        transform:scale(1.5);
+        opacity:.5;
+    }
+
+    100%{
+        transform:scale(1);
+        opacity:1;
+    }
+
+}
+.summary-status{
+    background:#EEF2FF;
+    color:#4F46E5;
+    padding:6px 12px;
+    border-radius:50px;
+    font-size:12px;
+    font-weight:600;
+}
+
+
+
+/*==================================================
+Grand Total Card
+==================================================*/
+
+.summary-total-card{
+
+    background:linear-gradient(135deg,#4F46E5,#6366F1);
+
+    border-radius:18px;
+
+    padding:10px;
+
+    text-align:center;
+
+    color:#fff;
+
+    margin-bottom:18px;
+
+    box-shadow:0 15px 35px rgba(79,70,229,.20);
+
+    transition:.25s;
+
+}
+
+.summary-total-card:hover{
+
+    transform:translateY(-3px);
+
+    box-shadow:0 20px 45px rgba(79,70,229,.28);
+
+}
+
+.summary-total-label{
+
+    opacity:.8;
+
+    font-size:13px;
+
+    letter-spacing:.5px;
+
+    text-transform:uppercase;
+
+}
+
+.summary-total-value{
+
+    font-size:34px;
+
+    font-weight:700;
+
+    margin-top:1px;
+
+    color:#fff;
+
+}
+
+
+
+/*==================================================
+Main Card
+==================================================*/
+
+.summary-card{
+
+    background:#fff;
+
+    border-radius:18px;
+
+    border:1px solid #EEF2F7;
+
+    box-shadow:0 8px 30px rgba(15,23,42,.06);
+
+    padding:18px;
+
+}
+
+
+
+/*==================================================
+Balance Due
+==================================================*/
+
+.summary-balance{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    background:#ECFDF5;
+
+    border:1px solid #BBF7D0;
+
+    border-radius:14px;
+
+    padding:15px;
+
+    margin-bottom:15px;
+
+}
+
+.summary-balance span{
+
+    display:block;
+
+    font-weight:600;
+
+    color:#166534;
+
+}
+
+.summary-balance small{
+
+    color:#6B7280;
+
+    font-size:12px;
+
+}
+
+.summary-balance strong{
+
+    color:#16A34A;
+
+    font-size:22px;
+
+    font-weight:700;
+
+}
+
+
+
+/*==================================================
+Rows
+==================================================*/
+
+.summary-row{
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:12px 10px;
+
+    border-radius:10px;
+
+    transition:.2s;
+
+}
+
+.summary-row:hover{
+
+    background:#F8FAFC;
+
+}
+
+.summary-row span{
+
+    color:#64748B;
+
+    font-size:14px;
+
+    font-weight:500;
+
+}
+
+.summary-row strong{
+
+    color:#111827;
+
+    font-size:15px;
+
+    font-weight:700;
+
+}
+
+
+
+/*==================================================
+Divider
+==================================================*/
+
+.summary-divider{
+
+    height:1px;
+
+    background:#EEF2F7;
+
+    margin:6px 0;
+
+}
+
+
+
+/*==================================================
+Tax Button
+==================================================*/
+
+.tax-btn{
+
+    width:100%;
+
+    margin-top:15px;
+
+    border:none;
+
+    background:#F8FAFC;
+
+    border:1px solid #E5E7EB;
+
+    border-radius:12px;
+
+    display:flex;
+
+    justify-content:space-between;
+
+    align-items:center;
+
+    padding:13px 16px;
+
+    font-size:14px;
+
+    font-weight:600;
+
+    transition:.25s;
+
+    color:#374151;
+
+}
+
+.tax-btn:hover{
+
+    background:#EEF2FF;
+
+    border-color:#4F46E5;
+
+    color:#4F46E5;
+
+}
+
+.tax-btn svg{
+
+    width:18px;
+
+    height:18px;
+
+}
+
+
+
+/*==================================================
+Arrow Animation
+==================================================*/
+
+.tax-arrow{
+
+    transition:.25s;
+
+}
+
+.tax-arrow.rotate{
+
+    transform:rotate(180deg);
+
+}
+
+
+
+/*==================================================
+Tax Breakdown
+==================================================*/
+
+#taxBreakdown{
+
+    margin-top:15px;
+
+    background:#FAFBFC;
+
+    border-radius:12px;
+
+    padding:10px;
+
+}
+
+
+
+/*==================================================
+Colors
+==================================================*/
+
+.text-danger{
+
+    color:#DC2626 !important;
+
+}
+
+
+
+/*==================================================
+Responsive
+==================================================*/
+
+@media(max-width:992px){
+
+    .invoice-summary{
+
+        position:relative;
+
+        top:0;
+
+        margin-top:25px;
+
+    }
+
+}
+
+@media(max-width:576px){
+
+    .summary-total-value{
+
+        font-size:28px;
+
+    }
+
+    .summary-balance strong{
+
+        font-size:18px;
+
+    }
+
+    .summary-row{
+
+        padding:10px 5px;
+
+    }
+
+}
+

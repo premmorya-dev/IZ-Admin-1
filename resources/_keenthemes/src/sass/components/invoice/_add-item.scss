@@ -1,0 +1,256 @@
+.item-form-wrap {
+    --iz-primary: #2563EB;
+    --iz-primary-active: #1D4ED8;
+    --iz-primary-light: #EFF6FF;
+    --iz-border: #E5E7EB;
+    --iz-border-soft: #EEF1F5;
+    --iz-text: #0F172A;
+    --iz-text-secondary: #475569;
+    --iz-text-muted: #94A3B8;
+    --iz-bg-soft: #F8FAFC;
+    --iz-danger: #DC2626;
+    --iz-danger-light: #FEF2F2;
+    --iz-shadow-xs: 0 1px 2px rgba(16,24,40,.05);
+    --iz-shadow-sm: 0 2px 8px rgba(16,24,40,.06);
+    max-width: 1280px;
+    margin: 0 auto;
+}
+
+/* ---------- Layout: main + sticky sidebar ---------- */
+.iz-edit-layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 20px;
+    align-items: start;
+}
+
+@media (min-width: 992px) {
+    .iz-edit-layout {
+        grid-template-columns: minmax(0, 1fr) 340px;
+        gap: 24px;
+    }
+    .iz-edit-sidebar {
+        position: sticky;
+        top: 20px;
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
+    }
+}
+
+/* ---------- Cards ---------- */
+.iz-card {
+    background: #fff;
+    border: 1px solid var(--iz-border);
+    border-radius: 18px;
+    box-shadow: var(--iz-shadow-xs);
+    overflow: visible;
+}
+
+.iz-card-header {
+    padding: 1.25rem 1.5rem;
+    border-bottom: 1px solid var(--iz-border-soft);
+}
+
+.iz-card-header h5,
+.iz-card-header h6 {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--iz-text);
+    margin-bottom: 0.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.iz-card-header h5 i, .iz-card-header h6 i { color: var(--iz-primary); }
+
+.iz-card-header p {
+    font-size: 0.8rem;
+    color: var(--iz-text-muted);
+    margin-bottom: 0;
+}
+
+.iz-section {
+    padding: 1.5rem;
+}
+
+.iz-section + .iz-section {
+    border-top: 1px solid var(--iz-border-soft);
+}
+
+/* Compact section header used inside the main (left) card */
+.iz-section-title {
+    display: flex;
+    align-items: center;
+    gap: 0.65rem;
+    margin-bottom: 1.1rem;
+}
+
+.iz-icon-chip {
+    width: 36px;
+    height: 36px;
+    min-width: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    color: #fff;
+    box-shadow: var(--iz-shadow-xs);
+}
+
+.iz-icon-chip.iz-chip-indigo { background: var(--iz-primary); }
+.iz-icon-chip.iz-chip-emerald { background: #16A34A; }
+.iz-icon-chip.iz-chip-amber { background: #F59E0B; }
+.iz-icon-chip.iz-chip-rose { background: #DC2626; }
+
+.iz-section-title h6 {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--iz-text);
+    margin-bottom: 0;
+}
+
+.iz-section-title span.iz-sub {
+    font-size: 0.75rem;
+    color: var(--iz-text-muted);
+}
+
+/* ---------- Fields ---------- */
+.item-form-wrap .form-label {
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--iz-text-secondary);
+    margin-bottom: 0.35rem;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+}
+
+.item-form-wrap .form-label i.iz-label-icon {
+    font-size: 0.75rem;
+    width: 14px;
+    text-align: center;
+    color: var(--iz-primary);
+}
+
+.item-form-wrap .form-label .req {
+    color: var(--iz-danger);
+    font-weight: 700;
+    margin-left: -2px;
+}
+
+.iz-help {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background: var(--iz-border-soft);
+    color: var(--iz-text-muted);
+    font-size: 0.62rem;
+    font-weight: 700;
+    cursor: pointer;
+    border: none;
+    padding: 0;
+    line-height: 1;
+    transition: background .15s ease, color .15s ease;
+}
+
+.iz-help:hover, .iz-help:focus {
+    background: var(--iz-primary);
+    color: #fff;
+}
+
+.item-form-wrap .form-control,
+.item-form-wrap .form-select {
+    border: 1px solid var(--iz-border);
+    border-radius: 10px;
+    padding: 0.55rem 0.8rem;
+    font-size: 0.875rem;
+    color: var(--iz-text);
+    background-color: #fff;
+    transition: border-color .15s ease, box-shadow .15s ease;
+}
+
+.item-form-wrap .form-control::placeholder { color: var(--iz-text-muted); }
+
+.item-form-wrap .form-control:focus,
+.item-form-wrap .form-select:focus {
+    border-color: var(--iz-primary);
+    box-shadow: 0 0 0 3px rgba(37, 99, 235, .12);
+    outline: none;
+}
+
+.item-form-wrap .form-control:hover,
+.item-form-wrap .form-select:hover { border-color: #C7CBD1; }
+
+.item-form-wrap textarea.form-control {
+    resize: vertical;
+    min-height: 80px;
+}
+
+.iz-input-prefix { position: relative; }
+
+.iz-input-prefix .iz-prefix-symbol {
+    position: absolute;
+    left: 0.8rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 0.8rem;
+    color: var(--iz-text-muted);
+    font-weight: 600;
+    pointer-events: none;
+}
+
+.iz-input-prefix .form-control { padding-left: 1.7rem; }
+
+/* ---------- Sticky action bar (bottom) ---------- */
+.iz-sticky-actions {
+    position: sticky;
+    bottom: 0;
+    z-index: 5;
+    margin-top: 20px;
+    padding: 0.9rem 1.5rem;
+    background: rgba(255,255,255,.92);
+    backdrop-filter: blur(6px);
+    border: 1px solid var(--iz-border);
+    border-radius: 14px;
+    box-shadow: 0 -4px 20px rgba(16,24,40,.08);
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+}
+
+.btn-iz-primary {
+    background: var(--iz-primary);
+    border: none;
+    color: #fff;
+    font-weight: 600;
+    font-size: 0.875rem;
+    padding: 0.6rem 1.5rem;
+    border-radius: 10px;
+    transition: background .15s ease, transform .05s ease;
+}
+
+.btn-iz-primary:hover { background: var(--iz-primary-active); color: #fff; }
+.btn-iz-primary:active { transform: scale(.98); }
+
+.btn-iz-secondary {
+    background: #fff;
+    border: 1px solid var(--iz-border);
+    color: var(--iz-text-secondary);
+    font-weight: 600;
+    font-size: 0.875rem;
+    padding: 0.6rem 1.25rem;
+    border-radius: 10px;
+}
+
+.btn-iz-secondary:hover { background: var(--iz-bg-soft); color: var(--iz-text-secondary); }
+
+@media (max-width: 767px) {
+    .iz-section, .iz-card-header { padding: 1.1rem; }
+    .iz-sticky-actions { padding: 0.75rem 1.1rem; }
+}

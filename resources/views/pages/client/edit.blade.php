@@ -1,185 +1,194 @@
+
+
 <form action="{{ route('client.update') }}" id="edit-client-form" method="POST" enctype="multipart/form-data">
-    <div class="card shadow-lg border-0 rounded-4">
+    <div class="card cef-card shadow-sm border-0 rounded-4">
 
-        <div class="card-body p-4">
-            <div class="row g-4">
+        {{-- Header --}}
+        <div class="cef-header d-flex align-items-center justify-content-between">
+            <div>
+                <h5><i class="fas fa-id-card me-2 text-primary"></i>Edit Client</h5>
+                <p>Update client details, billing address and shipping info</p>
+            </div>
+            <select name="status" id="id_status" class="form-select form-select-sm w-50 shadow-sm" style="border-radius:20px;">
+                <option value="active" {{ optional($data['client'] ?? null)->status == 'active' ? 'selected' : '' }}>🟢 Active</option>
+                <option value="deactive" {{ optional($data['client'] ?? null)->status == 'deactive' ? 'selected' : '' }}>⚪ Deactive</option>
+            </select>
+        </div>
 
-                {{-- Basic Info --}}
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold  text-danger required"><i class="fas fa-user me-1"></i> Client Name</label>
-                    <input type="text" name="client_name" id="id_client_name" class="form-control"
-                        value="{{ old('client_name', optional($data['client'] ?? null)->client_name) }}"
-                        placeholder="Enter client name">
+        {{-- Tabs --}}
+        <div class="cef-tabs">
+            <button type="button" class="cef-tab-btn active" data-tab="basic">
+                <span class="cef-ico"><i class="fas fa-user"></i></span> Basic Info
+            </button>
+            <button type="button" class="cef-tab-btn" data-tab="address">
+                <span class="cef-ico"><i class="fas fa-map-marker-alt"></i></span> Address & Billing
+            </button>
+            <button type="button" class="cef-tab-btn" data-tab="shipping">
+                <span class="cef-ico"><i class="fas fa-shipping-fast"></i></span> Shipping
+                <span class="cef-tab-badge" id="shipBadge">Off</span>
+            </button>
+        </div>
+
+        <div class="card-body p-0">
+
+            {{-- ===================== TAB 1: BASIC INFO ===================== --}}
+            <div class="cef-panel active" data-panel="basic">
+                <div class="row g-4">
+                    <div class="col-md-6 cef-field">
+                        <label><span class="cef-fico fico-blue"><i class="fas fa-user"></i></span> Client Name <span class="req-dot"></span></label>
+                        <input type="text" name="client_name" id="id_client_name" class="form-control"
+                            value="{{ old('client_name', optional($data['client'] ?? null)->client_name) }}"
+                            placeholder="Enter client name">
+                    </div>
+
+                    <div class="col-md-6 cef-field">
+                        <label><span class="cef-fico fico-violet"><i class="fas fa-building"></i></span> Company Name</label>
+                        <input type="text" name="company_name" id="id_company_name" class="form-control"
+                            value="{{ old('company_name', optional($data['client'] ?? null)->company_name) }}"
+                            placeholder="Enter company name">
+                    </div>
+
+                    <div class="col-md-6 cef-field">
+                        <label><span class="cef-fico fico-emerald"><i class="fas fa-envelope"></i></span> Email</label>
+                        <input type="email" name="email" id="id_email" class="form-control"
+                            value="{{ old('email', optional($data['client'] ?? null)->email) }}"
+                            placeholder="Enter email address">
+                    </div>
+
+                    <div class="col-md-6 cef-field">
+                        <label><span class="cef-fico fico-amber"><i class="fas fa-phone"></i></span> Phone</label>
+                        <input type="text" name="phone" id="id_phone" class="form-control"
+                            value="{{ old('phone', optional($data['client'] ?? null)->phone) }}"
+                            placeholder="Enter phone number">
+                    </div>
+
+                    <div class="col-md-6 cef-field">
+                        <label><span class="cef-fico fico-cyan"><i class="fas fa-receipt"></i></span> GST Number</label>
+                        <input type="text" name="gst_number" id="id_gst_number" class="form-control"
+                            value="{{ old('gst_number', optional($data['client'] ?? null)->gst_number) }}"
+                            placeholder="Enter GST number">
+                    </div>
+
+                    <div class="col-md-6 cef-field">
+                        <label><span class="cef-fico fico-rose"><i class="fas fa-money-bill-wave"></i></span> Currency <span class="req-dot"></span></label>
+                        <select name="currency_code" id="id_currency_code" class="form-select">
+                            <option value="">Please Select</option>
+                            @foreach($data['currencies'] as $currency)
+                            <option value="{{ $currency->currency_code }}" {{ optional($data['client'] ?? null)->currency_code == $currency->currency_code ? 'selected' : '' }}>
+                                {{ $currency->currency_name }}
+                            </option>
+                            @endforeach
+                        </select>
+                    </div>
+
+
                 </div>
 
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold"><i class="fas fa-building me-1"></i> Company Name</label>
-                    <input type="text" name="company_name" id="id_company_name" class="form-control"
-                        value="{{ old('company_name', optional($data['client'] ?? null)->company_name) }}"
-                        placeholder="Enter company name">
+                <div class="text-end mt-4">
+                    <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 cef-next" data-next="address">
+                        Next: Address & Billing <i class="fas fa-arrow-right ms-1"></i>
+                    </button>
                 </div>
+            </div>
 
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold"><i class="fas fa-envelope me-1"></i> Email</label>
-                    <input type="email" name="email" id="id_email" class="form-control"
-                        value="{{ old('email', optional($data['client'] ?? null)->email) }}"
-                        placeholder="Enter email address">
-                </div>
+            {{-- ===================== TAB 2: ADDRESS & BILLING ===================== --}}
+            <div class="cef-panel" data-panel="address">
+                <div class="row g-4">
+                    <div class="col-md-6 cef-field">
+                        <label><span class="cef-fico fico-violet"><i class="fas fa-map-marker-alt"></i></span> Address 1 <span class="req-dot"></span></label>
+                        <textarea name="address_1" id="id_address_1" class="form-control" rows="2" placeholder="Enter primary address">{{ old('address_1', optional($data['client'] ?? null)->address_1) }}</textarea>
+                    </div>
 
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold"><i class="fas fa-phone me-1"></i> Phone</label>
-                    <input type="text" name="phone" id="id_phone" class="form-control"
-                        value="{{ old('phone', optional($data['client'] ?? null)->phone) }}"
-                        placeholder="Enter phone number">
-                </div>
+                    <div class="col-md-6 cef-field">
+                        <label><span class="cef-fico fico-violet"><i class="fas fa-map-pin"></i></span> Address 2</label>
+                        <textarea name="address_2" id="id_address_2" class="form-control" rows="2" placeholder="Enter secondary address">{{ old('address_2', optional($data['client'] ?? null)->address_2) }}</textarea>
+                    </div>
 
-                {{-- Address --}}
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold"><i class="fas fa-receipt me-1"></i> GST Number</label>
-                    <input type="text" name="gst_number" id="id_gst_number" class="form-control"
-                        value="{{ old('gst_number', optional($data['client'] ?? null)->gst_number) }}"
-                        placeholder="Enter GST number">
-                </div>
+                    <div class="col-md-4 cef-field">
+                        <label><span class="cef-fico fico-blue"><i class="fas fa-globe-asia"></i></span> Country <span class="req-dot"></span></label>
+                        <select name="country_id" id="id_country_id" class="form-select">
+                            <option value="">Please Select</option>
+                            @foreach($data['countries'] as $country)
+                            <option value="{{ $country->country_id }}" {{ optional($data['client'] ?? null)->country_id == $country->country_id ? 'selected' : '' }}>
+                                {{ $country->country_name }}
+                            </option>
+                            @endforeach
+                        </select>
+                    </div>
 
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold"><i class="fas fa-city me-1"></i> City</label>
-                    <input type="text" name="city" id="id_city" class="form-control"
-                        value="{{ old('city', optional($data['client'] ?? null)->city) }}"
-                        placeholder="Enter city">
-                </div>
+                    <div class="col-md-4 cef-field">
+                        <label><span class="cef-fico fico-blue"><i class="fas fa-map"></i></span> State <span class="req-dot"></span></label>
+                        <select name="state_id" id="id_state_id" class="form-select">
+                            <option value="">Please Select</option>
+                        </select>
+                    </div>
 
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold text-danger required">Address 1</label>
-                    <textarea name="address_1" id="id_address_1" class="form-control" rows="2" placeholder="Enter primary address">{{ old('address_1', optional($data['client'] ?? null)->address_1) }}</textarea>
-                </div>
+                    <div class="col-md-4 cef-field">
+                        <label><span class="cef-fico fico-emerald"><i class="fas fa-city"></i></span> City</label>
+                        <input type="text" name="city" id="id_city" class="form-control"
+                            value="{{ old('city', optional($data['client'] ?? null)->city) }}"
+                            placeholder="Enter city">
+                    </div>
 
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold">Address 2</label>
-                    <textarea name="address_2" id="id_address_2" class="form-control" rows="2" placeholder="Enter secondary address">{{ old('address_2', optional($data['client'] ?? null)->address_2) }}</textarea>
-                </div>
-
-                {{-- Location --}}
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold text-danger required">Country</label>
-                    <select name="country_id" id="id_country_id" class="form-select">
-                        <option value="">Please Select</option>
-                        @foreach($data['countries'] as $country)
-                        <option value="{{ $country->country_id }}" {{ optional($data['client'] ?? null)->country_id == $country->country_id ? 'selected' : '' }}>
-                            {{ $country->country_name }}
-                        </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold text-danger required">State</label>
-                    <select name="state_id" id="id_state_id" class="form-select">
-                        <option value="">Please Select</option>
-
-                    </select>
-                </div>
-
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold text-danger required">Currency</label>
-                    <select name="currency_code" id="id_currency_code" class="form-select">
-                        <option value="">Please Select</option>
-                        @foreach($data['currencies'] as $currency)
-                        <option value="{{ $currency->currency_code }}" {{ optional($data['client'] ?? null)->currency_code == $currency->currency_code ? 'selected' : '' }}>
-                            {{ $currency->currency_name }}
-                        </option>
-                        @endforeach
-                    </select>
-                </div>
-
-                {{-- Notes & Terms --}}
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold">Notes</label>
-                    <textarea name="notes" id="id_notes" class="form-control" rows="2" placeholder="Enter notes">{{ old('notes', optional($data['client'] ?? null)->notes) }}</textarea>
-                </div>
-
-                <div class="col-md-6">
-                    <label class="form-label fw-semibold">Terms & Conditions</label>
-                    <textarea name="terms" id="id_terms" class="form-control" rows="2" placeholder="Enter terms and conditions">{{ old('terms', optional($data['client'] ?? null)->terms) }}</textarea>
-                </div>
-
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold"><i class="fas fa-mail-bulk me-1"></i> Pincode</label>
-                    <input type="text" name="zip" id="id_zip" class="form-control"
-                        value="{{ old('zip', optional($data['client'] ?? null)->zip) }}"
-                        placeholder="Enter pincode">
-                </div>
-
-                {{-- Status --}}
-                <div class="col-md-4">
-                    <label class="form-label fw-semibold">Status</label>
-                    <select name="status" id="id_status" class="form-select">
-                        <option value="active" {{ optional($data['client'] ?? null)->status == 'active' ? 'selected' : '' }}>Active</option>
-                        <option value="deactive" {{ optional($data['client'] ?? null)->status == 'deactive' ? 'selected' : '' }}>Deactive</option>
-                    </select>
-                </div>
-
-
-                <!-- Shipping Address Checkbox -->
-                <div class="col-md-12 mt-3">
-                    <div class="form-check form-switch d-flex align-items-center">
-                        <input class="form-check-input me-2" name="edit_shipping_address" type="checkbox" id="toggleShippingAddress">
-                        <label class="form-check-label fw-semibold mb-0" for="toggleShippingAddress">
-                            Add Shipping Address
-                        </label>
-                        <i class="bi bi-question-circle ms-2 text-muted"
-                            data-bs-toggle="tooltip"
-                            title="Enable this if the shipping address is different from the client's address."></i>
+                    <div class="col-md-4 cef-field">
+                        <label><span class="cef-fico fico-amber"><i class="fas fa-mail-bulk"></i></span> Pincode</label>
+                        <input type="text" name="zip" id="id_zip" class="form-control"
+                            value="{{ old('zip', optional($data['client'] ?? null)->zip) }}"
+                            placeholder="Enter pincode">
                     </div>
                 </div>
-                <!-- Shipping Address Section -->
-                <div id="shippingAddressSection" class="row g-4 mt-2 border rounded-3 p-3 bg-light" style="display:none;">
 
-                    <h5 class="fw-semibold text-primary mb-3">
-                        <i class="fas fa-shipping-fast me-1"></i> Shipping Address
-                    </h5>
+                <div class="d-flex justify-content-between mt-4">
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 cef-prev" data-prev="basic">
+                        <i class="fas fa-arrow-left me-1"></i> Back
+                    </button>
+                    <button type="button" class="btn btn-sm btn-primary rounded-pill px-3 cef-next" data-next="shipping">
+                        Next: Shipping <i class="fas fa-arrow-right ms-1"></i>
+                    </button>
+                </div>
+            </div>
 
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold  text-danger required"><i class="fas fa-user me-1"></i> Shipping Client Name</label>
+            {{-- ===================== TAB 3: SHIPPING ===================== --}}
+            <div class="cef-panel" data-panel="shipping">
+                <div class="cef-ship-toggle">
+                    <div>
+                        <div class="fw-semibold"><i class="fas fa-shipping-fast me-1"></i> Different shipping address?</div>
+                        <small>Turn this on if shipping address is not the same as the billing address.</small>
+                    </div>
+                    <div class="form-check form-switch mb-0">
+                        <input class="form-check-input" name="edit_shipping_address" type="checkbox" id="toggleShippingAddress" style="width:2.6em;height:1.4em;">
+                    </div>
+                </div>
+
+                <div id="shippingFields" class="row g-4">
+                    <div class="col-md-6 cef-field">
+                        <label><span class="cef-fico fico-blue"><i class="fas fa-user"></i></span> Shipping Client Name <span class="req-dot"></span></label>
                         <input type="text" name="shipping_client_name" id="id_shipping_client_name" class="form-control"
                             value="{{ old('shipping_client_name', optional($data['client'] ?? null)->shipping_client_name) }}"
                             placeholder="Enter shipping client name">
                     </div>
 
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold"><i class="fas fa-city me-1"></i>Shipping City</label>
-                        <input type="text" name="shipping_city" id="id_shipping_city" class="form-control"
-                            value="{{ old('shipping_city', optional($data['client'] ?? null)->shipping_city) }}"
-                            placeholder="Enter city">
-                    </div>
-
-
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold"><i class="fas fa-phone me-1"></i> Phone</label>
+                    <div class="col-md-6 cef-field">
+                        <label><span class="cef-fico fico-amber"><i class="fas fa-phone"></i></span> Phone</label>
                         <input type="text" name="shipping_phone" id="id_shipping_phone" class="form-control"
-                            value="{{ old('phone', optional($data['client'] ?? null)->shipping_phone) }}"
+                            value="{{ old('shipping_phone', optional($data['client'] ?? null)->shipping_phone) }}"
                             placeholder="Enter phone number">
                     </div>
 
-
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold text-danger required">Shipping Address 1</label>
+                    <div class="col-md-6 cef-field">
+                        <label><span class="cef-fico fico-violet"><i class="fas fa-map-marker-alt"></i></span> Shipping Address 1 <span class="req-dot"></span></label>
                         <textarea name="shipping_address_1" id="id_shipping_address_1" class="form-control" rows="2"
                             placeholder="Enter shipping address 1">{{ old('shipping_address_1', optional($data['client'] ?? null)->shipping_address_1) }}</textarea>
                     </div>
 
-                    <div class="col-md-6">
-                        <label class="form-label fw-semibold">Shipping Address 2</label>
+                    <div class="col-md-6 cef-field">
+                        <label><span class="cef-fico fico-violet"><i class="fas fa-map-pin"></i></span> Shipping Address 2</label>
                         <textarea name="shipping_address_2" id="id_shipping_address_2" class="form-control" rows="2"
                             placeholder="Enter shipping address 2">{{ old('shipping_address_2', optional($data['client'] ?? null)->shipping_address_2) }}</textarea>
                     </div>
 
-
-
-
-
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold text-danger required">Shipping Country</label>
-
+                    <div class="col-md-4 cef-field">
+                        <label><span class="cef-fico fico-blue"><i class="fas fa-globe-asia"></i></span> Shipping Country <span class="req-dot"></span></label>
                         <select name="shipping_country_id" id="id_shipping_country_id" class="form-select">
                             <option value="">Please Select</option>
                             @foreach($data['countries'] as $country)
@@ -190,62 +199,103 @@
                         </select>
                     </div>
 
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold text-danger required">Shipping State</label>
+                    <div class="col-md-4 cef-field">
+                        <label><span class="cef-fico fico-blue"><i class="fas fa-map"></i></span> Shipping State <span class="req-dot"></span></label>
                         <select name="shipping_state_id" id="id_shipping_state_id" class="form-select">
                             <option value="">Please Select</option>
-
                         </select>
                     </div>
 
-                    <div class="col-md-4">
-                        <label class="form-label fw-semibold"><i class="fas fa-mail-bulk me-1"></i>Shipping PinCode</label>
+                    <div class="col-md-4 cef-field">
+                        <label><span class="cef-fico fico-emerald"><i class="fas fa-city"></i></span> Shipping City</label>
+                        <input type="text" name="shipping_city" id="id_shipping_city" class="form-control"
+                            value="{{ old('shipping_city', optional($data['client'] ?? null)->shipping_city) }}"
+                            placeholder="Enter city">
+                    </div>
+
+                    <div class="col-md-4 cef-field">
+                        <label><span class="cef-fico fico-amber"><i class="fas fa-mail-bulk"></i></span> Shipping Pincode</label>
                         <input type="number" name="shipping_zip" id="id_shipping_zip" class="form-control"
                             value="{{ old('shipping_zip', optional($data['client'] ?? null)->shipping_zip) }}"
                             placeholder="Enter shipping pincode">
                     </div>
-
-
-
                 </div>
 
-
-                <input type="hidden" name="client_code" id="id_client_code" value="{{ optional($data['client'] ?? null)->client_code }}">
+                <div class="mt-4">
+                    <button type="button" class="btn btn-sm btn-outline-secondary rounded-pill px-3 cef-prev" data-prev="address">
+                        <i class="fas fa-arrow-left me-1"></i> Back
+                    </button>
+                </div>
             </div>
+
+            <input type="hidden" name="client_code" id="id_client_code" value="{{ optional($data['client'] ?? null)->client_code }}">
         </div>
 
-        <div class="card-footer bg-light text-end rounded-bottom-4">
-            <button type="submit" class="btn btn-success px-4 update-client w-100">
-                <i class="fas fa-save me-1"></i> Update Client
-            </button>
-        </div>
+       
     </div>
+
+    <x-invoice.sticky-actions
+            submitText="Update Client"
+            submitClass="update-client" />
+
+    
 </form>
+
 <script>
-    $(document).ready(function() {
-        // Toggle shipping address visibility
-        $('#toggleShippingAddress').on('change', function() {
-            if ($(this).is(':checked')) {
-                $('#shippingAddressSection').slideDown(300);
-            } else {
-                $('#shippingAddressSection').slideUp(300);
-            }
-        });
+    (function() {
+        const form = document.getElementById('edit-client-form');
+        if (!form) return;
 
-        // If client already has shipping address data, show by default
-        let show_shipping = "{{  $data['show_shipping'] }}";
+        const tabBtns = form.querySelectorAll('.cef-tab-btn');
+        const panels = form.querySelectorAll('.cef-panel');
+        const shipToggle = form.querySelector('#toggleShippingAddress');
+        const shipFields = form.querySelector('#shippingFields');
+        const shipBadge = form.querySelector('#shipBadge');
 
-        if (show_shipping == true) {
-            $('#toggleShippingAddress').prop('checked', true);
-            $('#shippingAddressSection').show();
-        } else {
-            $('#toggleShippingAddress').prop('checked', false);
-            $('#shippingAddressSection').hide();
+        function goToTab(name) {
+            tabBtns.forEach(b => b.classList.toggle('active', b.dataset.tab === name));
+            panels.forEach(p => p.classList.toggle('active', p.dataset.panel === name));
+        }
+
+        tabBtns.forEach(btn => btn.addEventListener('click', () => goToTab(btn.dataset.tab)));
+        form.querySelectorAll('.cef-next').forEach(btn => btn.addEventListener('click', () => goToTab(btn.dataset.next)));
+        form.querySelectorAll('.cef-prev').forEach(btn => btn.addEventListener('click', () => goToTab(btn.dataset.prev)));
+
+        function syncShipping() {
+            const on = shipToggle.checked;
+
+            shipFields.classList.toggle('enabled', on);
+            shipBadge.textContent = on ? 'On' : 'Off';
+            shipBadge.classList.toggle('on', on);
+
+            // Shipping fields enable/disable
+            shipFields
+                .querySelectorAll('input, textarea, select')
+                .forEach(el => {
+                    el.disabled = !on;
+                });
         }
 
 
-    });
+        if (shipToggle) {
+
+            let is_shipping_different = "{{ $data['is_shipping_different'] }}";
+
+            shipToggle.checked = (is_shipping_different == '1');
+
+            syncShipping();
+
+            shipToggle.addEventListener('change', syncShipping);
+        }
+
+
+        // Bootstrap tooltips (kept from original markup)
+        if (window.bootstrap) {
+            form.querySelectorAll('[data-bs-toggle="tooltip"]').forEach(el => new bootstrap.Tooltip(el));
+        }
+    })();
 </script>
+
 
 
 <script>
