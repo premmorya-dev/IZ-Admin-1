@@ -1,0 +1,86 @@
+
+
+.invoice-options {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    margin-top: 18px;
+}
+
+.invoice-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+
+    flex: 1;
+    min-width: 230px;
+
+    padding: 12px 16px;
+
+    background: #fff;
+    border: 1px solid #e4e6ef;
+    border-radius: 12px;
+
+    transition: all .2s ease;
+}
+
+.invoice-option:hover {
+    border-color: #b5b5c3;
+    box-shadow: 0 2px 8px rgba(0,0,0,.05);
+}
+
+.invoice-option .option-left {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.invoice-option .option-icon {
+    width: 38px;
+    height: 38px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    border-radius: 10px;
+
+    background: #EEF4FF;
+    color: #3E97FF;
+}
+
+.invoice-option .option-icon i {
+    font-size: 18px;
+}
+
+.invoice-option h6 {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #181C32;
+}
+
+.invoice-option p {
+    margin: 0;
+    font-size: 12px;
+    color: #7E8299;
+}
+
+.invoice-option .form-check {
+    margin: 0;
+}
+
+.invoice-option .form-check-input {
+    width: 42px;
+    height: 22px;
+    cursor: pointer;
+}
+
+@media(max-width:768px){
+
+    .invoice-option{
+        min-width:100%;
+    }
+
+}

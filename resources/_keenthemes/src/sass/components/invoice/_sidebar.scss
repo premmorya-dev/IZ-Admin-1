@@ -1,0 +1,477 @@
+
+    /* ============================================
+   Premium Sidebar Background & Depth
+   ============================================ */
+
+    .app-sidebar {
+        background: linear-gradient(180deg, #14162B 0%, #191B34 45%, #14162B 100%) !important;
+        position: relative;
+        border-right: 1px solid rgba(255, 255, 255, .06);
+        box-shadow: 4px 0 24px rgba(0, 0, 0, .25);
+    }
+
+    /* subtle glow blobs for depth — premium SaaS feel */
+    .app-sidebar::before {
+        content: '';
+        position: absolute;
+        top: -80px;
+        left: -60px;
+        width: 260px;
+        height: 260px;
+        background: radial-gradient(circle, rgba(111, 126, 247, .18) 0%, transparent 70%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .app-sidebar::after {
+        content: '';
+        position: absolute;
+        bottom: -100px;
+        right: -80px;
+        width: 280px;
+        height: 280px;
+        background: radial-gradient(circle, rgba(168, 85, 247, .14) 0%, transparent 70%);
+        pointer-events: none;
+        z-index: 0;
+    }
+
+    .app-sidebar-menu,
+    #kt_app_sidebar_menu_wrapper,
+    #kt_app_sidebar_menu {
+        position: relative;
+        z-index: 1;
+    }
+
+    /* faint top/bottom fade so scroll edges feel soft, not cut off */
+    #kt_app_sidebar_menu_wrapper {
+        -webkit-mask-image: linear-gradient(180deg, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%);
+        mask-image: linear-gradient(180deg, transparent 0, #000 16px, #000 calc(100% - 16px), transparent 100%);
+    }
+
+    #kt_app_sidebar_menu_wrapper::-webkit-scrollbar {
+        width: 5px;
+    }
+
+    #kt_app_sidebar_menu_wrapper::-webkit-scrollbar-thumb {
+        background: rgba(255, 255, 255, .12);
+        border-radius: 10px;
+    }
+
+    #kt_app_sidebar_menu_wrapper::-webkit-scrollbar-track {
+        background: transparent;
+    }
+
+    /* ---------- Upgrade Banner ---------- */
+    .upgrade-card {
+        position: relative;
+        overflow: hidden;
+        border-radius: 14px;
+        padding: 16px 14px;
+        margin-bottom: 18px;
+        cursor: pointer;
+        background: linear-gradient(135deg, #6F7EF7 0%, #8B5CF6 55%, #C084FC 100%);
+        box-shadow: 0 8px 24px rgba(139, 92, 246, .35), inset 0 1px 0 rgba(255, 255, 255, .25);
+        transition: transform .25s, box-shadow .25s;
+        border: 1px solid rgba(255, 255, 255, .15);
+    }
+
+    .upgrade-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 30px rgba(139, 92, 246, .45), inset 0 1px 0 rgba(255, 255, 255, .25);
+    }
+
+    .upgrade-card::after {
+        content: '';
+        position: absolute;
+        top: -30px;
+        right: -30px;
+        width: 90px;
+        height: 90px;
+        background: rgba(255, 255, 255, .15);
+        border-radius: 50%;
+    }
+
+    .upgrade-card .upgrade-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 9px;
+        background: rgba(255, 255, 255, .2);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        margin-bottom: 8px;
+        backdrop-filter: blur(4px);
+    }
+
+    .upgrade-card .upgrade-title {
+        color: #fff;
+        font-weight: 700;
+        font-size: 14px;
+        display: block;
+    }
+
+    .upgrade-card .upgrade-sub {
+        color: rgba(255, 255, 255, .85);
+        font-size: 11.5px;
+        display: block;
+        margin-top: 2px;
+    }
+
+    /* ---------- Section Headings ---------- */
+    .menu-heading {
+        letter-spacing: .1em;
+        font-size: 10.5px !important;
+        color: #6b7280 !important;
+        padding-left: 12px;
+        position: relative;
+    }
+
+    /* ---------- Menu Items ---------- */
+    .menu-item {
+        margin-bottom: 3px;
+    }
+
+    .menu-link {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 9px 12px;
+        border-radius: 10px;
+        text-decoration: none;
+        position: relative;
+        transition: background .2s, transform .15s;
+    }
+
+    .menu-link:hover {
+        background: linear-gradient(90deg, rgba(255, 255, 255, .07) 0%, rgba(255, 255, 255, .03) 100%);
+        transform: translateX(2px);
+    }
+
+    .menu-link:hover .menu-title,
+    .menu-link:hover .menu-icon i {
+        color: #ffffff !important;
+        opacity: .92;
+    }
+
+    /* active link */
+    .menu-item.active>.menu-link,
+    .menu-sub .menu-item.active>.menu-link {
+        background: linear-gradient(90deg, rgba(111, 126, 247, .22) 0%, rgba(139, 92, 246, .08) 100%);
+        box-shadow: inset 0 0 0 1px rgba(111, 126, 247, .25);
+    }
+
+    .menu-item.active>.menu-link::before {
+        content: '';
+        position: absolute;
+        left: -12px;
+        top: 50%;
+        transform: translateY(-50%);
+        width: 3px;
+        height: 60%;
+        background: linear-gradient(180deg, #6F7EF7, #C084FC);
+        border-radius: 0 4px 4px 0;
+        box-shadow: 0 0 8px rgba(111, 126, 247, .6);
+    }
+
+    .menu-item.active>.menu-link .menu-title {
+        color: #ffffff !important;
+        font-weight: 700;
+    }
+
+    /* ---------- Icon badges ---------- */
+    .menu-icon {
+        width: 30px;
+        height: 30px;
+        border-radius: 8px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        transition: background .2s, transform .2s, box-shadow .2s;
+    }
+
+    .menu-icon i {
+        font-size: 15px !important;
+        stroke-width: 2;
+    }
+
+    .menu-link:hover .menu-icon {
+        transform: scale(1.08);
+    }
+
+    .menu-title {
+        font-size: 13.5px;
+        font-weight: 500;
+        color: #9aa0b4 !important;
+        transition: color .2s;
+        white-space: nowrap;
+    }
+
+    /* Color-coded icon groups — richer, layered gradients */
+    .icon-dashboard {
+        background: linear-gradient(135deg, rgba(111, 126, 247, .22), rgba(111, 126, 247, .08));
+        box-shadow: inset 0 0 0 1px rgba(111, 126, 247, .15);
+    }
+
+    .icon-dashboard i {
+        color: #9AA3FF !important;
+    }
+
+    .icon-sales {
+        background: linear-gradient(135deg, rgba(16, 185, 129, .22), rgba(16, 185, 129, .08));
+        box-shadow: inset 0 0 0 1px rgba(16, 185, 129, .15);
+    }
+
+    .icon-sales i {
+        color: #4ADE80 !important;
+    }
+
+    .icon-purchases {
+        background: linear-gradient(135deg, rgba(249, 115, 22, .22), rgba(249, 115, 22, .08));
+        box-shadow: inset 0 0 0 1px rgba(249, 115, 22, .15);
+    }
+
+    .icon-purchases i {
+        color: #FDBA74 !important;
+    }
+
+    .icon-expense {
+        background: linear-gradient(135deg, rgba(236, 72, 153, .22), rgba(236, 72, 153, .08));
+        box-shadow: inset 0 0 0 1px rgba(236, 72, 153, .15);
+    }
+
+    .icon-expense i {
+        color: #F9A8D4 !important;
+    }
+
+    .icon-inventory {
+        background: linear-gradient(135deg, rgba(14, 165, 233, .22), rgba(14, 165, 233, .08));
+        box-shadow: inset 0 0 0 1px rgba(14, 165, 233, .15);
+    }
+
+    .icon-inventory i {
+        color: #7DD3FC !important;
+    }
+
+    .icon-reports {
+        background: linear-gradient(135deg, rgba(168, 85, 247, .22), rgba(168, 85, 247, .08));
+        box-shadow: inset 0 0 0 1px rgba(168, 85, 247, .15);
+    }
+
+    .icon-reports i {
+        color: #D8B4FE !important;
+    }
+
+    .icon-settings {
+        background: linear-gradient(135deg, rgba(234, 179, 8, .22), rgba(234, 179, 8, .08));
+        box-shadow: inset 0 0 0 1px rgba(234, 179, 8, .15);
+    }
+
+    .icon-settings i {
+        color: #FDE047 !important;
+    }
+
+    /* ---------- Accordion ---------- */
+    .menu-accordion>.menu-link .menu-arrow {
+        margin-left: auto;
+        width: 16px;
+        height: 16px;
+        position: relative;
+        transition: transform .25s;
+    }
+
+    .menu-accordion>.menu-link .menu-arrow::before,
+    .menu-accordion>.menu-link .menu-arrow::after {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 7px;
+        height: 1.5px;
+        background: #8b93a8;
+        border-radius: 2px;
+    }
+
+    .menu-accordion>.menu-link .menu-arrow::before {
+        transform: translate(-50%, -50%) rotate(45deg) translateX(2px);
+    }
+
+    .menu-accordion>.menu-link .menu-arrow::after {
+        transform: translate(-50%, -50%) rotate(-45deg) translateX(-2px);
+    }
+
+    .menu-accordion.show>.menu-link .menu-arrow,
+    .menu-accordion[aria-expanded="true"]>.menu-link .menu-arrow {
+        transform: rotate(180deg);
+    }
+
+    .menu-sub {
+        max-height: 0;
+        overflow: hidden;
+        transition: max-height .3s ease;
+        padding-left: 14px;
+        margin-left: 14px;
+        border-left: 1px dashed rgba(255, 255, 255, .1);
+    }
+
+    .menu-accordion.show .menu-sub,
+    .menu-accordion.hover .menu-sub {
+        max-height: 500px;
+    }
+
+    .menu-sub .menu-icon {
+        width: 26px;
+        height: 26px;
+    }
+
+    .menu-sub .menu-title {
+        font-size: 13px;
+    }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 991px) {
+        .upgrade-card {
+            padding: 14px 12px;
+        }
+
+        .menu-link {
+            padding: 10px 12px;
+        }
+    }
+
+    @media (max-width: 768px) {
+        .app-sidebar-menu {
+            width: 100%;
+        }
+
+        .menu-title {
+            font-size: 13px;
+        }
+
+        .menu-icon {
+            width: 28px;
+            height: 28px;
+        }
+    }
+
+    /* Collapsed / icon-only sidebar mode */
+    .app-sidebar-collapse .menu-title,
+    .app-sidebar-collapse .menu-heading,
+    .app-sidebar-collapse .upgrade-title,
+    .app-sidebar-collapse .upgrade-sub,
+    .app-sidebar-collapse .menu-arrow {
+        display: none;
+    }
+
+    .app-sidebar-collapse .menu-link {
+        justify-content: center;
+    }
+
+    .app-sidebar-collapse .upgrade-card {
+        padding: 12px;
+        text-align: center;
+    }
+
+
+
+
+    /* ---------- Accordion Toggle — proper open/close indicator ---------- */
+    .menu-accordion>.menu-link .menu-arrow {
+        margin-left: auto;
+        width: 22px;
+        height: 22px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: rgba(255, 255, 255, .06);
+        transition: transform .3s ease, background .2s ease;
+        flex-shrink: 0;
+    }
+
+    .menu-accordion>.menu-link .menu-arrow i {
+        width: 13px;
+        height: 13px;
+        color: #9aa0b4;
+        transition: color .2s;
+    }
+
+    .menu-accordion:hover>.menu-link .menu-arrow {
+        background: rgba(255, 255, 255, .1);
+    }
+
+    .menu-accordion:hover>.menu-link .menu-arrow i {
+        color: #ffffff;
+    }
+
+    /* Open state — rotate + highlight */
+    .menu-accordion.show>.menu-link .menu-arrow,
+    .menu-accordion[aria-expanded="true"]>.menu-link .menu-arrow {
+        background: linear-gradient(135deg, #6F7EF7, #A78BFA);
+        transform: rotate(180deg);
+    }
+
+    .menu-accordion.show>.menu-link .menu-arrow i,
+    .menu-accordion[aria-expanded="true"]>.menu-link .menu-arrow i {
+        color: #ffffff;
+    }
+
+    /* ---------- Scrollbar — professional thin style ---------- */
+    #kt_app_sidebar_menu_wrapper {
+        scrollbar-width: thin;
+        scrollbar-color: rgba(255, 255, 255, .15) transparent;
+    }
+
+    #kt_app_sidebar_menu_wrapper::-webkit-scrollbar {
+        width: 6px;
+    }
+
+    #kt_app_sidebar_menu_wrapper::-webkit-scrollbar-track {
+        background: transparent;
+        margin: 8px 0;
+    }
+
+    #kt_app_sidebar_menu_wrapper::-webkit-scrollbar-thumb {
+        background: linear-gradient(180deg, rgba(111, 126, 247, .35), rgba(168, 85, 247, .35));
+        border-radius: 10px;
+        border: 1px solid rgba(255, 255, 255, .05);
+        background-clip: padding-box;
+    }
+
+    #kt_app_sidebar_menu_wrapper::-webkit-scrollbar-thumb:hover {
+        background: linear-gradient(180deg, rgba(111, 126, 247, .6), rgba(168, 85, 247, .6));
+    }
+
+    .menu-icon {
+        color: #ffffff !important;
+    }
+
+    @media (max-width: 991.98px) {
+
+        .app-sidebar {
+            position: fixed !important;
+            left: -100% !important;
+            width: 280px;
+            transition: left .3s ease;
+            z-index: 1055;
+        }
+
+        .app-sidebar.drawer-on {
+            left: 0 !important;
+        }
+
+    }
+
+    @media (max-width: 991.98px) {
+
+        .app-wrapper,
+        .app-main,
+        .app-page,
+        .app-content {
+            margin-left: 0 !important;
+            padding-left: 0 !important;
+            width: 100% !important;
+        }
+
+    }

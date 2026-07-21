@@ -233,7 +233,7 @@
 
     <!-- Add Item Model -->
     <div class="modal fade" id="item-modal" tabindex="-1" aria-labelledby="itemModalLabel" aria-hidden="true">
-        <div class="modal-dialog  modal-md">
+        <div class="modal-dialog  modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white rounded-top-3">
                     <h4 class="modal-title" id="itemModalLabel">Add Item</h4>
@@ -252,7 +252,7 @@
 
     <!-- Edit Item Model -->
     <div class="modal fade" id="editItem-modal" tabindex="-1" aria-labelledby="editItemModalLabel" aria-hidden="true">
-        <div class="modal-dialog  modal-md">
+        <div class="modal-dialog  modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white rounded-top-3">
                     <h4 class="modal-title" id="editItemModalLabel">Edit Item</h4>

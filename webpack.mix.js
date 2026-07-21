@@ -138,6 +138,10 @@ glob.sync('node_modules/+(@fortawesome|socicon|line-awesome|bootstrap-icons)/**/
 // Widgets
 mix.scripts((glob.sync(`${dir}/js/widgets/**/*.js`) || []), `public/assets/js/widgets.bundle.js`);
 
+mix.js(
+  'resources/_keenthemes/src/js/components/invoice/index.js', 'public/assets/js/invoice.bundle.js'
+);
+
 function getDemos() {
     // get possible demo from parameter command
     let demos = [];

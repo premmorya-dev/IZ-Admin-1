@@ -418,7 +418,7 @@
 
     <!-- Edit Client Model -->
     <div class="modal fade" id="editClient-modal" tabindex="-1" aria-labelledby="editClientModalLabel" aria-hidden="true">
-        <div class="modal-dialog  modal-xl">
+        <div class="modal-dialog  modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white rounded-top-3">
                     <h4 class="modal-title" id="editClientModalLabel">Edit Client</h4>

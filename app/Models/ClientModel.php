@@ -44,6 +44,7 @@ class ClientModel extends Model
         'notes',
         'terms',
         'status',
+        'is_shipping_different',
         'currency_code',
     ];
 

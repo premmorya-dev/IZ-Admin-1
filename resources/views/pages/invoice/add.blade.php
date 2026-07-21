@@ -9,82 +9,6 @@
     <link href="{{ asset('assets/css/is.css') }}" rel="stylesheet">
 
 
-    <style>
-        .remove-item-btn {
-
-            position: absolute;
-
-            top: 12px;
-
-            right: 12px;
-
-            width: 40px;
-
-            height: 40px;
-
-            border: none;
-
-            border-radius: 50%;
-
-            background: #FEF2F2;
-
-            color: #DC2626;
-
-            display: flex;
-
-            align-items: center;
-
-            justify-content: center;
-
-            cursor: pointer;
-
-            transition: .25s;
-
-            z-index: 20;
-
-        }
-
-        .remove-item-btn:hover {
-
-            background: #DC2626;
-
-            color: #fff;
-
-            transform: scale(1.08);
-
-            box-shadow: 0 8px 18px rgba(220, 38, 38, .25);
-
-        }
-
-        .remove-item-btn svg {
-
-            width: 18px;
-
-            height: 18px;
-
-        }
-
-        #invoice_number {
-            transition: all 0.4s ease;
-            font-weight: 500;
-        }
-
-        /* CSS */
-        .custom-dropdown {
-            min-width: 220px;
-            width: 80vw;
-            /* Responsive width: 80% of viewport on mobile */
-            max-width: 300px;
-            /* Limit maximum width on larger screens */
-        }
-
-        /* Optional: fine-tune for very small screens */
-        @media (max-width: 400px) {
-            .custom-dropdown {
-                width: 90vw;
-            }
-        }
-    </style>
 
     <h2 class="py-3">Add Invoices</h2>
 
@@ -102,256 +26,59 @@
 
         <div class="row">
 
-            <div class="col-md-3 mt-3 text-md-start text-center" id="company-logo-section">
-                <img src="{{ asset($data['setting']->logo_path) }}" style="height: 80px;">
+            <x-invoice.header :data="$data" />
+            <!-- From Address Section -->
+
+            <x-invoice.address-section :setting="$data['setting']" />
+
+            <div class="row g-4">
+
+                <div class="col-lg-6 col-md-6">
+                    <x-date
+                        id="invoice_date"
+                        name="invoice_date"
+                        label="Invoice Date"
+                        icon="calendar-event"
+                        placeholder="Select invoice issue date"
+                        required />
+                </div>
+
+                <div class="col-lg-6 col-md-6">
+                    <x-date
+                        id="due_date"
+                        name="due_date"
+                        label="Due Date"
+                        icon="calendar-check"
+                        placeholder="Select invoice due date"
+                        required />
+                </div>
+
             </div>
 
-            <!-- Invoice Number with Mode -->
-            <div class="col-md-3 mt-3">
-                <label for="invoice_number" class="form-label d-flex justify-content-between align-items-center text-danger">
-                    <span>Invoice Number *</span>
-                    <div class="form-check form-switch m-0">
-                        <input class="form-check-input" type="checkbox" id="invoiceModeSwitch" onchange="toggleInvoiceMode(this)">
-                        <label class="form-check-label small" for="invoiceModeSwitch">Custom</label>
-                    </div>
-                </label>
-                <input type="text" class="form-control form-control-sm" id="invoice_number" name="invoice_number" placeholder="Auto-generated" readonly>
-            </div>
+
+            <x-invoice.setting-switch />
+
+            <x-invoice.recurring-invoice />
 
 
-
-            <!-- Currency -->
-            <div class="col-md-3 mt-3">
-                <label for="currency" class="form-label text-danger">Select Currency *</label>
-                <select name="currency_code" id="currency_code" class="form-select">
+            <!-- UPI Dropdown (Hidden by default) -->
+            <div id="upiDropdownWrapper" class="mt-3 bg-blue" style="display: none;">
+                <label for="upi_id" class="form-label">Select UPI</label>
+                <select id="upi_id" name="upi_id" class="form-select">
                     <option value="">Please Select</option>
-                    @foreach($data['currencies'] as $currency)
-                    <option value="{{ $currency->currency_code }}" {{ old('currency_code', setting('default_currency') ) == $currency->currency_code ? 'selected' : '' }}>
-                        {{ $currency->currency_name }}
+                    @foreach($data['upi_payment_id'] as $upi_payment)
+                    <option value="{{ $upi_payment->upi_log_id }}" {{ old('upi_id', setting('default_upi_id') ) == $upi_payment->upi_log_id ? 'selected' : '' }}>
+                        Name: {{ $upi_payment->upi_name }} | Id: {{ $upi_payment->upi_id }}
                     </option>
                     @endforeach
                 </select>
             </div>
 
-            <!-- Language -->
-            <div class="col-md-3 mt-3" id="template-section">
-                <label for="template" class="form-label text-danger">Template *</label>
-                <select class="form-select" id="template_id" name="template_id">
-                    <option value="">Please Select</option>
-                    @foreach($data['templates'] as $template )
-                    <option value="{{ $template->template_id }}" {{ old('template_id', setting('default_template_id') ) == $template->template_id ? 'selected' : '' }}>{{ $template->template_name }}</option>
-                    @endforeach
-                </select>
-            </div>
 
-
-            <!-- From Address Section -->
-            <div class="mt-2 col-md-6">
-                <div class="mt-8 ">
-                    <div class="mb-1 mt-2 d-flex justify-content-between">
-                        <h4 class="mb-1">From </h4>
-                        <input type="hidden" name="user_state_id" id="user_state_id" value="{{ setting('state_id') }}">
-                        <a href="{{ route('settings.edit') }}" target="__blank" style="text-decoration: none;"> ✏️ Edit Business Profile </a>
-                    </div>
-
-                    <div>
-                        @if( !empty($data['setting']->company_name) )
-                        {{ $data['setting']->company_name }} <br>
-                        @endif
-
-                        @if( !empty($data['setting']->address_1) )
-                        {{ $data['setting']->address_1 }} <br>
-                        @endif
-
-                        @if( !empty($data['setting']->address_2) )
-                        {{ $data['setting']->address_2 }} <br>
-                        @endif
-
-                        @if( !empty($data['setting']->state->state_name ) )
-                        {{ $data['setting']->state->state_name }}
-                        @endif
-
-
-                        @if( !empty($data['setting']->country->country_name ) )
-                        {{ $data['setting']->country->country_name }}
-                        @endif
-
-                        @if( !empty($data['setting']->pincode) )
-                        {{ $data['setting']->pincode }}
-                        @endif
-                    </div>
-                </div>
-
-                <!-- To Address Section -->
-                <div>
-                    <div class="mb-1 mt-4 d-flex justify-content-between align-items-center">
-                        <h4 class="mb-1 text-danger">To *</h4>
-                        <a href="{{ route('client.add') }}" onclick="gtag('event', 'add_client');" target="__blank" class="clientActionBtn new-client" id="new-client-btn" style="text-decoration: none;display:none;">✏️ New Client</a>
-                        <a href="#" onclick="event.preventDefault()" class="clientActionBtn change-client" style="text-decoration: none;">✏️ Change Client</a>
-
-                    </div>
-
-                    <div id="clientSearchBox">
-                        <input type="text" class="form-control " id="client" name="client_name" placeholder="Type client name, email, contact number to search client" autocomplete="off">
-                        <input type="hidden" name="client_id" id="client_id">
-                        <input type="hidden" name="client_state_id" id="client_state_id">
-                        <!-- Dropdown results -->
-                        <div id="clientList" class="list-group w-100 z-3 shadow-sm" style="max-height: 200px; overflow-y: auto; display: none;"></div>
-                    </div>
-
-                    <!-- Display client address here -->
-                    <div id="clientAddress" class="mt-3 border p-3 rounded bg-light position-relative" style="display: none;"></div>
-                </div>
-
-
-
-
-            </div>
-
-
-            <div class="col-md-6">
-
-                <div class="row">
-                    <div class="col-md-6 mt-3">
-                        <div class="form-check form-switch">
-                            <input class="form-check-input" type="checkbox" id="display_shipping_status" name="display_shipping_status"
-                                {{ old('display_shipping_status',setting('shipping_status')) == 'Y' ? 'checked' : '' }}>
-
-                            <label class="form-check-label" for="display_shipping_status">Show Shipping</label>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="mt-3">
-                            <!-- Recurring switch -->
-                            <div class="form-check form-switch">
-                                <input class="form-check-input" type="checkbox" id="is_recurring" name="is_recurring">
-                                <label class="form-check-label" for="is_recurring">Enable Recurring Invoice</label>
-                            </div>
-
-
-                        </div>
-                    </div>
-
-                    <!-- Recurring options wrapper -->
-                    <div id="recurringOptions" style="display: none;">
-                        <!-- Frequency -->
-                        <div class="mt-3">
-                            <label for="frequency" class="form-label">Frequency</label>
-                            <select name="frequency" id="frequency" class="form-select">
-                                <option value="monthly">Monthly</option>
-                                <option value="weekly">Weekly</option>
-                                <option value="yearly">Yearly</option>
-                            </select>
-                        </div>
-
-                        <!-- Monthly Day -->
-                        <div class="mt-3" id="monthlyDay">
-                            <label for="day_of_month" class="form-label">Day of Month (1–31)</label>
-                            <select name="day_of_month" class="form-select">
-                                @for ($i = 1; $i <= 31; $i++)
-                                    <option value="{{ $i }}">{{ $i }}</option>
-                                    @endfor
-                            </select>
-                        </div>
-
-                        <!-- Weekly Day -->
-                        <div class="mt-3" id="weeklyDay" style="display: none;">
-                            <label for="day_of_week" class="form-label">Day of Week</label>
-                            <select name="day_of_week" class="form-select">
-
-                                @foreach(['sunday','monday','tuesday','wednesday','thursday','friday','saturday'] as $day)
-                                <option value="{{ $day }}">{{ ucfirst($day) }}</option>
-                                @endforeach
-                            </select>
-                        </div>
-
-                        <!-- Yearly Month + Day -->
-                        <div id="yearlySection" style="display: none;">
-                            <!-- Month -->
-                            <div class="mt-3">
-                                <label for="month_of_year" class="form-label">Month of Year</label>
-                                <select name="month_of_year" class="form-select">
-                                    @foreach([
-                                    1 => 'January', 2 => 'February', 3 => 'March', 4 => 'April',
-                                    5 => 'May', 6 => 'June', 7 => 'July', 8 => 'August',
-                                    9 => 'September', 10 => 'October', 11 => 'November', 12 => 'December'
-                                    ] as $num => $month)
-                                    <option value="{{ $num }}">{{ $month }}</option>
-                                    @endforeach
-                                </select>
-                            </div>
-
-                            <!-- Day -->
-                            <div class="mt-3">
-                                <label for="yearly_day_of_month" class="form-label">Day of Month</label>
-                                <select name="yearly_day_of_month" class="form-select">
-                                    @for ($i = 1; $i <= 31; $i++)
-                                        <option value="{{ $i }}">{{ $i }}</option>
-                                        @endfor
-                                </select>
-                            </div>
-                        </div>
-
-                        <!-- Time Picker -->
-                        <div class="mt-3">
-                            <label for="time_of_day" class="form-label">Time to Generate</label>
-                            <input type="time" name="time_of_day" class="form-control" value="09:00">
-                        </div>
-                    </div>
-                </div>
-
-
-
-                <div class="mt-3">
-                    <label for="invoice_date" class="form-label text-danger">Invoice Date *</label>
-
-                    <div class="input-group">
-                        <input type="text" id="invoice_date" class="form-control" name="invoice_date" placeholder="Select Invoice Issue Date">
-                        <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
-                    </div>
-                </div>
-
-                <div class="mt-3">
-                    <label for="due_date" class="form-label text-danger">Invoice Due *</label>
-                    <div class="input-group">
-                        <input type="text" id="due_date" class="form-control" name="due_date" placeholder="Select Invoice Due Date">
-                        <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
-                    </div>
-                </div>
-
-
-
-
-                <div class="form-check form-switch mt-3">
-                    <input class="form-check-input" type="checkbox" name="upi_id_payment_status" id="useUpiToggle">
-                    <label class="form-check-label" for="useUpiToggle">Use UPI ID for Payment</label>
-                </div>
-
-                <!-- UPI Dropdown (Hidden by default) -->
-                <div id="upiDropdownWrapper" class="mt-3" style="display: none;">
-                    <label for="upi_id" class="form-label">Select UPI</label>
-                    <select id="upi_id" name="upi_id" class="form-select">
-                        <option value="">Please Select</option>
-                        @foreach($data['upi_payment_id'] as $upi_payment)
-                        <option value="{{ $upi_payment->upi_log_id }}" {{ old('upi_id', setting('default_upi_id') ) == $upi_payment->upi_log_id ? 'selected' : '' }}>
-                            Name: {{ $upi_payment->upi_name }} | Id: {{ $upi_payment->upi_id }}
-                        </option>
-                        @endforeach
-                    </select>
-                </div>
-
-            </div>
-
-
-
-            <!-- test -->
             <div class="container my-4">
                 <h4 class="mb-3 text-danger">Invoice Item Entry *</h4>
 
-
-
                 <div id="form-container"></div>
-
 
                 <x-invoice.add-item-button
                     id="add-item-btn"
@@ -359,7 +86,6 @@
                     onclick="addItemRow()" />
 
                 <!-- Invoice Summary Section -->
-
                 <x-invoice.summary />
 
                 <input type="hidden" name="hidden_sub_total" value="" id="hidden_sub_total">
@@ -380,13 +106,13 @@
             <!-- test -->
 
 
-            <div class="row mt-3">
-                <div class="col-md-6" id="terms-section">
+            <div class="row mt-3 gx-4">
+                <div class="col-md-6 bg-blue" id="terms-section">
                     <label for="terms" class="form-label fw-semibold">Terms and Conditions:</label>
                     <textarea name="terms" id="id_invoice_terms" class="form-control" placeholder="Enter Terms">{{ old('notes', setting('terms') ) }}</textarea>
                 </div>
 
-                <div class="col-md-6" id="notes-section">
+                <div class="col-md-6 bg-blue" id="notes-section">
                     <label for="notes" class="form-label fw-semibold">Notes:</label>
                     <textarea name="notes" id="id_invoice_notes" class="form-control " placeholder="Enter Notes">{{ old('notes', setting('notes') ) }}</textarea>
                 </div>
@@ -450,7 +176,7 @@
 
     <!-- Edit Client Model -->
     <div class="modal fade" id="editClient-modal" tabindex="-1" aria-labelledby="editClientModalLabel" aria-hidden="true">
-        <div class="modal-dialog  modal-xl">
+        <div class="modal-dialog  modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white rounded-top-3">
                     <h4 class="modal-title" id="editClientModalLabel">Edit Client</h4>
@@ -1348,7 +1074,7 @@
             const formContainer = document.getElementById('form-container');
 
             const itemRow = document.createElement('div');
-            itemRow.classList.add('row', 'g-3', 'p-3', 'border', 'rounded', 'shadow-sm', 'bg-light', 'align-items-start', 'mb-3', 'mt-3', 'position-relative');
+            itemRow.classList.add('row', 'bg-blue', 'g-3', 'p-3', 'border', 'rounded', 'shadow-sm', 'bg-light', 'align-items-start', 'mb-3', 'mt-3', 'position-relative');
             itemRow.setAttribute('data-item-id', itemCount);
 
             itemRow.innerHTML = `

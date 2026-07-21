@@ -1,0 +1,303 @@
+
+    /* ===== Client Edit Form — SaaS style ===== */
+    #edit-client-form .cef-card {
+        border: 1px solid #EEF0F5;
+        background: #fff;
+        overflow: hidden;
+    }
+
+    /* Header strip */
+    #edit-client-form .cef-header {
+        background: linear-gradient(135deg, #EEF2FF 0%, #F5F3FF 60%, #FFF7ED 100%);
+        border-bottom: 1px solid #EEF0F5;
+        padding: 1.25rem 1.5rem;
+    }
+
+    #edit-client-form .cef-header h5 {
+        font-weight: 700;
+        color: #312E81;
+        margin: 0;
+        letter-spacing: -0.01em;
+    }
+
+    #edit-client-form .cef-header p {
+        margin: 0;
+        color: #6B7280;
+        font-size: .85rem;
+    }
+
+    /* Tabs */
+    #edit-client-form .cef-tabs {
+        display: flex;
+        gap: .5rem;
+        padding: 0 1.5rem;
+        margin-top: 1rem;
+        border-bottom: 1px solid #EEF0F5;
+        flex-wrap: wrap;
+    }
+
+    #edit-client-form .cef-tab-btn {
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        background: transparent;
+        border: none;
+        padding: .65rem .25rem;
+        margin-bottom: -1px;
+        border-bottom: 2px solid transparent;
+        color: #6B7280;
+        font-weight: 600;
+        font-size: .88rem;
+        transition: .15s ease;
+        cursor: pointer;
+    }
+
+    #edit-client-form .cef-tab-btn .cef-ico {
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: .72rem;
+        transition: .15s ease;
+    }
+
+    #edit-client-form .cef-tab-btn.active {
+        color: #312E81;
+        border-bottom-color: #4F46E5;
+    }
+
+    #edit-client-form .cef-tab-btn:hover {
+        color: #4338CA;
+    }
+
+    #edit-client-form .cef-tab-btn[data-tab="basic"] .cef-ico {
+        background: #DBEAFE;
+        color: #2563EB;
+    }
+
+    #edit-client-form .cef-tab-btn[data-tab="address"] .cef-ico {
+        background: #EDE9FE;
+        color: #7C3AED;
+    }
+
+    #edit-client-form .cef-tab-btn[data-tab="shipping"] .cef-ico {
+        background: #FEF3C7;
+        color: #D97706;
+    }
+
+    #edit-client-form .cef-tab-btn.active[data-tab="basic"] .cef-ico {
+        background: #2563EB;
+        color: #fff;
+    }
+
+    #edit-client-form .cef-tab-btn.active[data-tab="address"] .cef-ico {
+        background: #7C3AED;
+        color: #fff;
+    }
+
+    #edit-client-form .cef-tab-btn.active[data-tab="shipping"] .cef-ico {
+        background: #D97706;
+        color: #fff;
+    }
+
+    #edit-client-form .cef-tab-badge {
+        font-size: .65rem;
+        font-weight: 700;
+        padding: .1rem .45rem;
+        border-radius: 20px;
+        background: #F3F4F6;
+        color: #9CA3AF;
+        margin-left: .15rem;
+    }
+
+    #edit-client-form .cef-tab-badge.on {
+        background: #D1FAE5;
+        color: #059669;
+    }
+
+    /* Panels */
+    #edit-client-form .cef-panel {
+        display: none;
+        padding: 1.5rem;
+        animation: cefFade .25s ease;
+    }
+
+    #edit-client-form .cef-panel.active {
+        display: block;
+    }
+
+    @keyframes cefFade {
+        from {
+            opacity: 0;
+            transform: translateY(4px);
+        }
+
+        to {
+            opacity: 1;
+            transform: none;
+        }
+    }
+
+    /* Field groups w/ icon avatar */
+    #edit-client-form .cef-field label {
+        font-weight: 600;
+        font-size: .82rem;
+        color: #374151;
+        display: flex;
+        align-items: center;
+        gap: .5rem;
+        margin-bottom: .4rem;
+    }
+
+    #edit-client-form .cef-field label .cef-fico {
+        width: 24px;
+        height: 24px;
+        border-radius: 7px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: .68rem;
+        flex: none;
+    }
+
+    #edit-client-form .cef-field label .req-dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: #EF4444;
+        display: inline-block;
+        margin-left: 2px;
+    }
+
+    #edit-client-form .cef-field .form-control,
+    #edit-client-form .cef-field .form-select {
+        border-radius: .6rem;
+        border: 1px solid #E5E7EB;
+        font-size: .9rem;
+        padding: .55rem .8rem;
+        background: #FAFAFB;
+        transition: .15s ease;
+    }
+
+    #edit-client-form .cef-field .form-control:focus,
+    #edit-client-form .cef-field .form-select:focus {
+        background: #fff;
+        border-color: #A5B4FC;
+        box-shadow: 0 0 0 4px rgba(79, 70, 229, .1);
+    }
+
+    /* icon color variants */
+    #edit-client-form .fico-blue {
+        background: #DBEAFE;
+        color: #2563EB;
+    }
+
+    #edit-client-form .fico-emerald {
+        background: #D1FAE5;
+        color: #059669;
+    }
+
+    #edit-client-form .fico-violet {
+        background: #EDE9FE;
+        color: #7C3AED;
+    }
+
+    #edit-client-form .fico-rose {
+        background: #FFE4E6;
+        color: #E11D48;
+    }
+
+    #edit-client-form .fico-amber {
+        background: #FEF3C7;
+        color: #D97706;
+    }
+
+    #edit-client-form .fico-cyan {
+        background: #CFFAFE;
+        color: #0891B2;
+    }
+
+    #edit-client-form .fico-slate {
+        background: #E2E8F0;
+        color: #475569;
+    }
+
+    /* Shipping toggle card */
+    #edit-client-form .cef-ship-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: #FFFBEB;
+        border: 1px dashed #FCD34D;
+        border-radius: .9rem;
+        padding: .9rem 1.1rem;
+        margin-bottom: 1.25rem;
+    }
+
+    #edit-client-form .cef-ship-toggle .fw-semibold {
+        color: #92400E;
+    }
+
+    #edit-client-form .cef-ship-toggle small {
+        color: #B45309;
+    }
+
+    #edit-client-form .form-check-input:checked {
+        background-color: #D97706;
+        border-color: #D97706;
+    }
+
+    #edit-client-form #shippingFields {
+        opacity: .4;
+        pointer-events: none;
+        filter: grayscale(.3);
+        transition: .2s ease;
+    }
+
+    #edit-client-form #shippingFields.enabled {
+        opacity: 1;
+        pointer-events: auto;
+        filter: none;
+    }
+
+    /* Footer */
+    #edit-client-form .cef-footer {
+        background: #F9FAFB;
+        border-top: 1px solid #EEF0F5;
+        padding: 1rem 1.5rem;
+        display: flex;
+        justify-content: flex-end;
+        gap: .6rem;
+    }
+
+    #edit-client-form .btn-cef-save {
+        background: linear-gradient(135deg, #4F46E5, #4338CA);
+        border: none;
+        color: #fff;
+        font-weight: 600;
+        font-size: .9rem;
+        padding: .65rem 1.6rem;
+        border-radius: .7rem;
+        box-shadow: 0 6px 16px rgba(79, 70, 229, .28);
+        transition: .15s ease;
+    }
+
+    #edit-client-form .btn-cef-save:hover {
+        transform: translateY(-1px);
+        box-shadow: 0 8px 20px rgba(79, 70, 229, .35);
+        color: #fff;
+    }
+
+    @media (max-width:576px) {
+        #edit-client-form .cef-tabs {
+            overflow-x: auto;
+            flex-wrap: nowrap;
+        }
+
+        #edit-client-form .cef-tab-btn {
+            white-space: nowrap;
+        }
+    }
+

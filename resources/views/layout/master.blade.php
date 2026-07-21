@@ -4,28 +4,31 @@
 
 <head>
 
-<script>
-    // Load Google Analytics only on pro.invoicezy.com
-    if (window.location.hostname === "pro.invoicezy.com") {
+    <script>
+        // Load Google Analytics only on pro.invoicezy.com
+        if (window.location.hostname === "pro.invoicezy.com") {
 
-        // Load GA script dynamically
-        let gaTag = document.createElement("script");
-        gaTag.async = true;
-        gaTag.src = "https://www.googletagmanager.com/gtag/js?id=G-E0NH65K8GD";
-        document.head.appendChild(gaTag);
+            // Load GA script dynamically
+            let gaTag = document.createElement("script");
+            gaTag.async = true;
+            gaTag.src = "https://www.googletagmanager.com/gtag/js?id=G-E0NH65K8GD";
+            document.head.appendChild(gaTag);
 
-        // Initialize GA
-        window.dataLayer = window.dataLayer || [];
-        function gtag(){ dataLayer.push(arguments); }
+            // Initialize GA
+            window.dataLayer = window.dataLayer || [];
 
-        gtag('js', new Date());
-        gtag('config', 'G-E0NH65K8GD');
+            function gtag() {
+                dataLayer.push(arguments);
+            }
 
-        console.log("Google Analytics loaded for: pro.invoicezy.com");
-    } else {
-        console.log("Google Analytics NOT loaded (not pro.invoicezy.com)");
-    }
-</script>
+            gtag('js', new Date());
+            gtag('config', 'G-E0NH65K8GD');
+
+            console.log("Google Analytics loaded for: pro.invoicezy.com");
+        } else {
+            console.log("Google Analytics NOT loaded (not pro.invoicezy.com)");
+        }
+    </script>
 
 
     <base href="" />
@@ -45,15 +48,14 @@
 
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<link rel="stylesheet" href="https://unpkg.com/intro.js/minified/introjs.min.css" />
+    <link rel="stylesheet" href="https://unpkg.com/intro.js/minified/introjs.min.css" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/choices.js/public/assets/styles/choices.min.css">
     <script src="https://cdn.jsdelivr.net/npm/choices.js/public/assets/scripts/choices.min.js"></script>
-
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/signature_pad/1.5.3/signature_pad.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 
-   
+
 
     {!! sprintf('<script src="%s"></script>', asset('assets/js/jquery.js')) !!}
     {!! sprintf('<script src="%s"></script>', asset('assets/js/multiselect-dropdown.js')) !!}
@@ -82,164 +84,6 @@
 
     <!-- jQuery (must be first) -->
 
-
-
-
-    <style>
-        a {
-            pointer-events: auto;
-            /* Ensures links are clickable */
-            z-index: 1;
-            /* Makes sure the anchor tag is above other elements */
-        }
-
-        [readonly] {
-            background-color: #eeeeee;
-        }
-
-        .slider-checkbox {
-            position: relative;
-            display: inline-block;
-            width: 34px;
-            /* Reduced width */
-            height: 17px;
-            /* Reduced height */
-        }
-
-        /* Hide default checkbox */
-        .slider-checkbox input {
-            opacity: 0;
-            width: 0;
-            height: 0;
-        }
-
-        /* Slider background */
-        .slider {
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background-color: #ccc;
-            border-radius: 17px;
-            cursor: pointer;
-            transition: background-color 0.3s ease;
-        }
-
-        /* Circle inside slider */
-        .slider:before {
-            position: absolute;
-            content: "";
-            height: 13px;
-            /* Reduced size */
-            width: 13px;
-            /* Reduced size */
-            left: 2px;
-            /* Adjusted position */
-            bottom: 2px;
-            /* Adjusted position */
-            background-color: white;
-            border-radius: 50%;
-            transition: transform 0.3s ease;
-        }
-
-        /* When checkbox is checked, change the background color */
-        input:checked+.slider {
-            background-color: #007bff;
-        }
-
-        /* Move the circle when the checkbox is checked */
-        input:checked+.slider:before {
-            transform: translateX(17px);
-            /* Adjusted for the smaller size */
-        }
-
-        @media (min-width: 992px) {
-            .device-setion-margin {
-                margin-bottom: 0px !important;
-            }
-
-        }
-
-        .device-setion-margin {
-            margin-bottom: 120px;
-            ;
-        }
-
-        .notification-field-set {
-            position: fixed;
-            bottom: 0;
-            right: 0;
-            width: 100%;
-            z-index: 1000;
-            background-color: #ffffff;
-            box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-            background-color: #0d0e12;
-            border: none !important;
-            opacity: 80%;
-
-        }
-
-        .select-all-notification-checkbox {
-            font-size: 10px;
-        }
-
-        .ls-1 {
-            letter-spacing: 0.5px;
-        }
-
-        .ls-2 {
-            letter-spacing: 1px;
-        }
-
-        .ls-3 {
-            letter-spacing: 2px;
-        }
-
-        .custom-alert-danger {
-            border-radius: 8px;
-            font-size: 1.1rem;
-        }
-
-        .custom-alert-danger li {
-            padding: 5px 0;
-        }
-
-        .spinner-format {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            width: 50px;
-            height: 50px;
-        }
-
-        .divider {
-            border: 0;
-            height: 2px;
-            background-color: #007bff;
-            box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.1);
-        }
-
-        .page-header-fixed {
-            position: sticky;
-            top: 0;
-            z-index: 1030;
-            background-color: #f8f9fa;
-            padding: 0.75rem 1rem;
-        }
-
-        .page-header-fixed.scrolled {
-            background-color: rgba(248, 249, 250, 0.6);
-            /* More transparent */
-            backdrop-filter: blur(1px);
-        }
-
-        .page-header-fixed .btn {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-    </style>
     <!--begin::Custom Stylesheets(optional)-->
     @foreach(getCustomCss() as $path)
     {!! sprintf('
@@ -253,47 +97,179 @@
 
 
 
+    <style>
+        :root {
+            /* ---- Typography ---- */
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            --font-mono: 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
 
+            --fs-xs: 0.75rem;
+            /* 12px - captions, badges */
+            --fs-sm: 0.8125rem;
+            /* 13px - table text, helper text */
+            --fs-base: 0.9375rem;
+            /* 15px - body / inputs */
+            --fs-md: 1.0625rem;
+            /* 17px - card titles */
+            --fs-lg: 1.375rem;
+            /* 22px - section headings */
+            --fs-xl: 1.75rem;
+            /* 28px - page titles */
+
+            --fw-regular: 400;
+            --fw-medium: 500;
+            --fw-semibold: 600;
+            --fw-bold: 700;
+
+            /* ---- Color — neutral slate + single indigo accent ---- */
+            --c-primary: #4F46E5;
+            --c-primary-hover: #4338CA;
+            --c-primary-soft: #EEF2FF;
+
+            --c-success: #16A34A;
+            --c-success-soft: #F0FDF4;
+            --c-danger: #DC2626;
+            --c-danger-soft: #FEF2F2;
+            --c-warning: #D97706;
+            --c-warning-soft: #FFFBEB;
+
+            --c-text: #0F172A;
+            --c-text-muted: #64748B;
+            --c-border: #E2E8F0;
+            --c-border-strong: #CBD5E1;
+            --c-bg: #F8FAFC;
+            --c-surface: #FFFFFF;
+
+            /* ---- Shape / elevation ---- */
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 14px;
+
+            --shadow-sm: 0 1px 2px rgba(15, 23, 42, 0.06);
+            --shadow-md: 0 4px 12px rgba(15, 23, 42, 0.08);
+            --shadow-lg: 0 12px 32px rgba(15, 23, 42, 0.12);
+        }
+
+
+        .badge {
+            font-weight: var(--fw-medium);
+            font-size: var(--fs-xs);
+            border-radius: 999px;
+            padding: 0.3em 0.7em;
+        }
+
+        .badge.bg-success {
+            background-color: var(--c-success-soft) !important;
+            color: var(--c-success) !important;
+        }
+
+        .badge.bg-danger {
+            background-color: var(--c-danger-soft) !important;
+            color: var(--c-danger) !important;
+        }
+
+        .badge.bg-warning {
+            background-color: var(--c-warning-soft) !important;
+            color: var(--c-warning) !important;
+        }
+
+
+ .floating-help-btn {
+    position: fixed;
+    right: 22px;
+    bottom: 24px;
+    z-index: 999;
+
+    display: inline-flex;
+    align-items: center;
+    gap: 10px;
+
+    padding: 10px 16px;
+
+    border-radius: 999px;
+
+    background: rgba(20, 20, 20, 0.92);
+    backdrop-filter: blur(16px);
+
+    border: 1px solid rgba(255,255,255,.08);
+
+    text-decoration: none;
+
+    box-shadow: 0 12px 30px rgba(0,0,0,.18);
+
+    transition: all .3s ease;
+}
+
+.floating-help-btn:hover{
+    transform: translateY(-3px);
+    box-shadow:0 16px 36px rgba(0,0,0,.25);
+}
+
+.help-icon{
+    width:40px;
+    height:40px;
+
+    border-radius:50%;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    background:#25D366;
+    color:#fff;
+
+    font-size:20px;
+
+    animation: pulse 2s infinite;
+}
+
+.help-text{
+    color:#fff;
+    font-size:14px;
+    font-weight:600;
+    white-space:nowrap;
+}
+
+@keyframes pulse{
+    0%{box-shadow:0 0 0 0 rgba(37,211,102,.45);}
+    70%{box-shadow:0 0 0 12px rgba(37,211,102,0);}
+    100%{box-shadow:0 0 0 0 rgba(37,211,102,0);}
+}
+
+@media(max-width:768px){
+
+    .floating-help-btn{
+        padding:10px;
+    }
+
+    .help-text{
+        display:none;
+    }
+
+    .help-icon{
+        width:52px;
+        height:52px;
+        font-size:24px;
+    }
+
+}
+    </style>
 </head>
 <!--end::Head-->
 <!-- Modal -->
-
-<!-- Floating Need Help Button -->
 <a href="https://wa.me/918750101087?text=Hi%20I%20need%20help%20with%20Invoicezy"
    target="_blank"
    class="floating-help-btn">
-    <i class="bi bi-whatsapp text-white"></i> Need Help?
+
+    <span class="help-icon">
+        <i class="bi bi-whatsapp text-white"></i>
+    </span>
+
+    <span class="help-text">
+        Need Help?
+    </span>
+
 </a>
-
-<style>
-    .floating-help-btn {
-        position: fixed;
-        bottom: 20px;
-        right: 20px;
-        background: #25D366;
-        color: #fff;
-        padding: 12px 18px;
-        border-radius: 40px;
-        display: flex;
-        align-items: center;
-        gap: 8px;
-        font-size: 16px;
-        font-weight: 600;
-        box-shadow: 0 4px 12px rgba(0,0,0,0.20);
-        text-decoration: none;
-        transition: 0.3s ease;
-        z-index: 9999;
-    }
-
-    .floating-help-btn i {
-        font-size: 22px;
-    }
-
-    .floating-help-btn:hover {
-        transform: scale(1.08);
-        box-shadow: 0 6px 16px rgba(0,0,0,0.25);
-    }
-</style>
 
 
 <div class="spinner-border text-primary spinner-format" id="loader" style="display:none;" role="status">
@@ -344,7 +320,7 @@
     <!--end::Custom Javascript-->
     @stack('scripts')
     <!--end::Javascript-->
- 
+
     <script>
         document.addEventListener('livewire:init', () => {
             Livewire.on('success', (message) => {
@@ -449,59 +425,18 @@
 
         }
     </script>
-    <div class="modal fade" id="invoiceDemoModal" tabindex="-1" aria-labelledby="invoiceDemoModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content bg-dark text-white">
-                <div class="modal-header border-0">
-                    <h5 class="modal-title" id="invoiceDemoModalLabel">Invoice Demo Video</h5>
-                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close" onclick="stopLocalVideo()"></button>
-                </div>
-                <div class="modal-body p-0">
-                    <video id="invoiceVideo" class="w-100 rounded" controls>
-                        <source src="{{ asset('video/invoicezy_demo.mp4') }}" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <script>
-        const videoEl = document.getElementById('invoiceVideo');
-        const invoiceDemoModal = document.getElementById('invoiceDemoModal');
-
-        invoiceDemoModal.addEventListener('shown.bs.modal', () => {
-            videoEl.currentTime = 0;
-            videoEl.play();
-        });
-
-        function stopLocalVideo() {
-            videoEl.pause();
-            videoEl.currentTime = 0;
-        }
-    </script>
-    <!-- <script>
-        window.addEventListener('scroll', function() {
-            const header = document.querySelector('.page-header-fixed');
-            if (window.scrollY > 10) {
-                header.classList.add('scrolled');
-            } else {
-                header.classList.remove('scrolled');
-            }
-        });
-    </script> -->
-
 
     <script>
         lucide.createIcons();
     </script>
 
-    
+
     <link href="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/summernote@0.8.20/dist/summernote-lite.min.js"></script>
 
 
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    <script src="{{ asset('assets/js/invoice.bundle.js') }}"></script>
 </body>
 <!--end::Body-->
 
