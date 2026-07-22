@@ -159,7 +159,7 @@
                     class="form-control"
                     placeholder="Auto Generated"
                     value="{{ old('invoice_number', $data['invoice']->invoice_number ?? '' ) }}"
-                    readonly>
+                    >
 
             </div>
 
@@ -197,7 +197,7 @@
 
                     <option
                         value="{{ $currency->currency_code }}"
-                        {{ old('currency_code', $data['invoice']->currency_code ?? '' ) == $currency->currency_code ? 'selected' : '' }}>
+                        {{ old('currency_code', $data['invoice']->currency_code ?? setting('default_currency') ) == $currency->currency_code ? 'selected' : '' }}>
 
                         {{ $currency->currency_name }}
 
@@ -241,7 +241,7 @@
 
                     <option
                         value="{{ $template->template_id }}"
-                        {{ old('template_id', $data['invoice']->template_id ?? '' ) == $template->template_id ? 'selected':'' }}>
+                        {{ old('template_id', $data['invoice']->template_id ?? setting('default_template_id') ) == $template->template_id ? 'selected':'' }}>
 
                         {{ $template->template_name }}
 

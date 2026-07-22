@@ -67,7 +67,7 @@
                 <select id="upi_id" name="upi_id" class="form-select">
                     <option value="">Please Select</option>
                     @foreach($data['upi_payment_id'] as $upi_payment)
-                    <option value="{{ $upi_payment->upi_log_id }}" {{ old('upi_id', setting('default_upi_id') ) == $upi_payment->upi_log_id ? 'selected' : '' }}>
+                    <option value="{{ $upi_payment->upi_id }}" {{ old('upi_id', setting('default_upi_id') ) == $upi_payment->upi_log_id ? 'selected' : '' }}>
                         Name: {{ $upi_payment->upi_name }} | Id: {{ $upi_payment->upi_id }}
                     </option>
                     @endforeach
@@ -971,13 +971,7 @@
                 $('#currency_code').val(client.currency_code).trigger('change');
 
 
-                if (client.notes && client.notes.replace(/<[^>]*>/g, '').trim() !== '') {
-                    $('#id_invoice_notes').summernote('code', client.notes);
-                }
-
-                if (client.terms && client.terms.replace(/<[^>]*>/g, '').trim() !== '') {
-                    $('#id_invoice_terms').summernote('code', client.terms);
-                }
+               
                 $('#clientSearchBox').hide();
                 $('.change-client').show();
                 $('.new-client').hide();

@@ -1058,13 +1058,7 @@
                 $('#clientAddress').html(addressHTML + edit_client).show();
 
                 $('#currency_code').val(client.currency_code).trigger('change');
-                if (client.notes && client.notes.replace(/<[^>]*>/g, '').trim() !== '') {
-                    $('#id_invoice_notes').summernote('code', client.notes);
-                }
-
-                if (client.terms && client.terms.replace(/<[^>]*>/g, '').trim() !== '') {
-                    $('#id_invoice_terms').summernote('code', client.terms);
-                }
+               
                 $('#clientSearchBox').hide();
                 $('.change-client').show();
                 $('.new-client').hide();

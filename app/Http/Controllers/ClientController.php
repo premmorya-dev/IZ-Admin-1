@@ -583,7 +583,8 @@ class ClientController extends Controller
             return response()->json([
                 'error' => 0,
                 'message' => 'Client Updated Successfully!',
-                'client_code' => $request->client_code
+                'client_code' => $request->client_code,
+                'client_id' => $client->client_id
             ]);
         } catch (\Exception $e) {
 

@@ -270,7 +270,7 @@
 
             // Shipping fields enable/disable
             shipFields
-                .querySelectorAll('input, textarea, select')
+                .querySelectorAll('input, textarea')
                 .forEach(el => {
                     el.disabled = !on;
                 });
