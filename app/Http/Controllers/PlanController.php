@@ -24,7 +24,7 @@ class PlanController extends Controller
 
         $activePlan = DB::table('subscriptions')
             ->join('plans', 'subscriptions.plan_id', '=', 'plans.plan_id')
-            ->where('subscriptions.account_id', auth()->user()->account_id)
+            ->where('subscriptions.user_id', auth()->user()->user_id)
             ->where('subscriptions.payment_status', 'paid')
             ->where('subscriptions.ends_at', '>=', now())
             ->orderByDesc('subscriptions.ends_at')
@@ -48,7 +48,7 @@ class PlanController extends Controller
                 's.starts_at',
                 's.ends_at'
             )
-            ->where('p.account_id', auth()->user()->account_id)
+            ->where('p.user_id', auth()->user()->user_id)
             ->orderByDesc('p.paid_at')
             ->get();
 
@@ -100,7 +100,7 @@ class PlanController extends Controller
 
         $activePlan = DB::table('subscriptions')
             ->join('plans', 'subscriptions.plan_id', '=', 'plans.plan_id')
-            ->where('subscriptions.account_id', auth()->user()->account_id)
+            ->where('subscriptions.user_id', auth()->user()->user_id)
             ->where('subscriptions.payment_status', 'paid')
             ->where('subscriptions.ends_at', '>=', now())
             ->where('plans.plan_id', $plan_id)
@@ -120,7 +120,7 @@ class PlanController extends Controller
 
         $activePlan = DB::table('subscriptions')
             ->join('plans', 'subscriptions.plan_id', '=', 'plans.plan_id')
-            ->where('subscriptions.account_id', auth()->user()->account_id)
+            ->where('subscriptions.user_id', auth()->user()->user_id)
             ->where('subscriptions.payment_status', 'paid')
             ->where('subscriptions.ends_at', '>=', now())
             ->orderByDesc('subscriptions.ends_at')
@@ -180,7 +180,7 @@ class PlanController extends Controller
             if (!empty($payment)   &&   $payment['status'] == 'captured') {
                 // Expire previous active subscriptions
                 DB::table('subscriptions')
-                    ->where('account_id', auth()->user()->account_id)
+                    ->where('user_id', auth()->user()->user_id)
                     ->where('payment_status', 'paid')
                     ->whereDate('ends_at', '>=', now())
                     ->update([
@@ -191,7 +191,7 @@ class PlanController extends Controller
                 // Create new subscription
                 $subscription = SubscriptionModel::create([
                     'user_id'        => $userId,
-                    'account_id'     => auth()->user()->account_id,
+                    'user_id'     => auth()->user()->user_id,
                     'plan_id'        => $plan_id,
                     'payment_id'     => $payment_id,
                     'amount_paid'    => $payment['amount'] / 100, // Razorpay stores in paise
@@ -204,7 +204,7 @@ class PlanController extends Controller
                 // Record payment
                 DB::table('payments')->insert([
                     'user_id'         => $userId,
-                    'account_id'      => auth()->user()->account_id,
+                    'user_id'      => auth()->user()->user_id,
                     'subscription_id' => $subscription->subscription_id,
                     'plan_id'         => $plan_id,
                     'amount'          => $payment['amount'] / 100,

@@ -9,14 +9,13 @@ class DeleteInvoiceAction
 {
     public function __construct(
         protected InvoiceRepository $invoiceRepository
-    ) {
-    }
+    ) {}
 
     public function handle(string $invoiceCode): array
     {
         try {
             $deleted = $this->invoiceRepository->deleteForUserByCode($invoiceCode, auth()->id());
-
+            session()->flash('success', 'Invoice deleted successfully.');
             return [
                 'status' => 200,
                 'error' => $deleted > 0 ? 0 : 1,
