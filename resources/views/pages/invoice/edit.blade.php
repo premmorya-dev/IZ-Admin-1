@@ -917,7 +917,7 @@
                                 timer: 2000
                             }).then(function() {
                                 // Redirect after the alert closes
-                                window.location.href = "{{ route('invoice.list') }}";
+                                window.location.href = "{{ route('invoice.edit',['invoice_code' => $data['invoice']->invoice_code] ) }}";
                             });
 
 

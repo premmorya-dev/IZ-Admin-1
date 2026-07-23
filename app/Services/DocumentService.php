@@ -169,63 +169,72 @@ abstract class DocumentService
         return $document;
     }
 
-    public function generateDynamicItemRows($items, $currencySymbol)
-    {
-        $rows = '';
-        foreach ($items as $item) {
+  public function generateDynamicItemRows($items, $currencySymbol)
+{
+    $rows = '';
+    $index = 0;
 
-            $base = $item->rate * $item->quantity;
-            $discount = ($base / 100) * $item->discount;
-            $discountText = $discount > 0 ? "{$item->discount}% <br> {$currencySymbol}{$discount}" : '-';
+    foreach ($items as $item) {
 
-            $tax = (($base - $discount) / 100) * $item->tax;
-            $taxText = $tax > 0 ? "{$item->tax}% <br> {$currencySymbol}{$tax}" : '-';
+        $base = $item->rate * $item->quantity;
+        $discount = ($base / 100) * $item->discount;
+        $discountText = $discount > 0 ? "{$item->discount}%<br>{$currencySymbol}{$discount}" : '-';
 
-            $taxable = $base - $discount;
-            // Initialize
+        $tax = (($base - $discount) / 100) * $item->tax;
+        $taxText = $tax > 0 ? "{$item->tax}%<br>{$currencySymbol}{$tax}" : '-';
+
+        $taxable = $base - $discount;
+        // Initialize
+        $cgstPercent = 0;
+        $sgstPercent = 0;
+        $igstPercent = 0;
+
+        if ($this->same_state) {
+            // CGST + SGST
+            $cgstPercent = $item->tax / 2;
+            $sgstPercent = $item->tax / 2;
+            $igstPercent = 0;
+        } else {
+            // IGST only
             $cgstPercent = 0;
             $sgstPercent = 0;
-            $igstPercent = 0;
-
-            if ($this->same_state) {
-                // CGST + SGST
-                $cgstPercent = $item->tax / 2;
-                $sgstPercent = $item->tax / 2;
-                $igstPercent = 0;
-            } else {
-                // IGST only
-                $cgstPercent = 0;
-                $sgstPercent = 0;
-                $igstPercent = $item->tax;
-            }
-
-            // Calculate amounts
-            $cgst = ($taxable * $cgstPercent) / 100;
-            $sgst = ($taxable * $sgstPercent) / 100;
-            $igst = ($taxable * $igstPercent) / 100;
-
-            $cgst_text = $cgst > 0 ? "{$cgstPercent}% <br> {$currencySymbol}{$cgst}" : '-';
-            $sgst_text = $sgst > 0 ? "{$sgstPercent}% <br> {$currencySymbol}{$sgst}" : '-';
-            $igst_text = $igst > 0 ? "{$igstPercent}% <br> {$currencySymbol}{$igst}" : '-';
-
-            $hsn = $item->hsn ?? '-';
-            $item->description = $item->description ?? '';
-            $rows .= "<tr>
-                <td style='text-left:center;border: 1px solid #ddd; padding: 5px; width: 40%;'>{$item->name}<br><p style='font-size:10px;'>{$item->description}<p></td>
-                <td style='text-align:left;border: 1px solid #ddd; padding: 5px; width: 10%;'>{$hsn}</td>
-                <td style='text-align:left;border: 1px solid #ddd; padding: 5px; width: 10%;'>{$item->quantity}</td>
-                <td style='text-align:left;border: 1px solid #ddd; padding: 5px; width: 10%;'>{$currencySymbol}{$item->rate}</td>
-                <td style='border: 1px solid #ddd; padding: 5px; width: 10%;'>{$discountText}</td>
-                        <td style='border: 1px solid #ddd; padding: 5px; width: 10%;'>{$taxable}</td>
-                             <td style='border: 1px solid #ddd; padding: 5px; width: 10%;'>{$cgst_text}</td>
-                                  <td style='border: 1px solid #ddd; padding: 5px; width: 10%;'>{$sgst_text}</td>
-                                       <td style='border: 1px solid #ddd; padding: 5px; width: 10%;'>{$igst_text}</td>
-               
-                <td style='text-align:right;border: 1px solid #ddd; padding: 5px; width: 10%;'>{$currencySymbol}{$item->amount}</td>
-            </tr>";
+            $igstPercent = $item->tax;
         }
-        return $rows;
+
+        // Calculate amounts
+        $cgst = ($taxable * $cgstPercent) / 100;
+        $sgst = ($taxable * $sgstPercent) / 100;
+        $igst = ($taxable * $igstPercent) / 100;
+
+        $cgst_text = $cgst > 0 ? "{$cgstPercent}%<br>{$currencySymbol}{$cgst}" : '-';
+        $sgst_text = $sgst > 0 ? "{$sgstPercent}%<br>{$currencySymbol}{$sgst}" : '-';
+        $igst_text = $igst > 0 ? "{$igstPercent}%<br>{$currencySymbol}{$igst}" : '-';
+
+        $hsn = $item->hsn ?? '-';
+        $item->description = $item->description ?? '';
+
+        $rowBg = ($index % 2 === 0) ? '#ffffff' : '#F9FAFB';
+
+        $rows .= "<tr style='background-color:{$rowBg};'>
+            <td style='text-align:left; vertical-align:top; border-bottom:1px solid #E5E7EB; padding:6px 6px; width:28%;'>
+                <span style='font-size:9px; font-weight:bold; color:#111827;'>{$item->name}</span>" .
+                ($item->description !== '' ? "<br><span style='font-size:7.5px; color:#6B7280; line-height:1.3;'>{$item->description}</span>" : "") . "
+            </td>
+            <td style='text-align:left; vertical-align:top; border-bottom:1px solid #E5E7EB; padding:6px 6px; width:9%; font-size:8px; color:#374151;'>{$hsn}</td>
+            <td style='text-align:right; vertical-align:top; border-bottom:1px solid #E5E7EB; padding:6px 6px; width:6%; font-size:8px; color:#374151;'>{$item->quantity}</td>
+            <td style='text-align:right; vertical-align:top; border-bottom:1px solid #E5E7EB; padding:6px 6px; width:9%; font-size:8px; color:#374151;'>{$currencySymbol}{$item->rate}</td>
+            <td style='text-align:right; vertical-align:top; border-bottom:1px solid #E5E7EB; padding:6px 6px; width:9%; font-size:8px; color:#374151;'>{$discountText}</td>
+            <td style='text-align:right; vertical-align:top; border-bottom:1px solid #E5E7EB; padding:6px 6px; width:9%; font-size:8px; color:#374151;'>{$currencySymbol}{$taxable}</td>
+            <td style='text-align:right; vertical-align:top; border-bottom:1px solid #E5E7EB; padding:6px 6px; width:8%; font-size:8px; color:#374151;'>{$cgst_text}</td>
+            <td style='text-align:right; vertical-align:top; border-bottom:1px solid #E5E7EB; padding:6px 6px; width:8%; font-size:8px; color:#374151;'>{$sgst_text}</td>
+            <td style='text-align:right; vertical-align:top; border-bottom:1px solid #E5E7EB; padding:6px 6px; width:8%; font-size:8px; color:#374151;'>{$igst_text}</td>
+            <td style='text-align:right; vertical-align:top; border-bottom:1px solid #E5E7EB; padding:6px 6px; width:10%; font-size:9px; font-weight:bold; color:#111827;'>{$currencySymbol}{$item->amount}</td>
+        </tr>";
+
+        $index++;
     }
+    return $rows;
+}
 
     public function getAttribute($name)
     {

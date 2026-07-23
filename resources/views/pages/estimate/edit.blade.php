@@ -741,7 +741,7 @@
                                 timer: 2000
                             }).then(function() {
                                 // Redirect after the alert closes
-                                window.location.href = "{{ route('estimate.list') }}";
+                                window.location.href = "{{ route('estimate.list',['estimate_code' => $data['estimate']->estimate_code ]) }}";
                             });
 
 

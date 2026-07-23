@@ -9,7 +9,7 @@
                 <!-- Basic Info -->
                 <div class="iz-section">
                     <div class="iz-section-title">
-                        <div class="iz-icon-chip iz-chip-indigo"><i class="fas fa-info-circle"></i></div>
+                        <div class="iz-icon-chip iz-chip-indigo"><i class="fas fa-info-circle text-white"></i></div>
                         <div>
                             <h6>Basic Information</h6>
                             <span class="iz-sub">Name, description &amp; category</span>
@@ -59,7 +59,7 @@
                 <!-- Pricing & Stock -->
                 <div class="iz-section">
                     <div class="iz-section-title">
-                        <div class="iz-icon-chip iz-chip-emerald"><i class="fas fa-tags"></i></div>
+                        <div class="iz-icon-chip iz-chip-emerald"><i class="fas fa-tags text-white"></i></div>
                         <div>
                             <h6>Pricing &amp; Stock</h6>
                             <span class="iz-sub">Tax code, price &amp; inventory</span>
