@@ -55,7 +55,7 @@ class InvoiceData
         $dto->terms = $request->input('terms');
         $dto->currencyCode = $request->input('currency_code');
         $dto->templateId = $request->input('template_id');
-        $dto->upiId = $request->input('upi_id');
+        $dto->upiId =  $request->input('upi_id_payment_status') == 'on' ? $request->input('upi_id') : NULL ;
         $dto->displayShippingStatus = $request->boolean('display_shipping_status') ? 'Y' : 'N';
         $dto->sendStatus = $request->boolean('send_status');
         $dto->isRecurring = $request->boolean('is_recurring');

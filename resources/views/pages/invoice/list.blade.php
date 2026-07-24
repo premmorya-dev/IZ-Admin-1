@@ -1,11 +1,12 @@
 <x-default-layout>
 
-
-    <h2 class="py-3">Invoices</h2>
-
-    <!-- Accordion Container -->
-
-
+    <x-page-heading
+        title="Manage Invoice"
+        description=""
+        :breadcrumbs="[
+        ['label' => 'Invoices', 'url' => route('invoice.list')],
+       
+    ]" />
 
     @include('pages/invoice.filter')
     <div class="d-flex flex-column flex-md-row align-items-stretch align-items-md-center my-4 px-2 gap-2">
@@ -34,11 +35,9 @@
         <!-- Spacer for pushing Add button to right -->
         <div class="d-none d-md-block flex-grow-1"></div>
 
-        <!-- Add Button -->
-        <a class="btn btn-outline-primary btn-sm w-100 w-md-auto px-4 py-2 shadow-sm fw-semibold text-uppercase d-flex align-items-center justify-content-center gap-2"
-            id="add-action" href="{{ route('invoice.add') }}">
-            <i data-lucide="plus-circle"></i> Add New
-        </a>
+
+        <x-invoice.saas-button :href="route('invoice.add')" icon="plus-circle"> Add New</x-invoice.saas-button>
+
     </div>
 
 
@@ -94,7 +93,7 @@
                     </span>
                     <span></span>
                     <div class="d-flex align-items-center flex-wrap gap-1">
-                        To:  <a href="#" client-code="{{ $invoice->client_code }}" class="edit-client" title="Client Detail"> {{ $invoice->company_name ??  $invoice->client_name }} </a>
+                        To: <a href="#" client-code="{{ $invoice->client_code }}" class="edit-client" title="Client Detail"> {{ $invoice->company_name ??  $invoice->client_name }} </a>
 
 
                         @php
@@ -434,7 +433,7 @@
         </div>
     </div>
 
-  <script>
+    <script>
         $(document).on('click', '.edit-client', function(e) {
             e.preventDefault();
             $('.client-modal-body').empty();
@@ -456,7 +455,7 @@
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
                     beforeSend: function() {
-                      
+
                     },
                     success: function(response) {
 
@@ -466,7 +465,7 @@
                         $('#editClient-modal').on('shown.bs.modal', function() {
                             // Initialize Choices.js (always safe to re-init)
 
-                            ['#id_country_id', '#id_state_id', '#id_currency_code' ,'#id_shipping_state_id', '#id_shipping_country_id'].forEach(function(selector) {
+                            ['#id_country_id', '#id_state_id', '#id_currency_code', '#id_shipping_state_id', '#id_shipping_country_id'].forEach(function(selector) {
                                 const el = document.querySelector(selector);
                                 if (!el) return; // skip if element not found
 

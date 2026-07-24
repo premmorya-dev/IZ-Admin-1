@@ -731,16 +731,9 @@
         $(document).ready(function() {
 
             function generateBillNumber() {
-                let prefix = "{{ setting('bill_prefix') }}";
-                let now = new Date();
-                let formattedDate = now.getFullYear().toString() +
-                    (now.getMonth() + 1).toString().padStart(2, '0') +
-                    now.getDate().toString().padStart(2, '0') +
-                    now.getHours().toString().padStart(2, '0') +
-                    now.getMinutes().toString().padStart(2, '0');
-
-                let uniqueId = Math.floor(Math.random() * 9000 + 1000); // Random 4-digit
-                return `${prefix}-${formattedDate}-${uniqueId}`;
+                let bill_number  =  "{{ $data['bill_number'] }}";
+              
+                return bill_number;
             }
 
             function updateBillField() {

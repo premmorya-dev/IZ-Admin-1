@@ -1,7 +1,13 @@
 <x-default-layout>
 
 
-    <h2 class="py-3">Estimate</h2>
+    <x-page-heading
+        title="Manage Estimate"
+        description=""
+        :breadcrumbs="[
+        ['label' => 'Estimate', 'url' => route('estimate.list')]
+      
+    ]" />
 
     @include('pages/estimate.filter')
     <div class="d-flex flex-column flex-md-row align-items-stretch align-items-md-center my-4 px-2 gap-2">
@@ -35,6 +41,7 @@
             id="add-action" href="{{ route('estimate.add') }}">
             <i data-lucide="plus-circle"></i> Add New
         </a>
+        
     </div>
 
 

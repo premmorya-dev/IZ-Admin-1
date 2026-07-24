@@ -10,9 +10,14 @@
 
 
 
-    <h2 class="py-3">Add Invoices</h2>
 
-
+    <x-page-heading
+        title="Add Invoice"
+        description=""
+        :breadcrumbs="[
+        ['label' => 'Invoices', 'url' => route('invoice.list')],
+        ['label' => 'Add Invoice']
+    ]" />
     <form action="#" id="invoice-generate" method="POST">
         @csrf
 
@@ -109,7 +114,7 @@
             <div class="row mt-3 gx-4">
                 <div class="col-md-6 bg-blue" id="terms-section">
                     <label for="terms" class="form-label fw-semibold">Terms and Conditions:</label>
-                    <textarea name="terms" id="id_invoice_terms" class="form-control" placeholder="Enter Terms">{{ old('notes', setting('terms') ) }}</textarea>
+                    <textarea name="terms" id="id_invoice_terms" class="form-control" placeholder="Enter Terms">{{ old('terms', setting('terms') ) }}</textarea>
                 </div>
 
                 <div class="col-md-6 bg-blue" id="notes-section">

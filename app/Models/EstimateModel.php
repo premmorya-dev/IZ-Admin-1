@@ -52,6 +52,7 @@ class EstimateModel extends Model
         'sent_at',
         'item_json',
         'template_id',
+        'upi_id',
     ];
     public $sortable = [
         'user_id',

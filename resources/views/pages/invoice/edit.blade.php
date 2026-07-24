@@ -1,8 +1,16 @@
 <x-default-layout>
-    <link href="{{ asset('assets/css/is.css') }}" rel="stylesheet">
-
-    <h2 class="py-3">Edit Invoices</h2>
-
+   <x-page-heading
+    title="Edit Invoice"
+    description=""
+    :breadcrumbs="[
+        ['label' => 'Invoices', 'url' => route('invoice.list')],
+        [
+            'label' => 'Invoice #'.$data['invoice']->invoice_number,
+            'url' => route('invoice.edit', $data['invoice']->invoice_code)
+        ],
+        ['label' => 'Edit']
+    ]"
+/>
 
     <form action="#" id="invoice-generate" method="POST">
         @csrf

@@ -1,218 +1,172 @@
 <x-default-layout>
-    <link href="{{ asset('assets/css/is.css') }}" rel="stylesheet">
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <style>
-        #estimate_number {
-            transition: all 0.4s ease;
-            font-weight: 500;
-        }
-
-        /* CSS */
-        .custom-dropdown {
-            min-width: 220px;
-            width: 80vw;
-            /* Responsive width: 80% of viewport on mobile */
-            max-width: 300px;
-            /* Limit maximum width on larger screens */
-        }
-
-        /* Optional: fine-tune for very small screens */
-        @media (max-width: 400px) {
-            .custom-dropdown {
-                width: 90vw;
-            }
-        }
-    </style>
-    <h2 class="py-3">Edit Estimates</h2>
+ 
+	<x-page-heading
+    title="Edit Estimate"
+    description=""
+    :breadcrumbs="[
+        ['label' => 'Estimates', 'url' => route('estimate.list')],
+        [
+            'label' => 'Estimate #'.$data['estimate']->estimate_number,
+            'url' => route('estimate.edit', $data['estimate']->estimate_code)
+        ],
+        ['label' => 'Edit']
+    ]"
+/>
 
 
-    <form action="{{ route('estimate.update') }}" id="estimate-generate" method="POST">
+    <form action="{{ route('estimate.update') }}"id="estimate-generate" method="POST">
         @csrf
 
 
         <div class="page-header-fixed mb-3 d-flex justify-content-between align-items-center">
             <div><a href="{{ route('estimate.list') }}" class="btn btn-outline-secondary btn-sm"> <i data-lucide="arrow-left"></i> Back </a> </div>
-            <div class="d-flex justify-content-between">
-                <a href="#" estimate-code="{{ $data['estimate']->estimate_code }}" title="Preview Estimate" class="estimate-view-model btn btn-sm btn-outline-primary"><i class="fa-regular fa-eye text-default"></i> </a>
-                <a class="btn btn-sm btn-outline-primary" href="{{ route('estimate.download',['estimate_code' => $data['estimate']->estimate_code ]) }}?preview=true" target="__blank" title="Print Estimate"><i class="fa-solid fa-print  text-defaults"></i> </a>
-                <a class="btn btn-sm btn-outline-primary" href="{{ route('estimate.download',['estimate_code' => $data['estimate']->estimate_code ]) }}" title="Download Estimate"><i class="fa-solid fa-download text-defaults"></i> </a>
-            </div>
-            @include('pages/estimate/actions.update_estimate_action')
+            <div class="invoice-actions">
+                <a href="#"
+                    estimate-code="{{ $data['estimate']->estimate_code }}"
+                    class="estimate-view-model action-btn"
+                    title="Preview">
+                    <i class="fa-regular fa-eye"></i>
+                </a>
 
+                <a href="{{ route('estimate.download',['estimate_code'=>$data['estimate']->estimate_code]) }}?preview=true"
+                    target="_blank"
+                    class="action-btn"
+                    title="Print">
+                    <i class="fa-solid fa-print"></i>
+                </a>
+
+                <a href="{{ route('estimate.download',['estimate_code'=>$data['estimate']->estimate_code]) }}"
+                    class="action-btn"
+                    title="Download">
+                    <i class="fa-solid fa-download"></i>
+                </a>
+            </div>
+
+            @include('pages/estimate/actions.update_estimate_action')
         </div>
 
 
         <div class="row">
 
-            <div class="col-md-3 mt-3 text-md-start text-center">
-                <img src="{{ asset($data['setting']->logo_path) }}" style="height: 80px;">
+            <x-estimate.header :data="$data" />
+
+            <!-- From Address Section -->
+            <x-invoice.address-section :setting="$data['setting']" />
+
+            <div class="row g-4">
+
+                <div class="col-lg-6 col-md-6">
+                    <x-date
+                        id="expiry_date"
+                        name="issue_date"
+                        label="Issue Date"
+                        icon="calendar-event"
+                        placeholder="Select estimate issue date"
+                        value="{{ old('issue_date', $data['estimate']->issue_date) }}"
+                        required />
+                </div>
+
+                <div class="col-lg-6 col-md-6">
+                    <x-date
+                        id="expiry_date"
+                        name="expiry_date"
+                        label="Expiry Date"
+                        icon="calendar-check"
+                        placeholder="Select estimate due date"
+                        value="{{ old('expiry_date', $data['estimate']->expiry_date) }}"
+                        required />
+                </div>
+
             </div>
 
-            <!-- estimate Number with Mode -->
-            <div class="col-md-3 mt-3">
-                <label for="estimate_number" class="form-label d-flex justify-content-between align-items-center text-danger">
-                    <span>Estimate Number *</span>
-                </label>
-                <input type="text" class="form-control form-control-sm" id="estimate_number" value="{{ old('estimate_number', $data['estimate']->estimate_number ) }}" name="estimate_number" placeholder="Auto-generated">
-            </div>
+            <x-estimate.setting-switch :data="$data" />
 
-
-
-            <!-- Currency -->
-            <div class="col-md-3 mt-3">
-                <label for="currency" class="form-label text-danger">Select Currency *</label>
-                <select name="currency_code" id="currency_code" class="form-select">
+          <!-- UPI Dropdown (Hidden by default) -->
+            <div id="upiDropdownWrapper" class="mt-3" style="display: none;">
+                <label for="upi_id" class="form-label">Select UPI</label>
+                <select id="upi_id" name="upi_id" class="form-select">
                     <option value="">Please Select</option>
-                    @foreach($data['currencies'] as $currency)
-                    <option value="{{ $currency->currency_code }}" {{ old('currency_code',$data['estimate']->currency_code) == $currency->currency_code ? 'selected' : '' }}>
-                        {{ $currency->currency_name }}
+                    @foreach($data['upi_payment_id'] as $upi_payment)
+                    <option value="{{ $upi_payment->upi_id }}" {{ old('upi_id', $data['estimate']->upi_id  ?? '' ) == $upi_payment->upi_id ? 'selected' : '' }}>
+                        Name: {{ $upi_payment->upi_name }} | Id: {{ $upi_payment->upi_id }}
                     </option>
                     @endforeach
                 </select>
             </div>
 
-            <!-- Language -->
-            <div class="col-md-3 mt-3">
-                <label for="template" class="form-label text-danger">Template *</label>
-                <select class="form-select" id="template_id" name="template_id">
-                    <option value="">Please Select</option>
-                    @foreach($data['templates'] as $template )
-                    <option value="{{ $template->template_id }}" {{ old('template_id',$data['estimate']->template_id) == $template->template_id ? 'selected' : '' }}>{{ $template->template_name }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-
-            <!-- From Address Section -->
-            <div class="mt-2 col-md-6">
-                <div class="mt-8 ">
-                    <div class="mb-1 mt-2 d-flex justify-content-between">
-                        <h4 class="mb-1">From </h4>
-                            <input type="hidden" name="user_state_id" id="user_state_id" value="{{ setting('state_id') }}">
-                        <a href="{{ route('settings.edit') }}" target="__blank" style="text-decoration: none;"> ✏️ Edit Business Profile </a>
-                    </div>
-
-                    <div>
-                        @if( !empty($data['setting']->company_name) )
-                        {{ $data['setting']->company_name }} <br>
-                        @endif
-
-                        @if( !empty($data['setting']->address_1) )
-                        {{ $data['setting']->address_1 }} <br>
-                        @endif
-
-                        @if( !empty($data['setting']->address_2) )
-                        {{ $data['setting']->address_2 }} <br>
-                        @endif
-
-                        @if( !empty($data['setting']->state->state_name ) )
-                        {{ $data['setting']->state->state_name }}
-                        @endif
-
-
-                        @if( !empty($data['setting']->country->country_name ) )
-                        {{ $data['setting']->country->country_name }}
-                        @endif
-
-                        @if( !empty($data['setting']->pincode) )
-                        {{ $data['setting']->pincode }}
-                        @endif
-                    </div>
-                </div>
-
-                <!-- To Address Section -->
-                <div>
-                    <div class="mb-1 mt-4 d-flex justify-content-between align-items-center">
-                        <h4 class="mb-1 text-danger">To *</h4>
-                        <a href="{{ route('client.add') }}" target="__blank" class="clientActionBtn new-client" style="text-decoration: none;display:none;">✏️ New Client</a>
-                        <a href="#" onclick="event.preventDefault()" class="clientActionBtn change-client" style="text-decoration: none;">✏️ Change Client</a>
-                    </div>
-
-                    <div id="clientSearchBox">
-                        <input type="text" class="form-control " id="client" name="client_name" placeholder="Type client name, email, contact number to search client" autocomplete="off">
-                        <input type="hidden" name="client_id" id="client_id">
-                        <input type="hidden" name="client_state_id" id="client_state_id">
-                        <!-- Dropdown results -->
-                        <div id="clientList" class="list-group w-100 z-3 shadow-sm" style="max-height: 200px; overflow-y: auto; display: none;"></div>
-                    </div>
-
-                    <!-- Display client address here -->
-                    <div id="clientAddress" class="mt-3 border p-3 rounded bg-light position-relative" style="display: none;"></div>
-                </div>
-
-
-
-
-            </div>
-
-
-            <div class="col-md-6">
-
-
-                <div class="mt-3">
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="display_shipping_status" name="display_shipping_status"
-                            {{ old('display_shipping_status', !empty($data['estimate']->display_shipping_status) && $data['estimate']->display_shipping_status == 'Y' ? 'checked' : '') }}>
-
-                        <label class="form-check-label" for="display_shipping_status">Show Shipping</label>
-                    </div>
-                </div>
-                <div class="mt-3">
-                    <label for="issue_date" class="form-label text-danger">Issue Date *</label>
-
-                    <div class="input-group">
-                        <input type="text" id="issue_date" class="form-control" name="issue_date" value="{{ old('issue_date', $data['estimate']->issue_date )  }}" placeholder="Select estimate Issue Date">
-                        <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
-                    </div>
-                </div>
-
-                <div class="mt-3">
-                    <label for="expiry_date" class="form-label text-danger">Expiry Due *</label>
-                    <div class="input-group">
-                        <input type="text" id="expiry_date" class="form-control" name="expiry_date" value="{{ old('expiry_date', $data['estimate']->expiry_date )  }}" placeholder="Select estimate Due Date">
-                        <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
-                    </div>
-                </div>
-
-
-
-            </div>
-
-
 
             <!-- test -->
             <div class="container my-4">
-                <h4 class="mb-3 text-danger">Estimate Item Entry *</h4>
+                <h4 class="mb-3 text-danger">Item Entry *</h4>
 
 
 
                 <div id="form-container">
                     @php $itemCount = 0; @endphp
-                     @if(!empty($data['items']))
+                    @if(!empty($data['items']))
                     @foreach($data['items'] as $itemCount => $item)
                     @php $itemCount++; @endphp
-                    <div class="row g-3 p-3 border rounded shadow-sm bg-light align-items-start mb-3 mt-3 position-relative" data-item-id="{{ $itemCount }}">
+                    <div class="row bg-blue g-3 p-3 border rounded shadow-sm bg-light align-items-start mb-3 mt-3 position-relative" data-item-id="{{ $itemCount }}">
                         <div class="row w-100 g-2">
-                            <div class="col-12 col-md-6">
-                                <input type="text" name="item[{{ $itemCount }}][name]" value="{{ $item['name'] ?? '' }}" class="form-control form-control-sm  add-items" id="item-{{ $itemCount }}" item-id="{{ $itemCount }}" placeholder="Item Name & Description">
-                                <div id="item-list-{{ $itemCount }}" class="list-group" style="position: absolute; z-index: 1000;"></div>
+
+                            <!-- Item Name -->
+                            <div class="col-12 col-md-6 position-relative">
+                                <div id="item-list-{{ $itemCount }}" class="list-group" style="position: absolute; z-index: 1000;margin-top:35px;"></div>
+                                <div class="d-flex align-items-center">
+                                    <input type="text"
+                                        name="item[{{ $itemCount }}][name]"
+                                        value="{{ $item['name'] ?? '' }}"
+                                        placeholder="Search product or type manually"
+                                        class="form-control form-control-sm add-items"
+                                        autocomplete="off"
+                                        id="item-{{ $itemCount }}"
+                                        item-id="{{ $itemCount }}">
+                                    <span class="ms-2" title="Select from inventory or type manually." style="cursor: pointer;">
+                                        <i class="fas fa-question-circle text-primary"></i>
+                                    </span>
+                                </div>
                             </div>
+
+                            <!-- HSN -->
                             <div class="col-4 col-md-2">
-                                <input type="text" name="item[{{ $itemCount }}][hsn]" value="{{ $item['hsn'] ?? ''  }}" placeholder="HSN/SAC" class="form-control form-control-sm hsn" oninput="calculateestimate()">
+                                <input type="text"
+                                    name="item[{{ $itemCount }}][hsn]"
+                                    value="{{ $item['hsn'] ?? '' }}"
+                                    placeholder="HSN/SAC"
+                                    class="form-control form-control-sm hsn"
+                                    oninput="calculateestimate()">
                             </div>
+
+                            <!-- Quantity -->
                             <div class="col-4 col-md-2">
-                                <input type="number" name="item[{{ $itemCount }}][quantity]" value="{{ $item['quantity'] ?? '' }}" placeholder="Quantity" class="form-control form-control-sm quantity" oninput="calculateestimate()">
+                                <input type="number"
+                                    name="item[{{ $itemCount }}][quantity]"
+                                    value="{{ $item['quantity'] ?? '' }}"
+                                    placeholder="Quantity"
+                                    class="form-control form-control-sm quantity"
+                                    oninput="calculateestimate()">
                             </div>
+
+                            <!-- Rate -->
                             <div class="col-4 col-md-2">
-                                <input type="number" name="item[{{ $itemCount }}][rate]" value="{{ $item['rate'] ?? '' }}" placeholder="Rate" class="form-control form-control-sm rate" oninput="calculateestimate()">
+                                <input type="number"
+                                    name="item[{{ $itemCount }}][rate]"
+                                    value="{{ $item['rate'] ?? '' }}"
+                                    placeholder="Rate"
+                                    class="form-control form-control-sm rate"
+                                    oninput="calculateestimate()">
                             </div>
+
+
                         </div>
+
+
+
                         <div class="row w-100 g-2 mt-1 align-items-end">
+                            <!-- Discount -->
                             <div class="col-12 col-md-4">
                                 <div class="input-group input-group-sm w-100">
-                                    <select name="item[{{ $itemCount }}][discount]" class="form-select discount-select flex-grow-1" onchange="calculateestimate()">
+                                    <select name="item[{{ $itemCount }}][discount]" class="form-select discount-select flex-grow-1">
                                         <option value="0" {{ (isset($item['discount']) && $item['discount'] == 0) ? 'selected' : '' }}>No Discount</option>
                                         @foreach($data['discounts'] as $discount)
                                         <option value="{{ $discount->percent }}" discount-id="{{ $discount->discount_id }}" {{ (isset($item['discount']) && $item['discount'] == $discount->percent) ? 'selected' : '' }}>
@@ -223,11 +177,12 @@
                                     </select>
                                     <span class="input-group-text discount-amount">−$0.00</span>
                                 </div>
-
                             </div>
+
+                            <!-- Tax -->
                             <div class="col-12 col-md-4">
                                 <div class="input-group input-group-sm w-100">
-                                    <select name="item[{{ $itemCount }}][tax]" class="form-select tax-select flex-grow-1" onchange="calculateestimate()">
+                                    <select name="item[{{ $itemCount }}][tax]" class="form-select tax-select flex-grow-1">
                                         <option value="0" {{ (isset($item['tax']) && $item['tax'] == 0) ? 'selected' : '' }}>No Tax</option>
                                         @foreach($data['taxes'] as $tax)
                                         <option value="{{ $tax->percent }}" tax-id="{{ $tax->tax_id }}" {{ (isset($item['tax']) && $item['tax'] == $tax->percent) ? 'selected' : '' }}>
@@ -238,8 +193,9 @@
                                     </select>
                                     <span class="input-group-text tax-amount">+$0.00</span>
                                 </div>
-
                             </div>
+
+                            <!-- Amount -->
                             <div class="col-6 col-md-4">
                                 <input type="text" name="item[{{ $itemCount }}][amount]" value="{{ $item['amount'] }}" class="form-control form-control-sm amount" readonly>
                             </div>
@@ -253,11 +209,18 @@
                                     placeholder="Item Description"
                                     rows="2">{{ $item['description'] ?? '' }}</textarea>
                             </div>
-
-
                         </div>
+
+                        <!-- Remove Button -->
                         <div class="col-12">
-                            <button type="button" class="btn btn-outline btn-sm btn-outline-danger w-100" onclick="removeRow(this)"><i data-lucide="minus"></i> Remove</button>
+                            <button
+                                type="button"
+                                class="remove-item-btn"
+                                onclick="removeRow(this)"
+                                title="Remove Item">
+
+                                <i data-lucide="x"></i>
+
                         </div>
                     </div>
                     @endforeach
@@ -265,93 +228,40 @@
                 </div>
 
 
-                <button type="button" class="btn btn-outline btn-sm  btn-outline-primary w-100" onclick="addItemRow()"><i data-lucide="plus"></i> Add Item</button>
+
+                <x-invoice.add-item-button
+                    id="add-item-btn"
+                    text="Add Item"
+                    onclick="addItemRow()" />
 
                 <!-- estimate Summary Section -->
-                <div class="summary-box mt-5">
-                    <h5>Estimate Summary</h5>
-                    <div class="row">
-                        <div class="col-8 col-md-7 col-label">Subtotal:</div>
-                        <div class="col-4 col-md-5 text-end" id="subtotal">−$0.00</div>
-                    </div>
-                    <div class="row">
-                        <div class="col-8 col-md-7 col-label">Total Discount:</div>
-                        <div class="col-4 col-md-5 text-end" id="total-discount">−$0.00</div>
-                    </div>
-
-                    <div class="row same-state-class">
-                        <div class="col-8 col-md-7 col-label">Total CGST:</div>
-                        <div class="col-4 col-md-5 text-end" id="total-cgst">$0.00</div>
-                    </div>
-
-                    <div class="row same-state-class">
-                        <div class="col-8 col-md-7 col-label">Total SGST:</div>
-                        <div class="col-4 col-md-5 text-end" id="total-sgst">$0.00</div>
-                    </div>
-
-                    <div class="row diffrent-state-class">
-                        <div class="col-8 col-md-7 col-label">Total IGST:</div>
-                        <div class="col-4 col-md-5 text-end" id="total-igst">$0.00</div>
-                    </div>
-
-
-                    <div class="row">
-                        <div class="col-8 col-md-7 col-label">Total Tax:</div>
-                        <div class="col-4 col-md-5 text-end" id="total-tax">$0.00</div>
-                    </div>
-
-
-                    <div class="row">
-                        <div class="col-8 col-md-7 col-label">Grand Total:</div>
-                        <div class="col-4 col-md-5 text-end" id="grand-total">$0.00</div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-8 col-md-7 col-label">Round Off:</div>
-                        <div class="col-4 col-md-5 text-end" id="round-off">$0.00</div>
-                    </div>
-
-
-                    <div class="row">
-                        <div class="col-8 col-md-7 col-label">Final Amount:</div>
-                        <div class="col-4 col-md-5 text-end" id="remaining-balance">$0.00</div>
-                    </div>
-
-
-                </div>
-
-
-
+                <x-invoice.summary />
 
                 <input type="hidden" name="hidden_sub_total" value="" id="hidden_sub_total">
                 <input type="hidden" name="hidden_total_discount" value="" id="hidden_total_discount">
-
                 <input type="hidden" name="hidden_total_taxable" value="" id="hidden_total_taxable">
                 <input type="hidden" name="hidden_total_cgst" value="" id="hidden_total_cgst">
                 <input type="hidden" name="hidden_total_sgst" value="" id="hidden_total_sgst">
                 <input type="hidden" name="hidden_total_igst" value="" id="hidden_total_igst">
-
-
                 <input type="hidden" name="hidden_total_tax" value="" id="hidden_total_tax">
                 <input type="hidden" name="hidden_grand_total" value="" id="hidden_grand_total">
                 <input type="hidden" name="hidden_round_off" value="" id="hidden_round_off">
-
+                <input type="hidden" name="hidden_total_due" value="" id="hidden_total_due">
                 <input type="hidden" name="estimate_code" value="{{ $data['estimate']->estimate_code }}" id="estimate_code">
 
 
             </div>
             <!-- test -->
 
-
-            <div class="col-md-12 mt-3">
-                <div class="col-12">
+            <div class="row mt-3 gx-4">
+                <div class="col-md-6 bg-blue" id="terms-section">
                     <label for="terms" class="form-label fw-semibold">Terms and Conditions:</label>
                     <textarea id="id_estimate_terms" name="terms" class="form-control" placeholder="Enter Terms">{{ old('terms', $data['estimate']->terms ) }}</textarea>
                 </div>
 
-                <div class="col-12">
+                <div class="col-md-6 bg-blue" id="notes-section">
                     <label for="notes" class="form-label fw-semibold">Notes:</label>
-                    <textarea id="id_estimate_notes" name="notes" class="form-control ck-editor" placeholder="Enter Notes">{{ old('notes', $data['estimate']->notes ) }}</textarea>
+                    <textarea id="id_estimate_notes" name="notes" class="form-control" placeholder="Enter Notes">{{ old('notes', $data['estimate']->notes ) }}</textarea>
                 </div>
 
 
@@ -368,9 +278,7 @@
 
 
 
-
     </form>
-
 
     <!-- View Modal -->
     <div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
@@ -378,7 +286,7 @@
             <div class="modal-content rounded-4 shadow">
                 <div class="modal-header bg-primary text-white rounded-top-4 mb-3">
                     <h5 class="modal-title" id="viewModalLabel">
-                        View estimate
+                        View Estimate
                     </h5>
                     <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
@@ -388,7 +296,6 @@
             </div>
         </div>
     </div>
-
 
 
     <!-- Add Client Model -->
@@ -408,6 +315,7 @@
             </div>
         </div>
     </div>
+
     <!-- Edit Client Model -->
     <div class="modal fade" id="editClient-modal" tabindex="-1" aria-labelledby="editClientModalLabel" aria-hidden="true">
         <div class="modal-dialog  modal-xl">
@@ -464,12 +372,36 @@
             </div>
         </div>
     </div>
+  
 
 
 
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+     <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var upi = "{{ empty($data['estimate']->upi_id) ? 0 : 1 }}";
+
+            const upiDropdown = document.getElementById('upiDropdownWrapper');
+            const upiToggle = document.getElementById('useUpiToggle');
+
+            if (upi == '1') {
+                $('#useUpiToggle').prop('checked', true); //
+                upiDropdown.style.display = 'block';
+            }
+
+            upiToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    upiDropdown.style.display = 'block';
+                    upiDropdown.classList.add('animate__animated', 'animate__fadeIn');
+                } else {
+                    upiDropdown.style.display = 'none';
+                }
+            });
+        });
+    </script>
 
     <script>
         $(document).on('click', '.edit-client', function(e) {
@@ -575,7 +507,7 @@
     <script>
         $(document).ready(function() {
 
-            $('#template_id, #currency_code').select2({
+            $('#template_id, #upi_id, #currency_code').select2({
                 placeholder: "Please select",
                 allowClear: true
             });
@@ -741,7 +673,7 @@
                                 timer: 2000
                             }).then(function() {
                                 // Redirect after the alert closes
-                                window.location.href = "{{ route('estimate.list',['estimate_code' => $data['estimate']->estimate_code ]) }}";
+                                window.location.href = "{{ route('estimate.edit',['estimate_code' => $data['estimate']->estimate_code ]) }}";
                             });
 
 
@@ -879,13 +811,7 @@
                 $('#clientAddress').html(addressHTML + edit_client).show();
 
                 $('#currency_code').val(client.currency_code).trigger('change');
-                if (client.notes && client.notes.replace(/<[^>]*>/g, '').trim() !== '') {
-                    $('#id_estimate_notes').summernote('code', client.notes);
-                }
-
-                if (client.terms && client.terms.replace(/<[^>]*>/g, '').trim() !== '') {
-                    $('#id_estimate_terms').summernote('code', client.terms);
-                }
+               
                 $('#clientSearchBox').hide();
                 $('.change-client').show();
                 $('.new-client').hide();
@@ -1325,7 +1251,7 @@
 
             } else {
                 // Call your calculation if needed
-                calculateInvoice();
+                calculateestimate();
             }
         });
 
@@ -1362,7 +1288,7 @@
 
             } else {
                 // Call your calculation if needed
-                calculateInvoice();
+                calculateestimate();
             }
         });
 

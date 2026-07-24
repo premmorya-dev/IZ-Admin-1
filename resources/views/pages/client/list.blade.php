@@ -1,8 +1,13 @@
 <x-default-layout>
 
-    <h2 class="py-3">Client</h2>
 
-
+    <x-page-heading
+        title="Manage Client"
+        description=""
+        :breadcrumbs="[
+        ['label' => 'Client', 'url' => route('client.list')]
+      
+    ]" />
 
     <!-- Accordion Container -->
 
@@ -16,6 +21,8 @@
         <!-- Add Button -->
         <a class="btn btn-outline-primary btn-sm px-4 new-client py-2 shadow-sm fw-semibold text-uppercase d-flex align-items-center gap-2"
             id="add-action" href="{{ route('client.add') }}"> <i data-lucide="plus-circle"></i> Add New</a>
+
+            
 
     </div>
 

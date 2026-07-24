@@ -20,10 +20,17 @@ use ZipArchive;
 use App\Services\EstimateService;
 use App\Services\InvoiceService;
 use Illuminate\Validation\Rule;
+use App\Services\Invoice\DocumentSequenceService;
 
 
 class EstimateController extends Controller
 {
+
+    public function __construct(
+        protected DocumentSequenceService $documentSequenceService
+    ) {}
+
+
     public function index(Request $request)
     {
 
@@ -233,7 +240,10 @@ class EstimateController extends Controller
             $data['setting']->state = \DB::table('country_states')->where('state_id',  $data['setting']->state_id)->first();
         }
 
+        $data['upi_payment_id'] = \DB::table('upi_payment_id')
+            ->where('user_id', Auth::id())->orderBy('upi_name', 'ASC')->get();
 
+        $data['estimate_number'] = $this->documentSequenceService->preview(auth()->id(),'estimate');
 
         return view('pages/estimate.add', compact('data'));
     }
@@ -417,6 +427,7 @@ class EstimateController extends Controller
                 'round_off'      => $request->input('hidden_round_off'),
 
                 'notes'            => $request->input('notes'),
+                'upi_id'            => $request->input('upi_id_payment_status') == 'on' ? $request->input('upi_id') : NULL,
                 'terms'            => $request->input('terms'),
                 'currency_code'    => $request->input('currency_code'),
                 'item_json'        => json_encode($itemJson),
@@ -550,14 +561,11 @@ class EstimateController extends Controller
                 'issue_date' => $issueDate,
                 'expiry_date' => $expiryDate,
                 'status' => $status,
-
                 'taxable_value'        => $request->input('hidden_total_taxable'),
                 'cgst_amount'        => $request->input('hidden_total_cgst'),
                 'sgst_amount'        => $request->input('hidden_total_sgst'),
                 'igst_amount'        => $request->input('hidden_total_igst'),
                 'round_off'      => $request->input('hidden_round_off'),
-
-
                 'sub_total' => $subTotal,
                 'total_tax' => $totalTax,
                 'total_discount' => $totalDiscount,
@@ -566,17 +574,17 @@ class EstimateController extends Controller
                 'terms' => $terms,
                 'currency_code' => $currencyCode,
                 'item_json' => json_encode($itemJson),
-                'notes' => $notes,
-                'terms' => $terms,
                 'estimate_code' => $this->generateUniqueestimateCode(),
                 'template_id' => $template_id,
                 'display_shipping_status'      => $request->input('display_shipping_status') == 'on' ? 'Y' : 'N',
+                'upi_id'            => $request->input('upi_id_payment_status') == 'on' ? $request->input('upi_id') : NULL,
             ]);
 
             // Get the last inserted ID (estimate_id)
             $lastInsertedId = $estimate->estimate_id;
 
-
+        $this->documentSequenceService->generate(auth()->id(), 'estimate');
+        
             if ($request->has('send_status') && $request->input('send_status') == 'true') {
 
                 $last_notification_id = DB::table('estimate_notifications')->insertGetId([

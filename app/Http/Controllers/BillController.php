@@ -16,10 +16,16 @@ use App\Models\SettingModel;
 use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
 use ZipArchive;
-
+use App\Services\Invoice\DocumentSequenceService;
 
 class BillController extends Controller
 {
+
+    public function __construct(
+        protected DocumentSequenceService $documentSequenceService
+    ) {}
+
+
     public function index(Request $request)
     {
 
@@ -373,7 +379,7 @@ class BillController extends Controller
             $data['setting']->state = \DB::table('country_states')->where('state_id',  $data['setting']->state_id)->first();
         }
 
-
+        $data['bill_number'] = $this->documentSequenceService->preview(auth()->id(), 'bill');
         $data['states'] = \DB::table('country_states')->where('country_id', $data['setting']->country_id)->orderBy('state_name', 'ASC')->get();
         return view('pages/bill.add', compact('data'));
     }
@@ -756,6 +762,7 @@ class BillController extends Controller
 
             // Get the last inserted ID (bill_id)
             $lastInsertedId = $bill->bill_id;
+            $this->documentSequenceService->generate(auth()->id(), 'bill');
 
             if (!empty($lastInsertedId)) {
                 foreach ($itemJson as $item) {

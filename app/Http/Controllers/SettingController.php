@@ -13,7 +13,7 @@ use App\Models\SettingModel;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
 use Illuminate\Support\Facades\Storage;
-use App\Models\InvoiceSequence;
+use App\Models\DocumentSequence;
 
 
 class SettingController extends Controller
@@ -56,9 +56,10 @@ class SettingController extends Controller
         $data['upi_payment_id'] = \DB::table('upi_payment_id')->where('user_id',  Auth::id())->orderBy('upi_name', 'ASC')->get();
 
 
-        $invoiceSequence = InvoiceSequence::firstOrCreate(
+        $invoiceSequence = DocumentSequence::firstOrCreate(
             [
                 'user_id' => Auth::id(),
+                'document_type' => 'invoice',
             ],
             [
                 'prefix' => 'INV-',
@@ -68,7 +69,49 @@ class SettingController extends Controller
             ]
         );
 
-        return view('pages/settings.edit', compact('data', 'invoiceSequence'));
+
+        $estimateSequence = DocumentSequence::firstOrCreate(
+            [
+                'user_id' => Auth::id(),
+                'document_type' => 'estimate'
+            ],
+            [
+                'prefix' => 'EST-',
+                'padding' => 4,
+                'start_from' => 1,
+                'next_number' => 1,
+            ]
+        );
+
+        $billSequence = DocumentSequence::firstOrCreate(
+            [
+                'user_id' => Auth::id(),
+                'document_type' => 'bill'
+            ],
+            [
+                'prefix' => 'BILL-',
+                'padding' => 4,
+                'start_from' => 1,
+                'next_number' => 1,
+            ]
+        );
+
+        $expenseSequence = DocumentSequence::firstOrCreate(
+            [
+                'user_id' => Auth::id(),
+                'document_type' => 'expense'
+            ],
+            [
+                'prefix' => 'EXP-',
+                'padding' => 4,
+                'start_from' => 1,
+                'next_number' => 1,
+            ]
+        );
+
+
+
+        return view('pages/settings.edit', compact('data', 'invoiceSequence', 'estimateSequence', 'billSequence', 'expenseSequence'));
     }
 
 
@@ -278,19 +321,35 @@ class SettingController extends Controller
             'time_zone_id' => 28,
         ]);
 
-        InvoiceSequence::updateOrCreate(
-            [
+        $documents = [
+            'invoice',
+            'estimate',
+            'bill',
+            'expense',
+        ];
+
+        foreach ($documents as $document) {
+
+            $existing = DocumentSequence::where([
                 'user_id' => $id,
-            ],
-            [
-                'prefix' => $request->invoice_sequence_prefix,
-                'padding' => $request->invoice_sequence_padding,
-                'start_from' => $request->invoice_sequence_start_from,
-                'next_number' => InvoiceSequence::where('user_id', $id)->exists()
-                    ? InvoiceSequence::where('user_id', $id)->value('next_number')
-                    : $request->invoice_sequence_start_from,
-            ]
-        );
+                'document_type' => $document,
+            ])->first();
+
+            DocumentSequence::updateOrCreate(
+                [
+                    'user_id'       => $id,
+                    'document_type' => $document,
+                ],
+                [
+                    'prefix'      => $request->{$document . '_sequence_prefix'},
+                    'padding'     => $request->{$document . '_sequence_padding'},
+                    'start_from'  => $request->{$document . '_sequence_start_from'},
+                    'next_number' => $existing
+                        ? $existing->next_number
+                        : $request->{$document . '_sequence_start_from'},
+                ]
+            );
+        }
 
         return redirect()->back()->with('success', 'Settings updated successfully!');
     }

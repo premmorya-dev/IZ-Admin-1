@@ -12,7 +12,7 @@ use App\Services\Invoice\InvoiceRecurringService;
 use App\Services\Invoice\InvoiceStockService;
 use Illuminate\Support\Facades\DB;
 use Throwable;
-use App\Services\Invoice\InvoiceSequenceService;
+use App\Services\Invoice\DocumentSequenceService;
 
 class CreateInvoiceAction
 {
@@ -22,7 +22,7 @@ class CreateInvoiceAction
         protected InvoiceStockService $stockService,
         protected InvoiceRecurringService $recurringService,
         protected InvoiceNotificationService $notificationService,
-        protected InvoiceSequenceService $invoiceSequenceService
+        protected DocumentSequenceService $documentSequenceService
     ) {}
 
     public function handle(StoreInvoiceRequest $request): array
@@ -37,7 +37,7 @@ class CreateInvoiceAction
                     $invoiceData->toCreateAttributes($this->codeService->generate())
                 );
 
-                $this->invoiceSequenceService->generateInvoiceNumber(auth()->id());
+                $this->documentSequenceService->generate(auth()->id(), 'invoice');
 
                 $this->stockService->reduceForItems($userId, $normalizedItems);
 

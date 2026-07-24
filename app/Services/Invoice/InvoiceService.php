@@ -2,7 +2,7 @@
 
 namespace App\Services\Invoice;
 
-use App\Services\Invoice\InvoiceSequenceService;
+use App\Services\Invoice\DocumentSequenceService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 
@@ -10,7 +10,7 @@ class InvoiceService
 {
 
     public function __construct(
-        protected InvoiceSequenceService $invoiceSequenceService
+        protected DocumentSequenceService $documentSequenceService
     ) {
     }
 
@@ -113,7 +113,7 @@ class InvoiceService
         }
 
 
-        $data['invoice_number'] = $this->invoiceSequenceService->preview(auth()->id());
+        $data['invoice_number'] = $this->documentSequenceService->preview(auth()->id(),'invoice');
 
 
         return $data;

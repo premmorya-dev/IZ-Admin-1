@@ -1,35 +1,16 @@
 <x-default-layout>
-    <link href="{{ asset('assets/css/is.css') }}" rel="stylesheet">
-
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-    <style>
-        #estimate_number {
-            transition: all 0.4s ease;
-            font-weight: 500;
-        }
-
-        /* CSS */
-        .custom-dropdown {
-            min-width: 220px;
-            width: 80vw;
-            /* Responsive width: 80% of viewport on mobile */
-            max-width: 300px;
-            /* Limit maximum width on larger screens */
-        }
-
-        /* Optional: fine-tune for very small screens */
-        @media (max-width: 400px) {
-            .custom-dropdown {
-                width: 90vw;
-            }
-        }
-    </style>
-
-    <h2 class="py-3">Add Estimate</h2>
 
 
-    <form action="#" id="estimate-generate" method="POST">
+ <x-page-heading
+        title="Add Estimate"
+        description=""
+        :breadcrumbs="[
+        ['label' => 'Estimate', 'url' => route('estimate.list')],
+        ['label' => 'Add Estimate']
+    ]" />
+
+
+    <form action="{{ route('estimate.store') }}" id="estimate-generate" method="POST">
         @csrf
 
 
@@ -42,238 +23,219 @@
 
         <div class="row">
 
-            <div class="col-md-3 mt-3 text-md-start text-center">
-                <img src="{{ asset($data['setting']->logo_path) }}" style="height: 80px;">
+            <x-estimate.header :data="$data" />
+
+            <!-- From Address Section -->
+            <x-invoice.address-section :setting="$data['setting']" />
+
+            <div class="row g-4">
+
+                <div class="col-lg-6 col-md-6">
+                    <x-date
+                        id="expiry_date"
+                        name="issue_date"
+                        label="Issue Date"
+                        icon="calendar-event"
+                        placeholder="Select estimate issue date"
+                        value="{{ old('issue_date') }}"
+                        required />
+                </div>
+
+                <div class="col-lg-6 col-md-6">
+                    <x-date
+                        id="expiry_date"
+                        name="expiry_date"
+                        label="Expiry Date"
+                        icon="calendar-check"
+                        placeholder="Select estimate due date"
+                        value="{{ old('expiry_date') }}"
+                        required />
+                </div>
+
             </div>
 
-            <!-- Invoice Number with Mode -->
-            <div class="col-md-3 mt-3">
-                <label for="estimate_number" class="form-label d-flex justify-content-between align-items-center text-danger">
-                    <span>Estimate Number *</span>
-                    <div class="form-check form-switch m-0">
-                        <input class="form-check-input" type="checkbox" id="estimateModeSwitch" onchange="toggleEstimateMode(this)">
-                        <label class="form-check-label small" for="estimateModeSwitch">Custom</label>
-                    </div>
-                </label>
-                <input type="text" class="form-control form-control-sm" id="estimate_number" name="estimate_number" placeholder="Auto-generated" readonly>
-            </div>
+            <x-estimate.setting-switch :data="$data" />
 
-
-
-            <!-- Currency -->
-            <div class="col-md-3 mt-3">
-                <label for="currency" class="form-label text-danger">Select Currency *</label>
-                <select name="currency_code" id="currency_code" class="form-select">
+            <!-- UPI Dropdown (Hidden by default) -->
+            <div id="upiDropdownWrapper" class="mt-3" style="display: none;">
+                <label for="upi_id" class="form-label">Select UPI</label>
+                <select id="upi_id" name="upi_id" class="form-select">
                     <option value="">Please Select</option>
-                    @foreach($data['currencies'] as $currency)
-                    <option value="{{ $currency->currency_code }}" {{ old('currency_code', setting('default_currency') ) == $currency->currency_code ? 'selected' : '' }}>
-                        {{ $currency->currency_name }}
+                    @foreach($data['upi_payment_id'] as $upi_payment)
+                    <option value="{{ $upi_payment->upi_id }}" {{ old('upi_id') == $upi_payment->upi_id ? 'selected' : '' }}>
+                        Name: {{ $upi_payment->upi_name }} | Id: {{ $upi_payment->upi_id }}
                     </option>
                     @endforeach
                 </select>
             </div>
 
-            <!-- Language -->
-            <div class="col-md-3 mt-3">
-                <label for="template" class="form-label text-danger">Template *</label>
-                <select class="form-select" id="template_id" name="template_id">
-                    <option value="">Please Select</option>
-                    @foreach($data['templates'] as $template )
-                    <option value="{{ $template->template_id }}" {{ old('template_id', setting('default_template_id') ) == $template->template_id ? 'selected' : '' }}>{{ $template->template_name }}</option>
-                    @endforeach
-                </select>
-            </div>
-
-
-            <!-- From Address Section -->
-            <div class="mt-2 col-md-6">
-                <div class="mt-8 ">
-                    <div class="mb-1 mt-2 d-flex justify-content-between">
-                        <h4 class="mb-1">From </h4>
-                        <input type="hidden" name="user_state_id" id="user_state_id" value="{{ setting('state_id') }}">
-                        <a href="{{ route('settings.edit') }}" target="__blank" style="text-decoration: none;"> ✏️ Edit Business Profile </a>
-                    </div>
-
-                    <div>
-                        @if( !empty($data['setting']->company_name) )
-                        {{ $data['setting']->company_name }} <br>
-                        @endif
-
-                        @if( !empty($data['setting']->address_1) )
-                        {{ $data['setting']->address_1 }} <br>
-                        @endif
-
-                        @if( !empty($data['setting']->address_2) )
-                        {{ $data['setting']->address_2 }} <br>
-                        @endif
-
-                        @if( !empty($data['setting']->state->state_name ) )
-                        {{ $data['setting']->state->state_name }}
-                        @endif
-
-
-                        @if( !empty($data['setting']->country->country_name ) )
-                        {{ $data['setting']->country->country_name }}
-                        @endif
-
-                        @if( !empty($data['setting']->pincode) )
-                        {{ $data['setting']->pincode }}
-                        @endif
-                    </div>
-                </div>
-
-                <!-- To Address Section -->
-                <div>
-                    <div class="mb-1 mt-4 d-flex justify-content-between align-items-center">
-                        <h4 class="mb-1 text-danger">To *</h4>
-                        <a href="{{ route('client.add') }}" target="__blank" class="clientActionBtn new-client" style="text-decoration: none;display:none;">✏️ New Client</a>
-                        <a href="#" onclick="event.preventDefault()" class="clientActionBtn change-client" style="text-decoration: none;">✏️ Change Client</a>
-                    </div>
-
-                    <div id="clientSearchBox">
-                        <input type="text" class="form-control " id="client" name="client_name" placeholder="Type client name, email, contact number to search client" autocomplete="off">
-                        <input type="hidden" name="client_id" id="client_id">
-                        <input type="hidden" name="client_state_id" id="client_state_id">
-                        <!-- Dropdown results -->
-                        <div id="clientList" class="list-group w-100 z-3 shadow-sm" style="max-height: 200px; overflow-y: auto; display: none;"></div>
-                    </div>
-
-                    <!-- Display client address here -->
-                    <div id="clientAddress" class="mt-3 border p-3 rounded bg-light position-relative" style="display: none;"></div>
-                </div>
-
-
-
-
-            </div>
-
-
-            <div class="col-md-6">
-                <div class="mt-3">
-                    <div class="form-check form-switch">
-                        <input class="form-check-input" type="checkbox" id="display_shipping_status" name="display_shipping_status"
-                            {{ old('display_shipping_status',setting('shipping_status')) == 'Y' ? 'checked' : '' }}>
-
-                        <label class="form-check-label" for="display_shipping_status">Show Shipping</label>
-                    </div>
-                </div>
-                <div class="mt-3">
-                    <label for="issue_date" class="form-label text-danger">Estimate Date *</label>
-
-                    <div class="input-group">
-                        <input type="text" id="issue_date" class="form-control" name="issue_date" placeholder="Select Estimate Issue Date">
-                        <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
-                    </div>
-                </div>
-
-                <div class="mt-3">
-                    <label for="expiry_date" class="form-label text-danger">Expiry Date *</label>
-                    <div class="input-group">
-                        <input type="text" id="expiry_date" class="form-control" name="expiry_date" placeholder="Select Estimate Expiry Date">
-                        <span class="input-group-text"><i class="fas fa-calendar-alt"></i></span>
-                    </div>
-                </div>
-
-
-
-            </div>
-
-
 
             <!-- test -->
             <div class="container my-4">
-                <h4 class="mb-3 text-danger">Estimate Item Entry *</h4>
+                <h4 class="mb-3 text-danger">Item Entry *</h4>
 
 
 
-                <div id="form-container"></div>
+                <div id="form-container">
+                    @php $itemCount = 0; @endphp
+                    @if(!empty($data['items']))
+                    @foreach($data['items'] as $itemCount => $item)
+                    @php $itemCount++; @endphp
+                    <div class="row bg-blue g-3 p-3 border rounded shadow-sm bg-light align-items-start mb-3 mt-3 position-relative" data-item-id="{{ $itemCount }}">
+                        <div class="row w-100 g-2">
 
-                <button type="button" class="btn btn-outline btn-sm  btn-outline-primary w-100" onclick="addItemRow()"><i data-lucide="plus"></i> Add Item</button>
+                            <!-- Item Name -->
+                            <div class="col-12 col-md-6 position-relative">
+                                <div id="item-list-{{ $itemCount }}" class="list-group" style="position: absolute; z-index: 1000;margin-top:35px;"></div>
+                                <div class="d-flex align-items-center">
+                                    <input type="text"
+                                        name="item[{{ $itemCount }}][name]"
+                                        value="{{ $item['name'] ?? '' }}"
+                                        placeholder="Search product or type manually"
+                                        class="form-control form-control-sm add-items"
+                                        autocomplete="off"
+                                        id="item-{{ $itemCount }}"
+                                        item-id="{{ $itemCount }}">
+                                    <span class="ms-2" title="Select from inventory or type manually." style="cursor: pointer;">
+                                        <i class="fas fa-question-circle text-primary"></i>
+                                    </span>
+                                </div>
+                            </div>
 
-                <!-- Invoice Summary Section -->
-                <div class="summary-box mt-5">
-                    <h5>Estimate Summary</h5>
-                    <div class="row">
-                        <div class="col-8 col-md-7 col-label">Subtotal:</div>
-                        <div class="col-4 col-md-5 text-end" id="subtotal">−$0.00</div>
+                            <!-- HSN -->
+                            <div class="col-4 col-md-2">
+                                <input type="text"
+                                    name="item[{{ $itemCount }}][hsn]"
+                                    value="{{ $item['hsn'] ?? '' }}"
+                                    placeholder="HSN/SAC"
+                                    class="form-control form-control-sm hsn"
+                                    oninput="calculateestimate()">
+                            </div>
+
+                            <!-- Quantity -->
+                            <div class="col-4 col-md-2">
+                                <input type="number"
+                                    name="item[{{ $itemCount }}][quantity]"
+                                    value="{{ $item['quantity'] ?? '' }}"
+                                    placeholder="Quantity"
+                                    class="form-control form-control-sm quantity"
+                                    oninput="calculateestimate()">
+                            </div>
+
+                            <!-- Rate -->
+                            <div class="col-4 col-md-2">
+                                <input type="number"
+                                    name="item[{{ $itemCount }}][rate]"
+                                    value="{{ $item['rate'] ?? '' }}"
+                                    placeholder="Rate"
+                                    class="form-control form-control-sm rate"
+                                    oninput="calculateestimate()">
+                            </div>
+
+
+                        </div>
+
+
+
+                        <div class="row w-100 g-2 mt-1 align-items-end">
+                            <!-- Discount -->
+                            <div class="col-12 col-md-4">
+                                <div class="input-group input-group-sm w-100">
+                                    <select name="item[{{ $itemCount }}][discount]" class="form-select discount-select flex-grow-1">
+                                        <option value="0" {{ (isset($item['discount']) && $item['discount'] == 0) ? 'selected' : '' }}>No Discount</option>
+                                        @foreach($data['discounts'] as $discount)
+                                        <option value="{{ $discount->percent }}" discount-id="{{ $discount->discount_id }}" {{ (isset($item['discount']) && $item['discount'] == $discount->percent) ? 'selected' : '' }}>
+                                            {{ $discount->name }} ({{ $discount->percent }}%)
+                                        </option>
+                                        @endforeach
+                                        <option value="new">➕ Add New Discount</option>
+                                    </select>
+                                    <span class="input-group-text discount-amount">−$0.00</span>
+                                </div>
+                            </div>
+
+                            <!-- Tax -->
+                            <div class="col-12 col-md-4">
+                                <div class="input-group input-group-sm w-100">
+                                    <select name="item[{{ $itemCount }}][tax]" class="form-select tax-select flex-grow-1">
+                                        <option value="0" {{ (isset($item['tax']) && $item['tax'] == 0) ? 'selected' : '' }}>No Tax</option>
+                                        @foreach($data['taxes'] as $tax)
+                                        <option value="{{ $tax->percent }}" tax-id="{{ $tax->tax_id }}" {{ (isset($item['tax']) && $item['tax'] == $tax->percent) ? 'selected' : '' }}>
+                                            {{ $tax->name }} ({{ $tax->percent }}%)
+                                        </option>
+                                        @endforeach
+                                        <option value="new">➕ Add New Tax</option>
+                                    </select>
+                                    <span class="input-group-text tax-amount">+$0.00</span>
+                                </div>
+                            </div>
+
+                            <!-- Amount -->
+                            <div class="col-6 col-md-4">
+                                <input type="text" name="item[{{ $itemCount }}][amount]" value="{{ $item['amount'] }}" class="form-control form-control-sm amount" readonly>
+                            </div>
+
+                            <!-- Description (New Field) -->
+                            <div class="w-100 mt-2">
+                                <textarea
+                                    class="id_description"
+                                    name="item[{{ $itemCount }}][description]"
+                                    class="form-control form-control-sm"
+                                    placeholder="Item Description"
+                                    rows="2">{{ $item['description'] ?? '' }}</textarea>
+                            </div>
+                        </div>
+
+                        <!-- Remove Button -->
+                        <div class="col-12">
+                            <button
+                                type="button"
+                                class="remove-item-btn"
+                                onclick="removeRow(this)"
+                                title="Remove Item">
+
+                                <i data-lucide="x"></i>
+
+                        </div>
                     </div>
-                    <div class="row">
-                        <div class="col-8 col-md-7 col-label">Total Discount:</div>
-                        <div class="col-4 col-md-5 text-end" id="total-discount">−$0.00</div>
-                    </div>
-
-                    <div class="row same-state-class">
-                        <div class="col-8 col-md-7 col-label">Total CGST:</div>
-                        <div class="col-4 col-md-5 text-end" id="total-cgst">$0.00</div>
-                    </div>
-
-                    <div class="row same-state-class">
-                        <div class="col-8 col-md-7 col-label">Total SGST:</div>
-                        <div class="col-4 col-md-5 text-end" id="total-sgst">$0.00</div>
-                    </div>
-
-                    <div class="row diffrent-state-class">
-                        <div class="col-8 col-md-7 col-label">Total IGST:</div>
-                        <div class="col-4 col-md-5 text-end" id="total-igst">$0.00</div>
-                    </div>
-
-
-                    <div class="row">
-                        <div class="col-8 col-md-7 col-label">Total Tax:</div>
-                        <div class="col-4 col-md-5 text-end" id="total-tax">$0.00</div>
-                    </div>
-
-
-                    <div class="row">
-                        <div class="col-8 col-md-7 col-label">Grand Total:</div>
-                        <div class="col-4 col-md-5 text-end" id="grand-total">$0.00</div>
-                    </div>
-
-                    <div class="row">
-                        <div class="col-8 col-md-7 col-label">Round Off:</div>
-                        <div class="col-4 col-md-5 text-end" id="round-off">$0.00</div>
-                    </div>
-
-
-                    <div class="row">
-                        <div class="col-8 col-md-7 col-label">Final Amount:</div>
-                        <div class="col-4 col-md-5 text-end" id="remaining-balance">$0.00</div>
-                    </div>
-
+                    @endforeach
+                    @endif
                 </div>
 
 
 
+                <x-invoice.add-item-button
+                    id="add-item-btn"
+                    text="Add Item"
+                    onclick="addItemRow()" />
+
+                <!-- estimate Summary Section -->
+                <x-invoice.summary />
 
                 <input type="hidden" name="hidden_sub_total" value="" id="hidden_sub_total">
                 <input type="hidden" name="hidden_total_discount" value="" id="hidden_total_discount">
-
                 <input type="hidden" name="hidden_total_taxable" value="" id="hidden_total_taxable">
                 <input type="hidden" name="hidden_total_cgst" value="" id="hidden_total_cgst">
                 <input type="hidden" name="hidden_total_sgst" value="" id="hidden_total_sgst">
                 <input type="hidden" name="hidden_total_igst" value="" id="hidden_total_igst">
-
-
                 <input type="hidden" name="hidden_total_tax" value="" id="hidden_total_tax">
                 <input type="hidden" name="hidden_grand_total" value="" id="hidden_grand_total">
                 <input type="hidden" name="hidden_round_off" value="" id="hidden_round_off">
-
-
+                <input type="hidden" name="hidden_total_due" value="" id="hidden_total_due">
 
 
             </div>
             <!-- test -->
 
-
-            <div class="col-md-12 mt-3">
-                <div class="col-12">
+            <div class="row mt-3 gx-4">
+                <div class="col-md-6 bg-blue" id="terms-section">
                     <label for="terms" class="form-label fw-semibold">Terms and Conditions:</label>
-                    <textarea id="id_estimate_terms" name="terms" class="form-control" placeholder="Enter Terms">{{ old('notes', setting('terms') ) }}</textarea>
+                    <textarea id="id_estimate_terms" name="terms" class="form-control" placeholder="Enter Terms">{{ old('terms', setting('terms') ) }}</textarea>
                 </div>
 
-                <div class="col-12">
+                <div class="col-md-6 bg-blue" id="notes-section">
                     <label for="notes" class="form-label fw-semibold">Notes:</label>
-                    <textarea id="id_estimate_notes" name="notes" class="form-control ck-editor" placeholder="Enter Notes">{{ old('notes', setting('notes') ) }}</textarea>
+                    <textarea id="id_estimate_notes" name="notes" class="form-control" placeholder="Enter Notes">{{ old('notes', setting('notes') ) }}</textarea>
                 </div>
 
 
@@ -288,30 +250,26 @@
         <!-- Submit Button -->
 
 
+
+
     </form>
 
-    <!-- Invoice Mode Modal -->
-    <div class="modal fade" id="estimateModeModal" tabindex="-1" aria-labelledby="estimateModeModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Select Estimate Mode</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+    <!-- View Modal -->
+    <div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered">
+            <div class="modal-content rounded-4 shadow">
+                <div class="modal-header bg-primary text-white rounded-top-4 mb-3">
+                    <h5 class="modal-title" id="viewModalLabel">
+                        View Estimate
+                    </h5>
+                    <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div class="modal-body">
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="estimate_mode" id="auto_mode" value="auto" checked>
-                        <label class="form-check-label" for="auto_mode">Auto</label>
-                    </div>
-                    <div class="form-check">
-                        <input class="form-check-input" type="radio" name="estimate_mode" id="custom_mode" value="custom">
-                        <label class="form-check-label" for="custom_mode">Custom</label>
-                    </div>
+                <div id="view-record-form-body" class="mb-5">
+
                 </div>
             </div>
         </div>
     </div>
-
 
 
     <!-- Add Client Model -->
@@ -323,6 +281,24 @@
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="client-modal-body py-3 px-3">
+
+                </div>
+                <div class="modal-footer">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Client Model -->
+    <div class="modal fade" id="editClient-modal" tabindex="-1" aria-labelledby="editClientModalLabel" aria-hidden="true">
+        <div class="modal-dialog  modal-xl">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white rounded-top-3">
+                    <h4 class="modal-title" id="editClientModalLabel">Edit Client</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="editClient-modal-body py-3 px-3">
 
                 </div>
                 <div class="modal-footer">
@@ -351,23 +327,7 @@
         </div>
     </div>
 
-    <!-- Edit Client Model -->
-    <div class="modal fade" id="editClient-modal" tabindex="-1" aria-labelledby="editClientModalLabel" aria-hidden="true">
-        <div class="modal-dialog  modal-xl">
-            <div class="modal-content">
-                <div class="modal-header bg-primary text-white rounded-top-3">
-                    <h4 class="modal-title" id="editClientModalLabel">Edit Client</h4>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div class="editClient-modal-body py-3 px-3">
 
-                </div>
-                <div class="modal-footer">
-
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- Add Dicount Model -->
     <div class="modal fade" id="discount-modal" tabindex="-1" aria-labelledby="discountModalLabel" aria-hidden="true">
@@ -394,6 +354,87 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
+
+      <script>
+        function toggleInvoiceMode(elem) {
+            const input = document.getElementById('estimate_number');
+            if (elem.checked) {
+                input.removeAttribute('readonly');
+                input.placeholder = "Enter manually";
+                input.focus();
+            } else {
+                input.setAttribute('readonly', true);
+                input.value = '';
+                input.placeholder = "Auto-generated";
+            }
+        }
+    </script>
+
+    <script>
+        $(document).ready(function() {
+
+            function generateInvoiceNumber() {
+                let estimate_number = "{{ $data['estimate_number'] }}";
+
+                return estimate_number;
+            }
+
+            function updateInvoiceField() {
+                const isCustom = $("#invoiceModeSwitch").is(":checked");
+
+                if (isCustom) {
+                    let prefix = "{{ setting('invoice_prefix') }}";
+                    $("#estimate_number")
+                        .val(prefix)
+                        .prop("readonly", false)
+                        .removeClass("bg-light")
+                        .attr("placeholder", "Enter manually");
+                } else {
+                    let autoValue = generateInvoiceNumber();
+                    $("#estimate_number")
+                        .val(autoValue)
+                        .prop("readonly", false)
+                        .addClass("bg-light")
+                        .attr("placeholder", "Auto-generated");
+                }
+
+                $("#estimate_number").fadeOut(200).fadeIn(400);
+            }
+
+            // When the switch is toggled
+            $("#invoiceModeSwitch").change(function() {
+                updateInvoiceField();
+            });
+
+            // On page load
+            updateInvoiceField();
+        });
+    </script>
+
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var upi = "{{ empty($data['estimate']->upi_id) ? 0 : 1 }}";
+
+            const upiDropdown = document.getElementById('upiDropdownWrapper');
+            const upiToggle = document.getElementById('useUpiToggle');
+
+            if (upi == '1') {
+                $('#useUpiToggle').prop('checked', true); //
+                upiDropdown.style.display = 'block';
+            }
+
+            upiToggle.addEventListener('change', function() {
+                if (this.checked) {
+                    upiDropdown.style.display = 'block';
+                    upiDropdown.classList.add('animate__animated', 'animate__fadeIn');
+                } else {
+                    upiDropdown.style.display = 'none';
+                }
+            });
+        });
+    </script>
 
     <script>
         $(document).on('click', '.edit-client', function(e) {
@@ -485,66 +526,14 @@
 
 
     <script>
-        function toggleEstimateMode(elem) {
-            const input = document.getElementById('estimate_number');
-            if (elem.checked) {
-                input.removeAttribute('readonly');
-                input.placeholder = "Enter manually";
-                input.focus();
-            } else {
-                input.setAttribute('readonly', true);
-                input.value = '';
-                input.placeholder = "Auto-generated";
-            }
-        }
-    </script>
-
-    <script>
-        $(document).ready(function() {
-
-            function generateEstimateNumber() {
-                let prefix = "{{ setting('estimate_prefix') }}";
-                let now = new Date();
-                let formattedDate = now.getFullYear().toString() +
-                    (now.getMonth() + 1).toString().padStart(2, '0') +
-                    now.getDate().toString().padStart(2, '0') +
-                    now.getHours().toString().padStart(2, '0') +
-                    now.getMinutes().toString().padStart(2, '0');
-
-                let uniqueId = Math.floor(Math.random() * 9000 + 1000); // Random 4-digit
-                return `${prefix}-${formattedDate}-${uniqueId}`;
-            }
-
-            function updateEstimateField() {
-                const isCustom = $("#estimateModeSwitch").is(":checked");
-
-                if (isCustom) {
-                    $("#estimate_number")
-                        .val("")
-                        .prop("readonly", false)
-                        .removeClass("bg-light")
-                        .attr("placeholder", "Enter manually");
-                } else {
-                    let autoValue = generateEstimateNumber();
-                    $("#estimate_number")
-                        .val(autoValue)
-                        .prop("readonly", true)
-                        .addClass("bg-light")
-                        .attr("placeholder", "Auto-generated");
-                }
-
-                $("#estimate_number").fadeOut(200).fadeIn(400);
-            }
-
-            // When the switch is toggled
-            $("#estimateModeSwitch").change(function() {
-                updateEstimateField();
-            });
-
-            // On page load
-            updateEstimateField();
+        document.addEventListener('DOMContentLoaded', function() {
+            setTimeout(function() {
+                calculateestimate();
+            }, 300); // 300 milliseconds delay
         });
     </script>
+
+
 
 
 
@@ -556,7 +545,38 @@
                 allowClear: true
             });
 
+            $(document).on('click', '.estimate-view-model', function(e) {
+                e.preventDefault();
+                $('#viewModal').modal('show');
+                var estimate_code = $(this).attr('estimate-code')
 
+                try {
+
+                    $.ajax({
+                        url: "{{ route('estimate.view.model') }}",
+                        data: {
+                            estimate_code: estimate_code
+                        },
+                        type: 'POST',
+                        headers: {
+                            'X-CSRF-TOKEN': '{{ csrf_token()  }}'
+                        },
+                        beforeSend: function() {
+                            $('.loader').show()
+                        },
+                        complete: function() {
+                            $('.loader').hide()
+                        },
+                        success: function(response) {
+                            $('#view-record-form-body').html(response.html);
+                            $('#viewModal').modal('show');
+                        }
+
+                    });
+                } catch (error) {
+                    console.error('Error:', error);
+                }
+            });
         });
     </script>
 
@@ -584,6 +604,16 @@
                     ['style', ['bold', 'italic', 'underline']],
                     ['para', ['ul', 'ol', 'paragraph']],
                     ['insert', ['link']],
+                    ['view', ['codeview']]
+                ]
+            });
+
+            $('.id_description').summernote({
+                placeholder: 'Enter Description...',
+                height: 120,
+                toolbar: [
+                    ['style', ['bold', 'italic', 'underline']],
+                    ['para', ['ul', 'ol', 'paragraph']],
                     ['view', ['codeview']]
                 ]
             });
@@ -668,7 +698,7 @@
 
                             Swal.fire({
                                 icon: "success",
-                                title: "Estimate Generated Successfully. You Can Download!",
+                                title: "Estimate Updated Successfully. You Can Download!",
                                 text: response.message,
                                 toast: false,
                                 position: "center",
@@ -700,6 +730,9 @@
 
     <script>
         $(document).ready(function() {
+
+
+
             $('#client').on('keyup', function() {
                 let query = $(this).val();
 
@@ -719,7 +752,7 @@
                                     $('#clientList').append(`
                 <a href="javascript:void(0);" class="list-group-item list-group-item-action mb-2 rounded shadow-sm p-3 select-client"
                    data-id="${client.client_id}"
-                     data-client_code="${client.client_code}"
+                      data-client_code="${client.client_code}"
                    data-company_name="${client.company_name ?? ''}"
                    data-client_name="${client.client_name ?? ''}"
                    data-address_1="${client.address_1 ?? ''}"
@@ -738,19 +771,17 @@
                    
                    <div class="d-flex justify-content-between align-items-center">
                        <div>
-                            <h6 class="mb-1 fw-bold text-primary">
-                                <i class="bi bi-person-circle me-1"></i> ${client.client_name ?? ''}
-                            </h6>
-
-                            <p class="mb-1 text-dark small fw-semibold">
-                                <i class="bi bi-buildings me-1"></i>
-                                ${client.company_name || 'N/A'}
-                            </p>
+                           <h6 class="mb-1 fw-bold text-primary">
+                               <i class="bi bi-building me-1"></i> ${client.client_name ?? ''}
+                           </h6>
                            <p class="mb-0 text-muted small">
-                               <i class="bi bi-envelope me-1"></i> ${client.email ?? ''}
+                               <i class="bi bi-geo-alt me-1"></i> ${client.address_1 ?? ''}, ${client.city ?? ''}
                            </p>
                            <p class="mb-0 text-muted small">
-                               <i class="bi bi-telephone me-1"></i> ${client.phone ?? ''}
+                               <i class="bi bi-envelope me-1"></i> ${client.email ??  'N/A'}
+                           </p>
+                           <p class="mb-0 text-muted small">
+                               <i class="bi bi-telephone me-1"></i> ${client.phone ??  'N/A'}
                            </p>
                        </div>
                        <span class="badge bg-success rounded-pill align-self-start">${client.currency_code ?? ''}</span>
@@ -790,7 +821,6 @@
 
                 $('#client').val(client.client_name);
                 $('#client_id').val(client.id);
-                $('#client_state_id').val(client.state_id);
                 $('#clientList').hide();
 
                 let edit_client = `<button client-code="${client.client_code}"  class="edit-client btn btn-primary btn-sm rounded-circle d-flex align-items-center justify-content-center 
@@ -801,13 +831,7 @@
                 $('#clientAddress').html(addressHTML + edit_client).show();
 
                 $('#currency_code').val(client.currency_code).trigger('change');
-                if (client.notes && client.notes.replace(/<[^>]*>/g, '').trim() !== '') {
-                    $('#id_estimate_notes').summernote('code', client.notes);
-                }
-
-                if (client.terms && client.terms.replace(/<[^>]*>/g, '').trim() !== '') {
-                    $('#id_estimate_terms').summernote('code', client.terms);
-                }
+                
                 $('#clientSearchBox').hide();
                 $('.change-client').show();
                 $('.new-client').hide();
@@ -835,15 +859,12 @@
         });
     </script>
 
-
-
     <script>
         flatpickr("#issue_date", {
             enableTime: false,
             dateFormat: "Y-m-d", // Format: 2025-04-17 14:00
             time_24hr: true,
             defaultDate: "today"
-
         });
 
         flatpickr("#expiry_date", {
@@ -861,39 +882,40 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const discountOptions = `{!! collect($data['discounts'])->map(function($d) {
-        return "<option value='" . $d->percent . "' discount-id='" . $d->discount_id . "'>" . e($d->name) . " (" . $d->percent . "%)</option>";
-    })
-    ->prepend("<option value='0'>No Discount</option>")   // first option at top
-    ->push("<option value='new'>➕ Add New Discount</option>") // last option at bottom
-    ->implode('') !!}`;
+        return "<option value='" . $d->percent . "' discount-id='" . $d->discount_id . "'  >" . e($d->name) . " (" . $d->percent . "%)</option>";
+    })->prepend("<option value='0'>No Discount</option>")->implode('') !!}`;
     </script>
-
 
     <script>
         const taxOptions = `{!! collect($data['taxes'])->map(function($t) {
-        return "<option value='" . $t->percent . "' tax-id='" . $t->tax_id . "'>" . e($t->name) . " (" . $t->percent . "%)</option>";
-    })
-    ->prepend("<option value='0'>No Tax</option>")   // Top option
-    ->push("<option value='new'>➕ Add New Tax</option>") // Bottom option
-    ->implode('') !!}`;
+        return "<option value='" . $t->percent . "' tax-id='" . $t->tax_id . "' >" . e($t->name) . " (" . $t->percent . "%)</option>";
+    })->prepend("<option value='0'>No Tax</option>")->implode('') !!}`;
     </script>
+
 
     <script>
         const currencies = @json($data['currencies']);
+        const currencySymbols = Object.fromEntries(
+            currencies.map(cur => [cur.currency_code, cur.currency_symbol])
+        );
 
-        let currencySymbols = {};
-        currencies.forEach(cur => {
-            currencySymbols[cur.code] = cur.symbol;
-        });
 
-        let itemCount = 0;
+        var itemCount = "{{ $itemCount }}";
         let currencySymbol = '$'; // Default currency
 
-        function changeCurrency(currency) {
-            let symbol = currencySymbols[currency] || '$';
+        $(document).ready(function() {
+            $(document).on("change", '#currency_code', function(e) {
+                let symbol = currencySymbols[this.value] || '$';
+                currencySymbol = symbol;
+                calculateestimate();
+            });
+
+            let symbol = currencySymbols[$('#currency_code').val()] || '$';
             currencySymbol = symbol;
-            calculateEstimate(); // Refresh all amounts with new symbol
-        }
+            calculateestimate();
+        });
+
+
 
         function addItemRow() {
             itemCount++;
@@ -905,23 +927,23 @@
 
             itemRow.innerHTML = `
       <div class="row w-100 g-2">
-        
+       
+      
       
        <div class="col-12 col-md-6">
-          <input type="text" name="item[${itemCount}][name]" placeholder="Item Name & Description" class="form-control form-control-sm add-items" id="item-${itemCount}" item-id="${itemCount}"  >
-          <div id="item-list-${itemCount}" class="list-group" style="position: absolute; z-index: 1000;"></div>
-        
+          <input type="text" name="item[${itemCount}][name]" placeholder="Item Name & Description" class="form-control form-control-sm add-items" id="item-${itemCount}" item-id="${itemCount}" >
+            <div id="item-list-${itemCount}" class="list-group" style="position: absolute; z-index: 1000;"></div>
         </div>
 
          <div class="col-4 col-md-2">
-          <input type="text" name="item[${itemCount}][hsn]" placeholder="HSN/SAC" oninput="calculateEstimate()" class="form-control form-control-sm hsn">
+          <input type="text" name="item[${itemCount}][hsn]" placeholder="HSN/SAC" oninput="calculateestimate()" class="form-control form-control-sm hsn">
         </div>
 
         <div class="col-4 col-md-2">
-          <input type="number" name="item[${itemCount}][quantity]" placeholder="Quantity" oninput="calculateEstimate()" class="form-control form-control-sm quantity">
+          <input type="number" name="item[${itemCount}][quantity]" placeholder="Quantity" oninput="calculateestimate()" class="form-control form-control-sm quantity">
         </div>
         <div class="col-4 col-md-2">
-          <input type="number" name="item[${itemCount}][rate]" placeholder="Rate" oninput="calculateEstimate()" class="form-control form-control-sm rate">
+          <input type="number" name="item[${itemCount}][rate]" placeholder="Rate" oninput="calculateestimate()" class="form-control form-control-sm rate">
         </div>
 
 
@@ -929,8 +951,9 @@
       <div class="row w-100 g-2 mt-1 align-items-end">
           <div class="col-12 col-md-4">
         <div class="input-group input-group-sm w-100">
-          <select name="item[${itemCount}][discount]" class="form-select discount-select flex-grow-1" onchange="calculateEstimate()">
+          <select name="item[${itemCount}][discount]" class="form-select discount-select flex-grow-1" onchange="calculateestimate()">
             ${discountOptions}
+             <option value="new">➕ Add New Discount</option>
           </select>
           <span class="input-group-text discount-amount">−${currencySymbol}0.00</span>
         </div>
@@ -938,8 +961,9 @@
         <div class="col-12 col-md-4">
         
 <div class="input-group input-group-sm w-100">
-    <select name="item[${itemCount}][tax]" class="form-select tax-select flex-grow-1" onchange="calculateEstimate()">
+    <select name="item[${itemCount}][tax]" class="form-select tax-select flex-grow-1" onchange="calculateestimate()">
         ${taxOptions}
+        <option value="new">➕ Add New Tax</option>
     </select>
     <span class="input-group-text tax-amount">+${currencySymbol}0.00</span>
 </div>
@@ -949,7 +973,7 @@
         </div>
       </div>
 
-           <div class="w-100 mt-2">
+         <div class="w-100 mt-2">
                                 <textarea
                                         class="id_description"
                                         name="item[${itemCount}][description]"
@@ -978,8 +1002,7 @@
             });
         }
 
-
-        function calculateEstimate() {
+        function calculateestimate() {
             let subtotal = 0;
             let totalDiscount = 0;
             let totalTax = 0;
@@ -1101,11 +1124,10 @@
 
         }
 
-
         function removeRow(button) {
             const itemBlock = button.closest('[data-item-id]');
             if (itemBlock) itemBlock.remove();
-            calculateEstimate();
+            calculateestimate();
         }
     </script>
 
@@ -1117,6 +1139,7 @@
             }
         }
     </script>
+
 
 
 
@@ -1163,6 +1186,8 @@
                 const taxIdVal = $(this).data('tax_id'); // tax ID
                 const discountIdVal = $(this).data('discount_id');
 
+                console.log(taxIdVal)
+
                 // c) Set the input value (the <input id="item-3">) to the product name:
                 $(`#item-${rowIdx}`).val(itemName);
 
@@ -1183,6 +1208,8 @@
                 $row.find('.discount-select option[discount-id="' + discountIdVal + '"]').prop('selected', true);
                 $row.find('.discount-select').trigger('change');
 
+
+
                 // g) (Optional) If you need to submit the actual DB item_id to the server,
                 //    either create a hidden <input> or reuse an existing one:
                 if ($(`#hidden-item-id-${rowIdx}`).length === 0) {
@@ -1196,8 +1223,8 @@
                     $(`#hidden-item-id-${rowIdx}`).val(dbItemId);
                 }
 
-                // h) Recompute invoice totals:
-                calculateEstimate();
+                // h) Recompute estimate totals:
+                calculateestimate();
             });
 
 
@@ -1209,6 +1236,8 @@
 
         });
     </script>
+
+
 
 
     <script>
@@ -1244,7 +1273,7 @@
 
             } else {
                 // Call your calculation if needed
-                calculateEstimate();
+                calculateestimate();
             }
         });
 
@@ -1281,7 +1310,7 @@
 
             } else {
                 // Call your calculation if needed
-                calculateEstimate();
+                calculateestimate();
             }
         });
 
@@ -1366,6 +1395,7 @@
 
         });
     </script>
+
 
 
 

@@ -16,10 +16,15 @@ use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Storage;
 use Barryvdh\DomPDF\Facade\Pdf;
 use ZipArchive;
-
+use App\Services\Invoice\DocumentSequenceService;
 
 class ExpenseController extends Controller
 {
+
+    public function __construct(
+        protected DocumentSequenceService $documentSequenceService
+    ) {}
+
     public function index(Request $request)
     {
 
@@ -323,7 +328,7 @@ class ExpenseController extends Controller
             ->orderBy('name', 'ASC')->get();
 
 
-
+        $data['expense_number'] = $this->documentSequenceService->preview(auth()->id(), 'expense');
 
         return view('pages/expense.add', compact('data'));
     }
@@ -655,6 +660,7 @@ class ExpenseController extends Controller
             // Get the last inserted ID (expense_id)
             $lastInsertedId = $expense->expense_id;
 
+            $this->documentSequenceService->generate(auth()->id(), 'expense');
             if (!empty($lastInsertedId) && $request->has('is_recurring')) {
                 $recurring_data['expense_id'] =  $lastInsertedId;
                 $recurring_data['user_id'] =  Auth::id();

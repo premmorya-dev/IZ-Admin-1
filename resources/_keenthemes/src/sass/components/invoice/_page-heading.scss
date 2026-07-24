@@ -1,0 +1,89 @@
+
+    .izy-page-header-breadcrumb {
+        position: relative;
+        z-index: 9999;
+    }
+
+    .izy-page-header-breadcrumb a {
+        pointer-events: auto;
+    }
+
+    /* ===== Page Header Component ===== */
+    .izy-page-header {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        margin-bottom: 1.25rem;
+        padding-bottom: 0.75rem;
+        border-bottom: 1px solid #edf0f5;
+    }
+
+    .izy-page-title {
+        font-size: 1.2rem;
+        font-weight: 700;
+        color: #111827;
+        margin: 0;
+        line-height: 1.3;
+        letter-spacing: -0.01em;
+    }
+
+    .izy-page-desc {
+        font-size: 0.8125rem;
+        color: #6b7280;
+        margin: 0;
+        line-height: 1.4;
+    }
+
+    /* Breadcrumb — same working styles as before, just compact */
+    .izy-breadcrumb-wrap {
+        margin-bottom: 2px;
+    }
+
+    .izy-breadcrumb {
+        --bs-breadcrumb-divider: '›';
+        font-size: 0.75rem;
+        font-weight: 500;
+        margin: 0;
+        padding: 0;
+        background: transparent;
+        border: none;
+    }
+
+    .izy-breadcrumb .breadcrumb-item a {
+        color: #9ca3af;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+    }
+
+    .izy-breadcrumb .breadcrumb-item a:hover {
+        color: #4f46e5;
+        text-decoration: underline;
+    }
+
+    .izy-breadcrumb .breadcrumb-item i {
+        font-size: 0.85rem;
+    }
+
+    .izy-breadcrumb .breadcrumb-item.active {
+        color: #6b7280;
+        font-weight: 600;
+    }
+
+    .izy-breadcrumb .breadcrumb-item+.breadcrumb-item::before {
+        content: var(--bs-breadcrumb-divider, "›");
+        color: #d1d5db;
+        padding-right: 0.4rem;
+    }
+
+    /* Mobile: prevent overflow on long breadcrumb trails */
+    @media (max-width: 576px) {
+        .izy-breadcrumb {
+            white-space: nowrap;
+            overflow-x: auto;
+        }
+    }
+
+
+

@@ -1,27 +1,27 @@
 <x-default-layout>
 
- 
+
 
     <div class="settings-shell">
 
         <form action="{{ route('settings.update') }}" method="POST" enctype="multipart/form-data" id="settingsForm">
             @csrf
 
-             <div class="page-header-fixed mb-3 d-flex justify-content-between align-items-center">
-                    <div><a href="{{ route('dashboard') }}" class="btn btn-outline-secondary btn-sm"> <i data-lucide="arrow-left"></i> Back </a> </div>
-                    <button type="submit" class="btn btn-primary btn-sm "><i data-lucide="save"></i> Save Settings</button>
-                </div>
+            <div class="page-header-fixed mb-3 d-flex justify-content-between align-items-center">
+                <div><a href="{{ route('dashboard') }}" class="btn btn-outline-secondary btn-sm"> <i data-lucide="arrow-left"></i> Back </a> </div>
+                <button type="submit" class="btn btn-primary btn-sm "><i data-lucide="save"></i> Save Settings</button>
+            </div>
             <div class="settings-topbar">
                 <div>
                     <h4>Business Settings</h4>
                     <p>Manage your company profile, invoicing rules, branding and alerts.</p>
                 </div>
-               
+
             </div>
 
             <div class="row g-4">
 
-                  {{-- ===================== TAB NAV ===================== --}}
+                {{-- ===================== TAB NAV ===================== --}}
                 <div class="col-lg-3">
                     <div class="nav flex-lg-column settings-tabs" id="settingsTab" role="tablist" aria-orientation="vertical">
                         <button class="nav-link active tab-color-1" id="tab-general-btn" data-bs-toggle="pill" data-bs-target="#tab-general" type="button" role="tab">
@@ -38,6 +38,15 @@
                                 <small>Numbering, tax, defaults</small>
                             </span>
                         </button>
+
+                        <button class="nav-link tab-color-2" id="tab-sequence-btn" data-bs-toggle="pill" data-bs-target="#tab-sequence" type="button" role="tab">
+                            <span class="tab-icon-wrap"><i class="bi bi-123"></i></span>
+                            <span>
+                                <span class="tab-label">Automatic Numbering</span>
+                                <small>Manage document number sequences</small>
+                            </span>
+                        </button>
+
                         <button class="nav-link tab-color-3" id="tab-branding-btn" data-bs-toggle="pill" data-bs-target="#tab-branding" type="button" role="tab">
                             <span class="tab-icon-wrap"><i class="bi bi-image"></i></span>
                             <span>
@@ -212,69 +221,57 @@
                         </div>
 
                         {{-- ===================== INVOICING ===================== --}}
+                        <div class="tab-pane fade" id="tab-sequence" role="tabpanel">
+
+                            <x-settings.document-sequence
+                                title="Invoice Numbering"
+                                description="Configure how invoice numbers are automatically generated."
+                                label="Invoice"
+                                name="invoice_sequence"
+                                placeholder="INV-"
+                                :sequence="$invoiceSequence" />
+
+                            <x-settings.document-sequence
+                                class="mt-5"
+                                title="Estimate Numbering"
+                                description="Configure how estimate numbers are automatically generated."
+                                label="Estimate"
+                                name="estimate_sequence"
+                                placeholder="EST-"
+                                :sequence="$estimateSequence" />
+
+                            <x-settings.document-sequence
+                                class="mt-5"
+                                title="Bill Numbering"
+                                description="Configure how bill numbers are automatically generated."
+                                label="Bill"
+                                name="bill_sequence"
+                                placeholder="BILL-"
+                                :sequence="$billSequence" />
+
+                            <x-settings.document-sequence
+                                class="mt-5"
+                                title="Expense Numbering"
+                                description="Configure how expense numbers are automatically generated."
+                                label="Expense"
+                                name="expense_sequence"
+                                placeholder="EXP-"
+                                :sequence="$expenseSequence" />
+
+
+
+                        </div>
+
+                        {{-- ===================== INVOICING ===================== --}}
                         <div class="tab-pane fade" id="tab-invoicing" role="tabpanel">
 
-                            <div class="set-card">
-                                <h6 class="set-card-title">Invoice Numbering</h6>
-                                <p class="set-card-desc">Configure how invoice numbers are automatically generated.</p>
-
-                                <div class="row g-3">
-                                    <div class="col-md-3 set-field">
-                                        <label class="form-label">Invoice Prefix <span class="text-danger">*</span></label>
-                                        <input type="text" name="invoice_sequence_prefix" class="form-control @error('invoice_sequence_prefix') is-invalid @enderror" value="{{ old('invoice_sequence_prefix', $invoiceSequence->prefix) }}" placeholder="INV-">
-                                        <small class="set-hint">Example: INV-, TAX-, SALE-</small>
-                                        @error('invoice_sequence_prefix')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                                    </div>
-
-                                    <div class="col-md-3 set-field">
-                                        <label class="form-label">Number Padding <span class="text-danger">*</span></label>
-                                        <select name="invoice_sequence_padding" class="form-select @error('invoice_sequence_padding') is-invalid @enderror">
-                                            @for($i = 1; $i <= 10; $i++)
-                                                <option value="{{ $i }}" {{ old('invoice_sequence_padding', $invoiceSequence->padding) == $i ? 'selected' : '' }}>
-                                                {{ $i }} Digit{{ $i > 1 ? 's' : '' }}
-                                                </option>
-                                                @endfor
-                                        </select>
-                                        <small class="set-hint">Example: 0001, 00001</small>
-                                        @error('invoice_sequence_padding')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                                    </div>
-
-                                    <div class="col-md-3 set-field">
-                                        <label class="form-label">Start From <span class="text-danger">*</span></label>
-                                        <input type="number" min="1" name="invoice_sequence_start_from" class="form-control @error('invoice_sequence_start_from') is-invalid @enderror" value="{{ old('invoice_sequence_start_from', $invoiceSequence->start_from) }}" {{ $invoiceSequence->next_number != $invoiceSequence->start_from ? 'readonly' : '' }}>
-                                        <small class="set-hint">Starting invoice sequence number.</small>
-                                        @error('invoice_sequence_start_from')<div class="invalid-feedback">{{ $message }}</div>@enderror
-                                    </div>
-
-                                    <div class="col-md-3 set-field">
-                                        <label class="form-label">Next Invoice Number</label>
-                                        <input type="text" class="form-control fw-bold bg-light" value="{{ $invoiceSequence->preview() }}" readonly>
-                                    </div>
-
-                                  
-                                </div>
-                            </div>
 
                             <div class="set-card">
                                 <h6 class="set-card-title">Prefixes &amp; Defaults</h6>
                                 <p class="set-card-desc">Default prefixes, currency, tax, discount and UPI applied to new documents.</p>
 
                                 <div class="row g-3">
-                                    <div class="col-md-3 set-field">
-                                        <label for="estimate_prefix" class="form-label">
-                                            Estimate Prefix
-                                            <i class="bi bi-question-circle-fill set-help" data-bs-toggle="tooltip" title="Prefix added before each estimate number."></i>
-                                        </label>
-                                        <input type="text" name="estimate_prefix" id="estimate_prefix" class="form-control" value="{{ old('estimate_prefix', $data['setting']->estimate_prefix ?? '') }}">
-                                    </div>
-
-                                    <div class="col-md-3 set-field">
-                                        <label for="expense_prefix" class="form-label">
-                                            Expense Prefix
-                                            <i class="bi bi-question-circle-fill set-help" data-bs-toggle="tooltip" title="Prefix used for expense records. Example: EXP-001."></i>
-                                        </label>
-                                        <input type="text" name="expense_prefix" id="expense_prefix" class="form-control" value="{{ old('expense_prefix', $data['setting']->expense_prefix ?? '') }}">
-                                    </div>
+                                    
 
                                     <div class="col-md-3 set-field">
                                         <label for="default_currency" class="form-label">

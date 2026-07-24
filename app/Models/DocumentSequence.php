@@ -5,14 +5,14 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
-class InvoiceSequence extends Model
+class DocumentSequence extends Model
 {
     /**
      * The table associated with the model.
      *
      * @var string
      */
-    protected $table = 'invoice_sequences';
+    protected $table = 'document_sequences';
 
     /**
      * The primary key associated with the table.
@@ -35,6 +35,7 @@ class InvoiceSequence extends Model
      */
     protected $fillable = [
         'user_id',
+        'document_type',
         'prefix',
         'padding',
         'start_from',
