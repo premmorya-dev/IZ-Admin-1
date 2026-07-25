@@ -189,6 +189,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('add', [EstimateController::class, 'create'])->name('estimate.add');
         Route::post('store', [EstimateController::class, 'store'])->name('estimate.store');
         Route::get('edit/{estimate_code}', [EstimateController::class, 'edit'])->name('estimate.edit');
+        Route::get('convert-to-invoice/{estimate_code}', [EstimateController::class, 'convertToInvoice'])->name('estimate.convert_to_invoice');
         Route::post('update', [EstimateController::class, 'update'])->name('estimate.update');
         Route::post('destroy', [EstimateController::class, 'destroy'])->name('estimate.destroy');
 

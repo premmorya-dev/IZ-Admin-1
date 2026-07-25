@@ -1,5 +1,6 @@
 <x-default-layout>
 
+
     <x-page-heading
         title="Manage Invoice"
         description=""
@@ -85,15 +86,16 @@
 
                 <!-- Align status and due badge to the right -->
                 <div class="d-flex flex-column align-items-start text-start">
-                    <span class="fw-bold">
-                        <a href="{{ route('invoice.edit',['invoice_code' => $invoice->invoice_code ]) }}">{{ $invoice->invoice_number }}</a>
+                    <span class="fw-bold text-truncate-custom" title="{{ $invoice->invoice_number }}">
+                        <a href="{{ route('invoice.edit',['invoice_code' => $invoice->invoice_code ]) }}">
+                            {{ $invoice->invoice_number ?? 'N/A' }}</a>
                         <a href="#" invoice-code="{{ $invoice->invoice_code }}" class="invoice-view-model" title="View Invoice"><i class="fa-regular fa-eye text-default"></i> </a>
                         <a href="{{ route('invoice.download',['invoice_code' => $invoice->invoice_code ]) }}?preview=true" target="__blank" title="Print Invoice"><i class="fa-solid fa-print text-defaults"></i> </a>
                         <a href="{{ route('invoice.download',['invoice_code' => $invoice->invoice_code ]) }}" title="Download Invoice"><i class="fa-solid fa-download text-defaults"></i> </a>
                     </span>
                     <span></span>
-                    <div class="d-flex align-items-center flex-wrap gap-1">
-                        To: <a href="#" client-code="{{ $invoice->client_code }}" class="edit-client" title="Client Detail"> {{ $invoice->company_name ??  $invoice->client_name }} </a>
+                    <div class="d-flex align-items-center flex-wrap gap-1 text-truncate-custom"  >
+                        To: <a href="#" client-code="{{ $invoice->client_code }}" class="edit-client" title="{{ $invoice->company_name ??  $invoice->client_name }}"> {{ $invoice->company_name ??  $invoice->client_name }} </a>
 
 
                         @php
@@ -125,11 +127,11 @@
 
             @php
             $badgeClasses = [
-            'pending' => 'badge text-bg-warning text-white',
-            'sent' => 'badge text-bg-primary text-white',
-            'paid' => 'badge text-bg-success text-white',
-            'cancelled' => 'badge text-bg-dark',
-            'overdue' => 'badge text-bg-danger text-white',
+            'pending' => 'badge bg-light-warning text-warning border',
+            'sent' => 'badge bg-light-primary text-primary border',
+            'paid' => 'badge bg-light-success text-success border',
+            'cancelled' => 'badge bg-light-dark text-dark border',
+            'overdue' => 'badge bg-light-danger text-danger border',
             ];
             @endphp
 
@@ -145,10 +147,10 @@
                     @if (!empty($invoice->due_status_text) && $invoice->status != 'paid')
                     @php
                     $dueBadgeClass = match ($invoice->due_type) {
-                    'overdue' => 'badge bg-danger mt-1',
-                    'upcoming' => 'badge bg-warning mt-1',
-                    'today' => 'badge bg-primary mt-1',
-                    default => 'badge bg-secondary mt-1',
+                    'overdue' => 'badge bg-light-danger text-danger border mt-1',
+                    'upcoming' => 'badge bg-light-warning text-warning border mt-1',
+                    'today' => 'badge bg-light-primary text-primary border mt-1',
+                    default => 'badge bg-light-secondary text-secondary border mt-1',
                     };
                     @endphp
                     <span class="{{ $dueBadgeClass }} text-white">{{ $invoice->due_status_text }}</span>
@@ -163,11 +165,11 @@
                 <span class="d-block d-md-none text-center mt-2 fw-bold">Total</span>
 
                 <div class="d-flex flex-column align-items-end align-items-md-start">
-                    <span class="badge bg-success mb-1 text-white">
+                    <span class="badge bg-success mb-1 text-white text-truncate-custom">
                         {{ $invoice->symbol }} {{ number_format($invoice->grand_total, 2) }} Total
                     </span>
                     @if( $invoice->total_due > 0 )
-                    <span class="badge bg-danger text-white">
+                    <span class="badge bg-danger text-white text-truncate-custom">
                         {{ $invoice->symbol }} {{ number_format($invoice->total_due, 2) }} Due
                     </span>
                     @endif
@@ -353,6 +355,27 @@
                 <div class="modal-footer">
                     <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                     <button type="button" class="btn btn-primary" id="confirm-send-email">
+                        <i class="fa-solid fa-paper-plane text-white"></i> Send
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal fade" id="singleEmailConfirmModal" tabindex="-1" aria-labelledby="singleEmailConfirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white rounded-top-3">
+                    <h5 class="modal-title">Send Invoice Email</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to send this invoices to clients via email?
+                </div>
+                <div class="modal-footer">
+                    <input type="hidden" name="single-invoice-email-invoice-code" id="single-invoice-email-invoice-code" value="">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="single-send-invoice">
                         <i class="fa-solid fa-paper-plane text-white"></i> Send
                     </button>
                 </div>
@@ -694,6 +717,43 @@
             });
 
 
+
+            function sendInvoiceEmail(invoiceCode){
+                 $.ajax({
+                    url: "{{ route('invoice.send_bulk_email') }}",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        invoices_code: invoiceCode
+                    },
+                    success: function(response) {
+                        if (response.error === 0) {
+                            $('#emailConfirmModal').modal('hide');
+                            location.reload();
+                        } else {
+                            alert(response.message || "An error occurred. Please try again.");
+                        }
+                    },
+                    error: function(xhr) {
+                        alert("An error occurred. Please try again.");
+                    }
+                });
+            }
+
+
+           $('.single-send-invoice-model').click(function() {
+                $("#single-invoice-email-invoice-code").val($(this).attr('invoice-code'))
+                $('#singleEmailConfirmModal').modal('show');
+            });
+
+             $('#single-send-invoice').click(function() {
+                $('#singleEmailConfirmModal').modal('hide');                   
+                let invoiceCode = $("#single-invoice-email-invoice-code").val() ? [$("#single-invoice-email-invoice-code").val()] : [];
+                sendInvoiceEmail(invoiceCode);
+            });
+
+           
+
             $('#confirm-send-email').click(function() {
                 let selected = [];
                 $('input[name="selected[]"]:checked').each(function() {
@@ -725,6 +785,8 @@
                     }
                 });
             });
+
+            
 
 
 

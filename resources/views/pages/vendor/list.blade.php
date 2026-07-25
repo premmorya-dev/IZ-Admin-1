@@ -60,44 +60,48 @@
 
 
             <div class="col">
-                <span class="d-block d-md-none text-center mt-2 fw-bold"> Name </span>
-                <span>
-                    <a href="#" vendor-code="{{ $vendor->vendor_code }}" class="edit-vendor" title="vendor Detail"> {{ $vendor->vendor_name }} </a>
+                <span class="d-block d-md-none text-center mt-2 fw-bold">Name</span>
+                <span class="text-truncate-custom" title="{{ $vendor->vendor_name }}">
+                    <a href="#"
+                        vendor-code="{{ $vendor->vendor_code }}"
+                        class="edit-vendor"
+                        title="{{ $vendor->vendor_name }}">
+                        {{ $vendor->vendor_name }}
+                    </a>
                 </span>
-
-
             </div>
-
 
             <div class="col">
                 <span class="d-block d-md-none text-center mt-2 fw-bold">Company</span>
-                <span> {{ $vendor->company_name }} </span>
-
+                <span class="text-truncate-custom" title="{{ $vendor->company_name }}">
+                    {{ $vendor->company_name }}
+                </span>
             </div>
 
             @php
             $badgeClasses = [
             'active' => 'badge text-bg-success text-white',
             'deactive' => 'badge text-bg-danger text-white',
-
             ];
             @endphp
 
             <div class="col">
-                <span class="d-block d-md-none text-center mt-2 fw-bold"> Status </span>
-                <span class="{{ $badgeClasses[$vendor->status] ?? 'badge text-bg-dark' }}"> {{ ucfirst($vendor->status) }}</span>
-
+                <span class="d-block d-md-none text-center mt-2 fw-bold">Status</span>
+                <span class="{{ $badgeClasses[$vendor->status] ?? 'badge text-bg-dark' }}">
+                    {{ ucfirst($vendor->status) }}
+                </span>
             </div>
 
             <div class="col">
-                <span class="d-block d-md-none text-center mt-2 fw-bold"> Email </span>
-                <span>{{ $vendor->email }}</span>
-
+                <span class="d-block d-md-none text-center mt-2 fw-bold">Email</span>
+                <span class="text-truncate-custom" title="{{ $vendor->email }}">
+                    {{ $vendor->email }}
+                </span>
             </div>
-            <div class="col">
-                <span class="d-block d-md-none text-center mt-2 fw-bold"> Phone </span>
-                <span> {{ $vendor->phone }}</span>
 
+            <div class="col">
+                <span class="d-block d-md-none text-center mt-2 fw-bold">Phone</span>
+                <span>{{ $vendor->phone }}</span>
             </div>
 
 
@@ -222,7 +226,7 @@
         </div>
     </div>
 
-   
+
 
     <!-- Edit vendor Model -->
     <div class="modal fade" id="vendor-modal" tabindex="-1" aria-labelledby="editvendorModalLabel" aria-hidden="true">
@@ -242,7 +246,7 @@
         </div>
     </div>
 
-        <!-- Edit vendor Model -->
+    <!-- Edit vendor Model -->
     <div class="modal fade" id="editvendor-modal" tabindex="-1" aria-labelledby="editvendorModalLabel" aria-hidden="true">
         <div class="modal-dialog  modal-xl">
             <div class="modal-content">

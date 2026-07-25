@@ -25,7 +25,7 @@
                 @csrf
             </form>
 
-         
+
         </div>
 
         <!-- Spacer for pushing Add button to right -->
@@ -79,28 +79,47 @@
 
 
             <div class="col">
-                <span class="d-block d-md-none text-center mt-2 fw-bold"> bill Id </span>
+                <span class="d-block d-md-none text-center mt-2 fw-bold">Bill ID</span>
 
-                <!-- Align status and due badge to the right -->
                 <div class="d-flex flex-column align-items-start text-start">
-                    <span class="fw-bold">
-                        <a href="{{ route('bill.edit',['bill_code' => $bill->bill_code ]) }}">{{ $bill->bill_number }}</a>
-                        <a href="#" bill-code="{{ $bill->bill_code }}" class="bill-view-model" title="View bill"><i class="fa-regular fa-eye text-default"></i> </a>
-                        <a href="{{ route('bill.download',['bill_code' => $bill->bill_code ]) }}?preview=true" target="__blank" title="Print bill"><i class="fa-solid fa-print text-defaults"></i> </a>
-                        <a href="{{ route('bill.download',['bill_code' => $bill->bill_code ]) }}" title="Download bill"><i class="fa-solid fa-download text-defaults"></i> </a>
+
+                    <span class="fw-bold text-truncate-custom" title="{{ $bill->bill_number }}">
+                        <a href="{{ route('bill.edit',['bill_code' => $bill->bill_code ]) }}">
+                            {{ $bill->bill_number }}
+                        </a>
+
+                        <a href="#" bill-code="{{ $bill->bill_code }}" class="bill-view-model" title="View Bill">
+                            <i class="fa-regular fa-eye text-default"></i>
+                        </a>
+
+                        <a href="{{ route('bill.download',['bill_code' => $bill->bill_code ]) }}?preview=true"
+                            target="_blank"
+                            title="Print Bill">
+                            <i class="fa-solid fa-print text-defaults"></i>
+                        </a>
+
+                        <a href="{{ route('bill.download',['bill_code' => $bill->bill_code ]) }}"
+                            title="Download Bill">
+                            <i class="fa-solid fa-download text-defaults"></i>
+                        </a>
                     </span>
-                    <span></span>
+
                     <div class="d-flex align-items-center flex-wrap gap-1">
-                        To:  <a href="#" vendor-code="{{ $bill->vendor_code }}" class="edit-vendor" title="vendor Detail"> {{ $bill->company_name ??  $bill->vendor_name }} </a>                     
+                        <span>To:</span>
 
-
+                        <span class="text-truncate-custom"
+                            title="{{ $bill->company_name ?? $bill->vendor_name }}">
+                            <a href="#"
+                                vendor-code="{{ $bill->vendor_code }}"
+                                class="edit-vendor"
+                                title="{{ $bill->company_name ?? $bill->vendor_name }}">
+                                {{ $bill->company_name ?? $bill->vendor_name }}
+                            </a>
+                        </span>
                     </div>
-
 
                 </div>
             </div>
-
-
 
             @php
             $badgeClasses = [
@@ -113,14 +132,13 @@
             @endphp
 
             <div class="col mt-3">
-                <span class="d-block d-md-none text-center mt-2 fw-bold"> Status </span>
+                <span class="d-block d-md-none text-center mt-2 fw-bold">Status</span>
 
-                <!-- Align status and due badge to the right -->
                 <div class="d-flex flex-column align-items-end text-end">
                     <span class="{{ $badgeClasses[$bill->bill_status] ?? 'badge text-bg-dark' }}">
                         {{ ucfirst($bill->bill_status) }}
                     </span>
-                    <span></span>
+
                     @if (!empty($bill->due_status_text) && $bill->bill_status != 'paid')
                     @php
                     $dueBadgeClass = match ($bill->due_type) {
@@ -130,13 +148,13 @@
                     default => 'badge bg-secondary mt-1',
                     };
                     @endphp
-                    <span class="{{ $dueBadgeClass }} text-white">{{ $bill->due_status_text }}</span>
+
+                    <span class="{{ $dueBadgeClass }} text-white">
+                        {{ $bill->due_status_text }}
+                    </span>
                     @endif
                 </div>
             </div>
-
-
-
 
             <div class="col mt-3 text-end text-md-start">
                 <span class="d-block d-md-none text-center mt-2 fw-bold">Total</span>
@@ -145,21 +163,21 @@
                     <span class="badge bg-success mb-1 text-white">
                         {{ $bill->symbol }} {{ number_format($bill->grand_total, 2) }} Total
                     </span>
-                    @if( $bill->total_due > 0 )
+
+                    @if($bill->total_due > 0)
                     <span class="badge bg-danger text-white">
                         {{ $bill->symbol }} {{ number_format($bill->total_due, 2) }} Due
                     </span>
                     @endif
-
                 </div>
             </div>
 
-
-
             <div class="col mt-3">
-                <span class="d-block d-md-none text-center mt-2 fw-bold"> Due Date </span>
-                <span> {{ $bill->due_date }}</span>
+                <span class="d-block d-md-none text-center mt-2 fw-bold">Due Date</span>
 
+                <span class="text-truncate-custom" title="{{ $bill->due_date }}">
+                    {{ $bill->due_date }}
+                </span>
             </div>
 
             <div class="col mt-3"> <span class="d-block d-md-none text-center mt-2 fw-bold"> Action </span> <span>@include('pages/bill/actions/edit_action') </span> </div>
@@ -412,7 +430,7 @@
         </div>
     </div>
 
-  <script>
+    <script>
         $(document).on('click', '.edit-vendor', function(e) {
             e.preventDefault();
             $('.vendor-modal-body').empty();
@@ -434,7 +452,7 @@
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
                     beforeSend: function() {
-                      
+
                     },
                     success: function(response) {
 
@@ -444,7 +462,7 @@
                         $('#editvendor-modal').on('shown.bs.modal', function() {
                             // Initialize Choices.js (always safe to re-init)
 
-                            ['#id_country_id', '#id_state_id', '#id_currency_code' ,'#id_shipping_state_id', '#id_shipping_country_id'].forEach(function(selector) {
+                            ['#id_country_id', '#id_state_id', '#id_currency_code', '#id_shipping_state_id', '#id_shipping_country_id'].forEach(function(selector) {
                                 const el = document.querySelector(selector);
                                 if (!el) return; // skip if element not found
 
@@ -669,7 +687,7 @@
             });
 
 
-     
+
 
 
 

@@ -21,6 +21,7 @@ use App\Services\EstimateService;
 use App\Services\InvoiceService;
 use Illuminate\Validation\Rule;
 use App\Services\Invoice\DocumentSequenceService;
+use App\Services\Estimate\EstimateService as EstimateModuleService;
 
 
 class EstimateController extends Controller
@@ -214,124 +215,35 @@ class EstimateController extends Controller
     }
 
 
-    public function create(Request $request)
+    public function create(Request $request, EstimateModuleService $estimateService)
     {
-        $data = [];
 
-        $data['currencies'] = \DB::table('currencies')->orderBy('currency_name', 'ASC')->get();
-        $data['templates'] = \DB::table('templates')->orderBy('template_name', 'ASC')->get();
-
-
-
-        $data['setting'] = \DB::table('settings')->where('user_id', Auth::id())->first();
-        $data['discounts'] = \DB::table('discounts')
-            ->where('user_id',  Auth::id())
-            ->orderBy('name', 'ASC')->get();
-
-
-
-        $data['taxes'] = \DB::table('taxes')
-            ->where('user_id',  Auth::id())
-            ->orderBy('name', 'ASC')->get();
-
-
-        if (!empty($data['setting'])) {
-            $data['setting']->country = \DB::table('countries')->where('country_id',  $data['setting']->country_id)->first();
-            $data['setting']->state = \DB::table('country_states')->where('state_id',  $data['setting']->state_id)->first();
-        }
-
-        $data['upi_payment_id'] = \DB::table('upi_payment_id')
-            ->where('user_id', Auth::id())->orderBy('upi_name', 'ASC')->get();
-
-        $data['estimate_number'] = $this->documentSequenceService->preview(auth()->id(),'estimate');
+        $data = $estimateService->getCreateData();
 
         return view('pages/estimate.add', compact('data'));
     }
 
-    public function edit(Request $request, $estimate_code)
+    public function edit(Request $request, $estimate_code, EstimateModuleService $estimateService)
     {
-        $data = [];
 
-        $data['estimate'] = \DB::table('estimates')
-            ->select(
-                'clients.*',
-                'estimates.*',
-                'countries.country_name',
-                'country_states.state_name',
-            )
-            ->leftJoin('clients', 'estimates.client_id', 'clients.client_id')
-            ->leftJoin('countries', 'countries.country_id', 'clients.country_id')
-            ->leftJoin('country_states', 'country_states.state_id', 'clients.state_id')
-            ->where('estimates.user_id', '=', Auth::id())
-            ->where('estimate_code', $estimate_code)->first();
+        $data = $estimateService->getEditData($estimate_code);
 
-
-        if (empty($data['estimate'])) {
+        if (empty($data)) {
             return abort(404);
         }
 
-        $data['items'] = json_decode($data['estimate']->item_json, true);
-
-
-
-
-
-        $data['client_details_html'] = '';
-
-        $data['client_details_html'] .=  !empty($data['estimate']->company_name) ? $data['estimate']->company_name . '<br>' : $data['estimate']->client_name . '<br>';
-
-        if (!empty($data['estimate']->address_1)) {
-            $data['client_details_html'] .= $data['estimate']->address_1 . '<br>';
-        }
-        if (!empty($data['estimate']->address_2)) {
-            $data['client_details_html'] .= $data['estimate']->address_2 . '<br>';
-        }
-
-        if (!empty($data['estimate']->state_name)) {
-            $data['client_details_html'] .= $data['estimate']->state_name . ', ';
-        }
-        if (!empty($data['estimate']->country_name)) {
-            $data['client_details_html'] .= $data['estimate']->country_name . ' ';
-        }
-        if (!empty($data['estimate']->zip)) {
-            $data['client_details_html'] .= $data['estimate']->zip;
-        }
-
-        $edit_client = '<button client-code="' . $data['estimate']->client_code . '"  class="edit-client btn btn-primary btn-sm rounded-circle d-flex align-items-center justify-content-center 
-                   position-absolute shadow" style="width: 36px; height: 36px; bottom: 10px; right: 10px;" data-bs-toggle="modal" data-bs-target="#editClientAddressModal">
-        <i class="bi bi-pencil-fill"></i>
-    </button>';
-
-        $data['client_details_html'] .=  $edit_client;
-
-
-        $data['currencies'] = \DB::table('currencies')->orderBy('currency_name', 'ASC')->get();
-        $data['templates'] = \DB::table('templates')->orderBy('template_name', 'ASC')->get();
-        $data['discounts'] = \DB::table('discounts')
-            ->where('user_id',  Auth::id())
-            ->orderBy('name', 'ASC')->get();
-
-
-
-        $data['taxes'] = \DB::table('taxes')
-            ->where('user_id',  Auth::id())
-            ->orderBy('name', 'ASC')->get();
-
-
-
-        $data['upi_payment_id'] = \DB::table('upi_payment_id')
-            ->where('user_id', Auth::id())->orderBy('upi_name', 'ASC')->get();
-
-        $data['setting'] = \DB::table('settings')->where('user_id', Auth::id())->first();
-
-        if (!empty($data['setting'])) {
-            $data['setting']->country = \DB::table('countries')->where('country_id',  $data['setting']->country_id)->first();
-            $data['setting']->state = \DB::table('country_states')->where('state_id',  $data['setting']->state_id)->first();
-        }
-
-
-        // dd($data);
         return view('pages/estimate.edit', compact('data'));
+    }
+
+    public function convertToInvoice(Request $request, $estimate_code, EstimateModuleService $estimateService)
+    {
+       
+        $data = $estimateService->getEditData($estimate_code);
+        if (empty($data)) {
+            return abort(404);
+        }
+
+        return view('pages/estimate.convert_to_invoice', compact('data'));
     }
 
     private function generateUniqueestimateCode(): string
@@ -583,8 +495,8 @@ class EstimateController extends Controller
             // Get the last inserted ID (estimate_id)
             $lastInsertedId = $estimate->estimate_id;
 
-        $this->documentSequenceService->generate(auth()->id(), 'estimate');
-        
+            $this->documentSequenceService->generate(auth()->id(), 'estimate');
+
             if ($request->has('send_status') && $request->input('send_status') == 'true') {
 
                 $last_notification_id = DB::table('estimate_notifications')->insertGetId([

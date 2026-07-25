@@ -58,7 +58,7 @@
 
             <div class="col">
                 <span class="d-block d-md-none text-center mt-2 fw-bold"> Name </span>
-                <span class="tax-name" tax-code="{{ $tax->tax_code }}" > <a href="#" > {{ $tax->name }}</a> </span>
+                <span class="tax-name text-truncate-custom" tax-code="{{ $tax->tax_code }}" > <a href="#" title="{{ $tax->name }}" > {{ $tax->name }}</a> </span>
             </div>
 
 

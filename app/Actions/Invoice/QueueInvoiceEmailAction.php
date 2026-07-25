@@ -12,8 +12,7 @@ class QueueInvoiceEmailAction
     public function __construct(
         protected InvoiceRepository $invoiceRepository,
         protected InvoiceNotificationService $notificationService
-    ) {
-    }
+    ) {}
 
     public function handle(QueueEmailRequest $request): array
     {
@@ -30,6 +29,13 @@ class QueueInvoiceEmailAction
                 $this->notificationService->queueEmail(auth()->id(), $invoice->invoice_id, $invoiceCode);
                 $this->invoiceRepository->markAsSubmitted($invoice->invoice_id);
                 $queued++;
+            }
+
+
+            if ($queued > 0) {
+                session()->flash('success', 'Email queued successfully.');
+            } else {
+                session()->flash('warning', 'No invoices were queued.');
             }
 
             return [

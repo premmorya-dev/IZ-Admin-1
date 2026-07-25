@@ -60,7 +60,7 @@
 
             <div class="col">
                 <span class="d-block d-md-none text-center mt-2 fw-bold"> Name </span>
-                <span class="discount-name" discount-code="{{ $discount->discount_code }}"> <a href="#"> {{ $discount->name }}</a> </span>
+                <span class="discount-name text-truncate-custom" discount-code="{{ $discount->discount_code }}"> <a href="#" title="{{  $discount->name }}"> {{ $discount->name }}</a> </span>
             </div>
 
 

@@ -37,6 +37,16 @@ class CreateInvoiceAction
                     $invoiceData->toCreateAttributes($this->codeService->generate())
                 );
 
+                if (!empty($invoiceData->convert_to_invoice)) {
+                    DB::table('estimates')
+                        ->where('estimate_code', $invoiceData->estimate_code)
+                        ->update([
+                            'status' => 'converted',
+                            'invoice_code' => $invoice->invoice_code,
+                            'invoice_number' => $invoice->invoice_number,
+                        ]);
+                }
+
                 $this->documentSequenceService->generate(auth()->id(), 'invoice');
 
                 $this->stockService->reduceForItems($userId, $normalizedItems);

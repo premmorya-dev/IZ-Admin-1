@@ -1,6 +1,14 @@
 <x-default-layout>
 
-
+    <style>
+        .text-truncate-custom {
+            display: block;
+            max-width: 250px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
     <x-page-heading
         title="Manage Client"
         description=""
@@ -19,10 +27,10 @@
             <i data-lucide="trash-2"></i> Delete
         </a>
         <!-- Add Button -->
-        <a class="btn btn-outline-primary btn-sm px-4 new-client py-2 shadow-sm fw-semibold text-uppercase d-flex align-items-center gap-2"
+        <a class=" new-client btn btn-add-saas"
             id="add-action" href="{{ route('client.add') }}"> <i data-lucide="plus-circle"></i> Add New</a>
 
-            
+
 
     </div>
 
@@ -67,9 +75,9 @@
 
 
             <div class="col">
-                <span class="d-block d-md-none text-center mt-2 fw-bold" > Name </span>
+                <span class="d-block d-md-none text-center mt-2 fw-bold"> Name </span>
                 <span>
-                    <a href="#" client-code="{{ $client->client_code }}" class="edit-client" title="Client Detail"> {{ $client->client_name }} </a>
+                    <a href="#" client-code="{{ $client->client_code }}" class="edit-client" title="Client Detail">  <span class="text-truncate-custom" title="{{ $client->client_name }}">{{ $client->client_name  ?? 'N/A' }} </span> </a>
                 </span>
 
 
@@ -78,14 +86,14 @@
 
             <div class="col">
                 <span class="d-block d-md-none text-center mt-2 fw-bold">Company </span>
-                <span> {{ $client->company_name ?? 'N/A' }} </span>
+                <span class="text-truncate-custom" title="{{ $client->company_name }}"> {{ $client->company_name ?? 'N/A' }} </span>
 
             </div>
 
             @php
             $badgeClasses = [
-            'active' => 'badge text-bg-success text-white',
-            'deactive' => 'badge text-bg-danger text-white',
+            'active' => 'badge bg-light-success text-success border',
+            'deactive' => 'badge bg-light-danger text-danger border',
 
             ];
             @endphp
@@ -98,12 +106,14 @@
 
             <div class="col">
                 <span class="d-block d-md-none text-center mt-2 fw-bold"> Email </span>
-                <span>{{ $client->email ?? 'N/A' }}</span>
+                <span class="text-truncate-custom" title="{{ $client->email }}">
+                    {{ $client->email ?? 'N/A' }}
+                </span>
 
             </div>
             <div class="col">
                 <span class="d-block d-md-none text-center mt-2 fw-bold"> Phone </span>
-                <span> {{ $client->phone  ?? 'N/A' }}</span>
+                <span class="text-truncate-custom" title="{{ $client->phone }}"> {{ $client->phone  ?? 'N/A' }}</span>
 
             </div>
 
@@ -395,7 +405,7 @@
 
                         $('#Client-modal').on('shown.bs.modal', function() {
                             // Initialize Choices.js (always safe to re-init)
-                            ['#id_country_id', '#id_state_id', '#id_currency_code' ,'#id_shipping_state_id', '#id_shipping_country_id'].forEach(function(selector) {
+                            ['#id_country_id', '#id_state_id', '#id_currency_code', '#id_shipping_state_id', '#id_shipping_country_id'].forEach(function(selector) {
                                 const el = document.querySelector(selector);
                                 if (!el) return; // skip if element not found
 

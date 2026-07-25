@@ -1,17 +1,17 @@
 <x-default-layout>
 
-    <h2 class="py-3" >Upi Ids</h2>
+    <h2 class="py-3">Upi Ids</h2>
 
 
     <div class="d-flex justify-content-between align-items-center my-4 px-2">
-    <a href="#" id="bulkDeleteBtn" title="Delete Invoice" data-bs-toggle="modal" data-bs-target="#deleteModal"
-                class="btn btn-outline-danger btn-sm px-4 py-2 shadow-sm fw-semibold text-uppercase d-flex align-items-center gap-2">
-                <i data-lucide="trash-2"></i> Delete
-            </a>
+        <a href="#" id="bulkDeleteBtn" title="Delete Invoice" data-bs-toggle="modal" data-bs-target="#deleteModal"
+            class="btn btn-outline-danger btn-sm px-4 py-2 shadow-sm fw-semibold text-uppercase d-flex align-items-center gap-2">
+            <i data-lucide="trash-2"></i> Delete
+        </a>
         <!-- Add Button -->
         <a class="btn btn-outline-primary btn-sm px-4 py-2 shadow-sm fw-semibold text-uppercase d-flex align-items-center gap-2"
             id="add-action" href="{{ route('upi_id.add') }}"> <i data-lucide="plus-circle"></i> Add New</a>
-           
+
     </div>
 
     <!-- Lucide Init -->
@@ -28,11 +28,11 @@
                 <span class="d-block d-md-none text-center fw-bold ms-1"> Select All </span>
             </div>
 
-             <div class="col sortable"><i data-lucide="file-text"></i> @sortablelink('upi_name','Name') </div>
-            <div class="col sortable"><i data-lucide="file-digit"></i> @sortablelink('upi_id','ID')</div>           
-            <div class="col sortable"><i data-lucide="shield-check"></i> @sortablelink('status','Status') </div>     
-     
-   
+            <div class="col sortable"><i data-lucide="file-text"></i> @sortablelink('upi_name','Name') </div>
+            <div class="col sortable"><i data-lucide="file-digit"></i> @sortablelink('upi_id','ID')</div>
+            <div class="col sortable"><i data-lucide="shield-check"></i> @sortablelink('status','Status') </div>
+
+
 
             <div class="col "><i data-lucide="more-vertical"></i> <span>Action</span> <span></span></div>
         </div>
@@ -50,37 +50,46 @@
 
             </div>
 
-              <div class="col">
-                <span class="d-block d-md-none text-center mt-2 fw-bold"> Name </span>
-                <span> {{ $upi_id->upi_name }} </span>
+            <div class="col">
+                <span class="d-block d-md-none text-center mt-2 fw-bold">Name</span>
+                <span class="text-truncate-custom" title="{{ $upi_id->upi_name }}">
+                    {{ $upi_id->upi_name }}
+                </span>
             </div>
 
             <div class="col">
-                <span class="d-block d-md-none text-center mt-2 fw-bold">Upi Id </span>
-              <span> {{ $upi_id->upi_id }}  <a href="#" class="copyButton" link="{{ $upi_id->upi_id }}"><i class="fa-regular fa-copy copy-font"></i></a></span>
+                <span class="d-block d-md-none text-center mt-2 fw-bold">UPI ID</span>
+                <span class="text-truncate-custom" title="{{ $upi_id->upi_id }}">
+                    {{ $upi_id->upi_id }}
+                    <a href="#"
+                        class="copyButton"
+                        link="{{ $upi_id->upi_id }}"
+                        title="Copy UPI ID">
+                        <i class="fa-regular fa-copy copy-font"></i>
+                    </a>
+                </span>
             </div>
 
-          
 
-           
+
             @php
             $badgeClasses = [
             'Y' => 'badge text-bg-success text-white',
             'N' => 'badge text-bg-danger text-white',
-           
+
             ];
             @endphp
-         
+
 
             <div class="col">
                 <span class="d-block d-md-none text-center mt-2 fw-bold"> Status </span>
-                <span class="{{ $badgeClasses[$upi_id->status] ?? 'badge text-bg-dark' }}"> {{  $upi_id->status == 'Y' ? 'Active' : 'De-Active'   }}</span>
+                <span class="{{ $badgeClasses[$upi_id->status] ?? 'badge text-bg-dark' }}"> {{ $upi_id->status == 'Y' ? 'Active' : 'De-Active'   }}</span>
 
             </div>
 
-          
-       
-            <div class="col">  <span class="d-block d-md-none text-center mt-2 fw-bold"> Action </span> <span>@include('pages/upi_id/actions/edit_action') </span> </div>
+
+
+            <div class="col"> <span class="d-block d-md-none text-center mt-2 fw-bold"> Action </span> <span>@include('pages/upi_id/actions/edit_action') </span> </div>
 
 
 
@@ -177,24 +186,24 @@
 
 
 
-<!-- Bootstrap 5 Delete Confirm Modal -->
-<div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
-  <div class="modal-dialog modal-dialog-centered">
-    <div class="modal-content">
-      <div class="modal-header bg-danger text-white">
-        <h5 class="modal-title" id="deleteConfirmModalLabel">Confirm Deletion</h5>
-        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-      </div>
-      <div class="modal-body">
-        Are you sure you want to delete the selected Upi Ids(s)?
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-        <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Yes, Delete</button>
-      </div>
+    <!-- Bootstrap 5 Delete Confirm Modal -->
+    <div class="modal fade" id="deleteConfirmModal" tabindex="-1" aria-labelledby="deleteConfirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header bg-danger text-white">
+                    <h5 class="modal-title" id="deleteConfirmModalLabel">Confirm Deletion</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to delete the selected Upi Ids(s)?
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-danger" id="confirmDeleteBtn">Yes, Delete</button>
+                </div>
+            </div>
+        </div>
     </div>
-  </div>
-</div>
 
 
 
@@ -206,88 +215,88 @@
                 copyToClipboard($(this).attr('link'));
             });
 
-      
+
         });
     </script>
 
 
-    
-<script>
-$(document).ready(function() {
-    let deleteIds = [];
 
-    // Enable or disable bulk delete button
-    function toggleBulkButton() {
-        let selected = $('.form-check-input.selected:checked').length;
-        $('#bulkDeleteBtn').prop('disabled', selected === 0);
-    }
+    <script>
+        $(document).ready(function() {
+            let deleteIds = [];
 
-    // Select checkboxes
-    $('.form-check-input.selected').on('change', function() {
-        toggleBulkButton();
-    });
-
-    // Bulk Delete button click
-    $('#bulkDeleteBtn').on('click', function() {
-        deleteIds = $('.form-check-input.selected:checked').map(function() {
-            return $(this).val();
-        }).get();
-
-        if (deleteIds.length > 0) {
-            $('#deleteConfirmModal').modal('show');
-        }
-    });
-
-    // Single Delete from dropdown
-    $('.dropdown-menu a.deleteSingleBtn').on('click', function(e) {
-        e.preventDefault();
-        const upi_id = $(this).data('id');
-        deleteIds = [upi_id];
-        $('#deleteConfirmModal').modal('show');
-    });
-
-    // Confirm Delete
-    $('#confirmDeleteBtn').on('click', function() {
-        $.ajax({
-            url: "{{ route('upi_id.destroy') }}",
-            method: "POST",
-            data: {
-                ids: deleteIds,
-                _token: "{{ csrf_token() }}"
-            },
-            success: function(response) {
-                $('#deleteConfirmModal').modal('hide');
-
-                Swal.fire({
-                    icon: 'success',
-                    title: 'Deleted!',
-                    text: response.message,
-                    timer: 2000,
-                    showConfirmButton: false
-                });
-
-                // Remove deleted rows
-                deleteIds.forEach(function(id) {
-                    $('input[value="' + id + '"]').closest('.listing-row').remove();
-                });
-
-                // Disable bulk delete button again
-                toggleBulkButton();
-            },
-            error: function(xhr) {
-                $('#deleteConfirmModal').modal('hide');
-
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Oops!',
-                    text: xhr.responseJSON.message ?? 'Something went wrong!',
-                });
+            // Enable or disable bulk delete button
+            function toggleBulkButton() {
+                let selected = $('.form-check-input.selected:checked').length;
+                $('#bulkDeleteBtn').prop('disabled', selected === 0);
             }
-        });
-    });
 
-});
-</script>
+            // Select checkboxes
+            $('.form-check-input.selected').on('change', function() {
+                toggleBulkButton();
+            });
+
+            // Bulk Delete button click
+            $('#bulkDeleteBtn').on('click', function() {
+                deleteIds = $('.form-check-input.selected:checked').map(function() {
+                    return $(this).val();
+                }).get();
+
+                if (deleteIds.length > 0) {
+                    $('#deleteConfirmModal').modal('show');
+                }
+            });
+
+            // Single Delete from dropdown
+            $('.dropdown-menu a.deleteSingleBtn').on('click', function(e) {
+                e.preventDefault();
+                const upi_id = $(this).data('id');
+                deleteIds = [upi_id];
+                $('#deleteConfirmModal').modal('show');
+            });
+
+            // Confirm Delete
+            $('#confirmDeleteBtn').on('click', function() {
+                $.ajax({
+                    url: "{{ route('upi_id.destroy') }}",
+                    method: "POST",
+                    data: {
+                        ids: deleteIds,
+                        _token: "{{ csrf_token() }}"
+                    },
+                    success: function(response) {
+                        $('#deleteConfirmModal').modal('hide');
+
+                        Swal.fire({
+                            icon: 'success',
+                            title: 'Deleted!',
+                            text: response.message,
+                            timer: 2000,
+                            showConfirmButton: false
+                        });
+
+                        // Remove deleted rows
+                        deleteIds.forEach(function(id) {
+                            $('input[value="' + id + '"]').closest('.listing-row').remove();
+                        });
+
+                        // Disable bulk delete button again
+                        toggleBulkButton();
+                    },
+                    error: function(xhr) {
+                        $('#deleteConfirmModal').modal('hide');
+
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Oops!',
+                            text: xhr.responseJSON.message ?? 'Something went wrong!',
+                        });
+                    }
+                });
+            });
+
+        });
+    </script>
 
 
 

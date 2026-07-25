@@ -185,3 +185,66 @@ input:checked+.slider:before {
         transform: scale(1.08);
         box-shadow: 0 6px 16px rgba(0,0,0,0.25);
     }
+
+    // estimate section convert to invoice button css
+
+    
+.convert-invoice-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:10px;
+    padding:4px 14px;
+    border-radius:12px;
+    background:#fff;
+    border:1px solid #e8ecf4;
+    color:#344054;
+    text-decoration:none;
+    transition:all .25s ease;
+    box-shadow:0 2px 6px rgba(16,24,40,.04);
+}
+
+.convert-invoice-btn:hover{
+    border-color:#4f46e5;
+    background:#f8f9ff;
+    color:#4f46e5;
+    box-shadow:0 8px 20px rgba(79,70,229,.12);
+    transform:translateY(-2px);
+}
+
+.convert-icon{
+    width:34px;
+    height:34px;
+    border-radius:10px;
+    background:#eef2ff;
+    color:#4f46e5;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:14px;
+}
+
+.convert-text{
+    display:flex;
+    flex-direction:column;
+    line-height:1.1;
+}
+
+.convert-text small{
+    color:#98a2b3;
+    font-size:11px;
+}
+
+.convert-text strong{
+    font-size:13px;
+    font-weight:600;
+}
+
+.convert-invoice-btn .arrow{
+    opacity:.5;
+    transition:.2s;
+}
+
+.convert-invoice-btn:hover .arrow{
+    opacity:1;
+    transform:translateX(3px);
+}

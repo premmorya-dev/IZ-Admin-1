@@ -96,6 +96,9 @@ return [
         'name' => env('MAIL_FROM_NAME', 'Example'),
     ],
 
+    'error_report_email' => env('ERROR_REPORT_EMAIL','premmorya1996@gmail.com'),
+
+
     /*
     |--------------------------------------------------------------------------
     | Markdown Mail Settings
@@ -114,5 +117,6 @@ return [
             resource_path('views/vendor/mail'),
         ],
     ],
+
 
 ];

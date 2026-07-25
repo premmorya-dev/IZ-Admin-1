@@ -1,12 +1,4 @@
 
-    .izy-page-header-breadcrumb {
-        position: relative;
-        z-index: 9999;
-    }
-
-    .izy-page-header-breadcrumb a {
-        pointer-events: auto;
-    }
 
     /* ===== Page Header Component ===== */
     .izy-page-header {
@@ -16,7 +8,13 @@
         margin-bottom: 1.25rem;
         padding-bottom: 0.75rem;
         border-bottom: 1px solid #edf0f5;
+        position: relative;
     }
+
+    .izy-page-header::before,
+.izy-page-header::after {
+    pointer-events: none;
+}
 
     .izy-page-title {
         font-size: 1.2rem;

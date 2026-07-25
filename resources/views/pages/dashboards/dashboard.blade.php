@@ -406,7 +406,7 @@
         <div class="row g-3 mb-4">
             <div class="col-xl-3 col-md-6">
                 <div class="iz-stat-card">
-                    <div class="iz-stat-icon bg-primary-soft"><i class="bi bi-stack text-white"></i></div>
+                    <div class="iz-stat-icon bg-primary-soft"><i class="bi bi-receipt-cutoff text-white"></i></div>
                     <div class="iz-stat-label">Total Invoices</div>
                     <div class="iz-stat-value tabular">{{ number_format($data['summary']->total_invoices ?? 0 ) }}</div>
                 </div>

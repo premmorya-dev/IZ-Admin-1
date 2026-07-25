@@ -12,15 +12,54 @@
         <i data-lucide="more-vertical"></i>
     </button>
     <div class="dropdown-menu wide-dropdown">
-       
-        <a href="#" estimate-code="{{ $estimate->estimate_code }}" class="estimate-view-model" title="View Estimate" ><i data-lucide="eye" class="text-primary"></i> View</a>
-        <a href="{{ route('estimate.edit',['estimate_code' => $estimate->estimate_code ]) }}"><i data-lucide="pencil" class="text-warning"></i> Edit</a>
 
-       
-        <a href="#" title="Delete estimate" class="single-delete" estimate-code="{{ $estimate->estimate_code }}">
-                <i data-lucide="trash-2"  class="text-danger"></i> Delete
-            </a>
-       
+        <a href="#" estimate-code="{{ $estimate->estimate_code }}" class="estimate-view-model" title="View Estimate">
+            <i data-lucide="eye" class="text-primary"></i> View
+        </a>
+
+        <a href="{{ route('estimate.edit',['estimate_code' => $estimate->estimate_code ]) }}" title="Edit Estimate">
+            <i data-lucide="pencil" class="text-warning"></i> Edit
+        </a>
+
+        <a href="{{ route('estimate.download',['estimate_code' => $estimate->estimate_code ]) }}?preview=true"
+            target="_blank"
+            title="Print Estimate">
+            <i data-lucide="printer" class="text-info"></i> Print
+        </a>
+
+        <a href="{{ route('estimate.download',['estimate_code' => $estimate->estimate_code ]) }}"
+            title="Download PDF">
+            <i data-lucide="download" class="text-success"></i> Download
+        </a>
+
+
+
+        <a href="#"
+            class="send-estimate"
+            estimate-code="{{ $estimate->estimate_code }}"
+            title="Send Estimate">
+            <i data-lucide="send" class="text-primary"></i> Send
+        </a>
+
+        @if($estimate->status == 'converted' && !empty($estimate->invoice_code))
+        <a href="{{ route('invoice.edit',['invoice_code'=> $estimate->invoice_code]) }}"
+            title="Open Invoice">
+            <i data-lucide="file-check-2" class="text-success"></i> Open Invoice
+        </a>
+        @else
+        <a href="{{ route('estimate.convert_to_invoice',$estimate->estimate_code) }}"
+            title="Convert to Invoice">
+            <i data-lucide="receipt-text" class="text-success"></i> Convert to Invoice <i class="fa-solid fa-arrow-right ms-2 arrow"></i>
+        </a>
+        @endif
+
+        <a href="#"
+            class="single-delete"
+            estimate-code="{{ $estimate->estimate_code }}"
+            title="Delete Estimate">
+            <i data-lucide="trash-2" class="text-danger"></i> Delete
+        </a>
+
     </div>
 </div>
 
@@ -43,20 +82,18 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
 <script>
-
-
     $('.single-delete').on('click', function() {
-       var estimate_code = $(this).attr('estimate-code');
-       $('#confirmed-single-delete').attr('estimate-code',estimate_code)
-       $('#singleDeleteModal').modal('show');
+        var estimate_code = $(this).attr('estimate-code');
+        $('#confirmed-single-delete').attr('estimate-code', estimate_code)
+        $('#singleDeleteModal').modal('show');
 
-      
+
     });
 
 
     $('#confirmed-single-delete').on('click', function(e) {
         e.preventDefault();
-       var estimate_code = $(this).attr('estimate-code');
+        var estimate_code = $(this).attr('estimate-code');
         $.ajax({
             url: "{{ route('estimate.destroy') }}",
             method: 'POST',
@@ -76,6 +113,4 @@
             }
         });
     });
-
-
 </script>

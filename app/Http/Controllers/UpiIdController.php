@@ -11,6 +11,7 @@ use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
 use App\Models\UpiIdModel;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Validation\Rule;
 
 
 
@@ -169,7 +170,7 @@ class UpiIdController extends Controller
                 'upi_name' => 'required|string|max:100',
                 'upi_id' => 'required|string|unique:upi_payment_id,upi_id',
                 'status' => 'required',
-               
+
 
             ], []);
 
@@ -248,10 +249,14 @@ class UpiIdController extends Controller
         try {
             $validator = Validator::make($request->all(), [
                 'upi_name' => 'required|string|max:100',
-                'upi_id' => 'required|string|unique:upi_payment_id,upi_id',
+                'upi_id' => [
+                    'required',
+                    'string',
+                    Rule::unique('upi_payment_id', 'upi_id')
+                        ->ignore($request->upi_code, 'upi_code'),
+                ],
                 'status' => 'required',
-                
-            ], []);
+            ]);
 
             if ($validator->fails()) {
                 return response()->json([

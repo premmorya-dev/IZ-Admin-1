@@ -31,6 +31,8 @@ class EstimateModel extends Model
         'client_id',
         'estimate_code',
         'estimate_number',
+        'invoice_number',
+        'invoice_code',
         'issue_date',
         'expiry_date',
         'status',

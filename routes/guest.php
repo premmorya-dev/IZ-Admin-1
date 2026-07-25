@@ -46,3 +46,7 @@ Route::get('/error', function () {
 
 
 Route::get('/auth/redirect/{provider}', [SocialiteController::class, 'redirect']);
+
+Route::get('/test-error', function () {
+    throw new Exception('This is a test production error.');
+});

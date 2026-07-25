@@ -92,7 +92,7 @@
 [data-kt-app-layout="light-sidebar"][data-kt-app-header-fixed="true"] {
     [data-kt-app-header-minimize=on] .app-header {
         transition: none;
-        z-index: 100;
+       // z-index: 100;
         background-color: var(--bs-app-header-minimize-bg-color);
         box-shadow: var(--bs-app-header-minimize-box-shadow);
     } 

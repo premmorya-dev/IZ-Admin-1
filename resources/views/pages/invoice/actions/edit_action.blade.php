@@ -12,18 +12,46 @@
         <i data-lucide="more-vertical"></i>
     </button>
     <div class="dropdown-menu wide-dropdown">
-        @if( $invoice->total_due > 0 )
-        <a href="#" class="record-payment-form" invoice-code="{{ $invoice->invoice_code }}"><i data-lucide="notebook-pen" class="text-primary"></i> Record Payment</a>
+        @if($invoice->total_due > 0)
+        <a href="#" class="record-payment-form" invoice-code="{{ $invoice->invoice_code }}">
+            <i data-lucide="notebook-pen" class="text-primary"></i>
+            Record Payment
+        </a>
         @endif
 
-        <a href="#" invoice-code="{{ $invoice->invoice_code }}" class="invoice-view-model" ><i data-lucide="eye" class="text-primary"></i> View</a>
-        <a href="{{ route('invoice.edit',['invoice_code' => $invoice->invoice_code ]) }}"><i data-lucide="pencil" class="text-warning"></i> Edit</a>
+        <a href="#" invoice-code="{{ $invoice->invoice_code }}" class="invoice-view-model">
+            <i data-lucide="eye" class="text-primary"></i>
+            View
+        </a>
 
+        <a href="{{ route('invoice.edit',['invoice_code' => $invoice->invoice_code ]) }}">
+            <i data-lucide="pencil" class="text-warning"></i>
+            Edit
+        </a>
+
+        <a href="#" class="single-send-invoice-model"  invoice-code="{{ $invoice->invoice_code }}">
+            <i data-lucide="send" class="text-info"></i>
+            Send Invoice
+        </a>
        
-        <a href="#" title="Delete Invoice" class="single-delete" invoice-code="{{ $invoice->invoice_code }}">
-                <i data-lucide="trash-2"  class="text-danger"></i> Delete
-            </a>
-       
+        <a href="{{ route('invoice.download',['invoice_code'=>$invoice->invoice_code]) }}?preview=true"
+            target="_blank">
+           <i data-lucide="printer" class="text-info"></i> Print
+            
+        </a>
+
+        <a href="{{ route('invoice.download',['invoice_code'=>$invoice->invoice_code]) }}">
+            <i data-lucide="download" class="text-success"></i>
+            Download PDF
+        </a>   
+        
+
+        <a href="#" title="Delete Invoice"
+            class="single-delete"
+            invoice-code="{{ $invoice->invoice_code }}">
+            <i data-lucide="trash-2" class="text-danger"></i>
+            Delete
+        </a>
     </div>
 </div>
 
@@ -46,20 +74,18 @@
 <meta name="csrf-token" content="{{ csrf_token() }}">
 
 <script>
-
-
     $('.single-delete').on('click', function() {
-       var invoice_code = $(this).attr('invoice-code');
-       $('#confirmed-single-delete').attr('invoice-code',invoice_code)
-       $('#singleDeleteModal').modal('show');
+        var invoice_code = $(this).attr('invoice-code');
+        $('#confirmed-single-delete').attr('invoice-code', invoice_code)
+        $('#singleDeleteModal').modal('show');
 
-      
+
     });
 
 
     $('#confirmed-single-delete').on('click', function(e) {
         e.preventDefault();
-       var invoice_code = $(this).attr('invoice-code');
+        var invoice_code = $(this).attr('invoice-code');
         $.ajax({
             url: "{{ route('invoice.destroy') }}",
             method: 'POST',
@@ -79,6 +105,4 @@
             }
         });
     });
-
-
 </script>

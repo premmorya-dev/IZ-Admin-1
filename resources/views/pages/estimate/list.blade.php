@@ -1,6 +1,5 @@
 <x-default-layout>
 
-
     <x-page-heading
         title="Manage Estimate"
         description=""
@@ -37,11 +36,9 @@
         <div class="d-none d-md-block flex-grow-1"></div>
 
         <!-- Add Button -->
-        <a class="btn btn-outline-primary btn-sm w-100 w-md-auto px-4 py-2 shadow-sm fw-semibold text-uppercase d-flex align-items-center justify-content-center gap-2"
-            id="add-action" href="{{ route('estimate.add') }}">
-            <i data-lucide="plus-circle"></i> Add New
-        </a>
-        
+
+        <x-invoice.saas-button :href="route('estimate.add')" icon="plus-circle"> Add New</x-invoice.saas-button>
+
     </div>
 
 
@@ -89,8 +86,8 @@
 
                 <!-- Align status and due badge to the right -->
                 <div class="d-flex flex-column align-items-start text-start">
-                    <span class="fw-bold">
-                        <a href="{{ route('estimate.edit',['estimate_code' => $estimate->estimate_code ]) }}">{{ $estimate->estimate_number }}</a>
+                    <span class="fw-bold text-truncate-custom">
+                        <a href="{{ route('estimate.edit',['estimate_code' => $estimate->estimate_code ]) }}" title="{{ $estimate->estimate_number }}">{{ $estimate->estimate_number }}</a>
 
                         <a href="#" estimate-code="{{ $estimate->estimate_code }}" class="estimate-view-model" title="View Estimate"><i class="fa-regular fa-eye text-default"></i> </a>
                         <a href="{{ route('estimate.download',['estimate_code' => $estimate->estimate_code ]) }}?preview=true" target="__blank" title="Print Estimate"><i class="fa-solid fa-print text-defaults"></i> </a>
@@ -99,8 +96,8 @@
 
                     </span>
                     <span></span>
-                    <div class="d-flex align-items-center flex-wrap gap-1">
-                        To: <a href="#" client-code="{{ $estimate->client_code }}" class="edit-client" title="Client Detail"> {{ $estimate->company_name ?? $estimate->client_name }} </a>
+                    <div class="d-flex align-items-center flex-wrap gap-1 text-truncate-custom">
+                        To: <a href="#" client-code="{{ $estimate->client_code }}" title="{{ $estimate->company_name ?? $estimate->client_name }}" class="edit-client" title="Client Detail"> {{ $estimate->company_name ?? $estimate->client_name }} </a>
 
                         @php
                         $badgeClasses = [
@@ -109,6 +106,7 @@
                         'accepted' => 'text-info',
                         'rejected' => 'text-danger',
                         'expired' => 'text-info',
+
 
                         ];
                         @endphp
@@ -126,6 +124,21 @@
 
                     </div>
 
+                    @if($estimate->status != 'converted')
+                    <a href="{{ route('estimate.convert_to_invoice',$estimate->estimate_code) }}"
+                        class="convert-invoice-btn">
+                        <span class="convert-icon">
+                            <i class="fa-solid fa-file-invoice"></i>
+                        </span>
+
+                        <span class="convert-text">
+                            <small>Convert to</small>
+                            <strong>Invoice</strong>
+                        </span>
+
+                        <i class="fa-solid fa-arrow-right ms-2 arrow"></i>
+                    </a>
+                    @endif
 
                 </div>
             </div>
@@ -134,11 +147,12 @@
 
             @php
             $badgeClasses = [
-            'draft' => 'badge text-bg-warning text-white ',
-            'sent' => 'badge text-bg-success text-white ',
-            'accepted' => 'badge text-bg-info text-white',
-            'rejected' => 'badge text-bg-danger text-white ',
-            'expired' => 'badge text-bg-info text-white ',
+            'draft' => 'badge bg-light-warning text-warning border',
+            'sent' => 'badge bg-light-success text-success border',
+            'accepted' => 'badge bg-light-info text-info border',
+            'rejected' => 'badge bg-light-danger text-danger border',
+            'expired' => 'badge bg-light-info text-info border',
+            'converted' => 'badge bg-light-success text-success border',
 
             ];
             @endphp
@@ -149,8 +163,24 @@
                 <!-- Align status and due badge to the right -->
                 <div class="d-flex flex-column align-items-end text-end">
                     <span class="{{ $badgeClasses[$estimate->status] ?? 'badge text-bg-dark' }}">
-                        {{ ucfirst($estimate->status) }}
+                        @if($estimate->status == 'converted')
+                        <i class="fa-solid fa-check me-1"></i>
+                        @endif {{ ucfirst($estimate->status) }}
                     </span>
+
+                    @if($estimate->status == 'converted' && !empty($estimate->invoice_number) )
+                    <div class="d-flex align-items-center justify-content-end mt-1">
+                        <a href="{{ route('invoice.edit',['invoice_code'=> $estimate->invoice_code]) }}"
+                            class="text-truncate-custom d-inline-flex align-items-center gap-1 px-2 py-1 rounded-pill text-decoration-none invoice-link">
+                            <i class="fa-solid fa-file-invoice text-success"></i>
+                            <span class="small fw-semibold">{{ $estimate->invoice_number }}</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square small opacity-50"></i>
+                        </a>
+                    </div>
+                    @endif
+
+
+
                 </div>
             </div>
 
@@ -161,7 +191,7 @@
                 <span class="d-block d-md-none text-center mt-2 fw-bold">Total</span>
 
                 <div class="d-flex flex-column align-items-end align-items-md-start">
-                    <span class="badge bg-success mb-1 text-white">
+                    <span class="badge bg-success mb-1 text-white text-truncate-custom">
                         {{ $estimate->symbol }} {{ number_format($estimate->grand_total, 2) }} Total
                     </span>
 

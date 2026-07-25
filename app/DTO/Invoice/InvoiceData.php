@@ -33,6 +33,10 @@ class InvoiceData
     public $isRecurring = false;
     public $paidStatus = false;
 
+    public $convert_to_invoice;
+    public $estimate_number;
+    public $estimate_code;
+
     public static function fromRequest(Request $request, int $userId): self
     {
         $dto = new self();
@@ -55,11 +59,16 @@ class InvoiceData
         $dto->terms = $request->input('terms');
         $dto->currencyCode = $request->input('currency_code');
         $dto->templateId = $request->input('template_id');
-        $dto->upiId =  $request->input('upi_id_payment_status') == 'on' ? $request->input('upi_id') : NULL ;
+        $dto->upiId =  $request->input('upi_id_payment_status') == 'on' ? $request->input('upi_id') : NULL;
         $dto->displayShippingStatus = $request->boolean('display_shipping_status') ? 'Y' : 'N';
         $dto->sendStatus = $request->boolean('send_status');
         $dto->isRecurring = $request->boolean('is_recurring');
         $dto->paidStatus = $request->boolean('paid_status');
+
+        $dto->convert_to_invoice = $request->input('convert_to_invoice');
+        $dto->estimate_number = $request->input('estimate_number');
+          $dto->estimate_code = $request->input('estimate_code');
+
 
         $items = $request->input('item', []);
         $dto->items = [];
@@ -75,6 +84,8 @@ class InvoiceData
 
     public function toCreateAttributes(string $invoiceCode): array
     {
+
+        
         return [
             'user_id' => $this->userId,
             'client_id' => $this->clientId,
