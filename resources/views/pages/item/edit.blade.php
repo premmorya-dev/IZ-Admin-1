@@ -22,7 +22,7 @@
                                 <i class="fas fa-tag iz-label-icon"></i>Name<span class="req">*</span>
                                 <button type="button" class="iz-help" data-bs-toggle="tooltip" data-bs-placement="top" title="This name will appear on the invoice and item list shown to customers.">?</button>
                             </label>
-                            <input type="text" name="item_name" id="id_item_name" value="{{ old('item_name', $data['item']->item_name) }}" class="form-control" placeholder="e.g. Premium Website Design">
+                            <input type="text" name="item_name" id="id_item_name" value="{{ old('item_name', $data['item']->item_name ?? '' ) }}" class="form-control" placeholder="e.g. Premium Website Design">
                         </div>
 
                         <div class="col-md-6">
@@ -43,7 +43,7 @@
                                 <i class="fas fa-barcode iz-label-icon"></i>SKU
                                 <button type="button" class="iz-help" data-bs-toggle="tooltip" data-bs-placement="top" title="Your own internal stock or tracking code. Optional.">?</button>
                             </label>
-                            <input type="text" name="sku" id="id_sku" value="{{ old('sku', $data['item']->sku) }}" class="form-control" placeholder="e.g. SKU-00123">
+                            <input type="text" name="sku" id="id_sku" value="{{ old('sku', $data['item']->sku ?? '' ) }}" class="form-control" placeholder="e.g. SKU-00123">
                         </div>
 
                         <div class="col-12">
@@ -51,7 +51,7 @@
                                 <i class="fas fa-align-left iz-label-icon"></i>Description
                                 <button type="button" class="iz-help" data-bs-toggle="tooltip" data-bs-placement="top" title="Optional. A short detail about the item, may also appear on the invoice PDF.">?</button>
                             </label>
-                            <textarea name="description" id="id_description" class="form-control" placeholder="Brief description of the item" rows="3">{{ old('description', $data['item']->description) }}</textarea>
+                            <textarea name="description" id="id_description" class="form-control" placeholder="Brief description of the item" rows="3">{{ old('description', $data['item']->description ?? '' ) }}</textarea>
                         </div>
                     </div>
                 </div>
@@ -72,7 +72,7 @@
                                 <i class="fas fa-hashtag iz-label-icon"></i>HSN/SAC<span class="req">*</span>
                                 <button type="button" class="iz-help" data-bs-toggle="tooltip" data-bs-placement="top" title="Required for GST invoices. Use HSN code for products, SAC code for services.">?</button>
                             </label>
-                            <input type="number" name="hsn_sac" id="id_hsn_sac" value="{{ old('hsn_sac', $data['item']->hsn_sac) }}" class="form-control" placeholder="HSN/SAC code">
+                            <input type="number" name="hsn_sac" id="id_hsn_sac" value="{{ old('hsn_sac', $data['item']->hsn_sac ?? '' ) }}" class="form-control" placeholder="HSN/SAC code">
                         </div>
 
                         <div class="col-md-6">
@@ -80,7 +80,7 @@
                                 <i class="fas fa-boxes-stacked iz-label-icon"></i>Stock<span class="req">*</span>
                                 <button type="button" class="iz-help" data-bs-toggle="tooltip" data-bs-placement="top" title="Current available quantity. Updates automatically as sales happen.">?</button>
                             </label>
-                            <input type="number" name="stock" id="id_stock" value="{{ old('stock', $data['item']->stock) }}" class="form-control" placeholder="Available quantity">
+                            <input type="number" name="stock" id="id_stock" value="{{ old('stock', $data['item']->stock ?? '' ) }}" class="form-control" placeholder="Available quantity">
                         </div>
 
                         <div class="col-md-4">
@@ -90,7 +90,7 @@
                             </label>
                             <div class="iz-input-prefix">
                                 <span class="iz-prefix-symbol">₹</span>
-                                <input type="number" name="unit_price" id="id_unit_price" value="{{ old('unit_price', $data['item']->unit_price) }}" class="form-control" placeholder="0.00">
+                                <input type="number" name="unit_price" id="id_unit_price" value="{{ old('unit_price', $data['item']->unit_price ?? '' ) }}" class="form-control" placeholder="0.00">
                             </div>
                         </div>
 
@@ -101,7 +101,7 @@
                             </label>
                             <div class="iz-input-prefix">
                                 <span class="iz-prefix-symbol">₹</span>
-                                <input type="number" name="cost_price" id="id_cost_price" value="{{ old('cost_price', $data['item']->cost_price) }}" class="form-control" placeholder="0.00">
+                                <input type="number" name="cost_price" id="id_cost_price" value="{{ old('cost_price', $data['item']->cost_price ?? '' ) }}" class="form-control" placeholder="0.00">
                             </div>
                         </div>
 
@@ -112,7 +112,7 @@
                             </label>
                             <div class="iz-input-prefix">
                                 <span class="iz-prefix-symbol">₹</span>
-                                <input type="number" name="selling_price" id="id_selling_price" value="{{ old('selling_price', $data['item']->selling_price) }}" class="form-control" placeholder="0.00">
+                                <input type="number" name="selling_price" id="id_selling_price" value="{{ old('selling_price', $data['item']->selling_price ?? '' ) }}" class="form-control" placeholder="0.00">
                             </div>
                         </div>
                     </div>
@@ -135,8 +135,8 @@
                                     <button type="button" class="iz-help" data-bs-toggle="tooltip" data-bs-placement="top" title="Choose Service to hide or ignore stock tracking for this item.">?</button>
                                 </label>
                                 <select name="item_type" id="id_item_type" class="form-select">
-                                    <option value="product" {{ old('item_type', $data['item']->item_type ) == 'product' ? 'selected' : '' }}>Product</option>
-                                    <option value="service" {{ old('item_type', $data['item']->item_type ) == 'service' ? 'selected' : '' }}>Service</option>
+                                    <option value="product" {{ old('item_type', $data['item']->item_type ?? ''  ) == 'product' ? 'selected' : '' }}>Product</option>
+                                    <option value="service" {{ old('item_type', $data['item']->item_type  ?? '' ) == 'service' ? 'selected' : '' }}>Service</option>
                                 </select>
                             </div>
 
@@ -146,8 +146,8 @@
                                     <button type="button" class="iz-help" data-bs-toggle="tooltip" data-bs-placement="top" title="Deactivated items will not appear in the invoice creation list.">?</button>
                                 </label>
                                 <select name="status" id="id_status" class="form-select">
-                                    <option value="Y" {{ old('status', $data['item']->status ) == 'Y' ? 'selected' : '' }}>Active</option>
-                                    <option value="N" {{ old('status', $data['item']->status ) == 'N' ? 'selected' : '' }}>Deactive</option>
+                                    <option value="Y" {{ old('status', $data['item']->status ?? ''  ) == 'Y' ? 'selected' : '' }}>Active</option>
+                                    <option value="N" {{ old('status', $data['item']->status ?? '' ) == 'N' ? 'selected' : '' }}>Deactive</option>
                                 </select>
                             </div>
                         </div>

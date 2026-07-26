@@ -64,7 +64,7 @@
                 <select id="upi_id" name="upi_id" class="form-select">
                     <option value="">Please Select</option>
                     @foreach($data['upi_payment_id'] as $upi_payment)
-                    <option value="{{ $upi_payment->upi_id }}" {{ old('upi_id',$data['estimate']->upi_id) == $upi_payment->upi_id ? 'selected' : '' }}>
+                    <option value="{{ $upi_payment->upi_id }}" {{ old('upi_id',$data['estimate']->upi_id ?? ''  ) == $upi_payment->upi_id ? 'selected' : '' }}>
                         Name: {{ $upi_payment->upi_name }} | Id: {{ $upi_payment->upi_id }}
                     </option>
                     @endforeach
@@ -238,12 +238,12 @@
             <div class="row mt-3 gx-4">
                 <div class="col-md-6 bg-blue" id="terms-section">
                     <label for="terms" class="form-label fw-semibold">Terms and Conditions:</label>
-                    <textarea id="id_invoice_terms" name="terms" class="form-control" placeholder="Enter Terms">{{ old('terms', $data['estimate']->terms ) }}</textarea>
+                    <textarea id="id_invoice_terms" name="terms" class="form-control" placeholder="Enter Terms">{{ old('terms', $data['estimate']->terms ?? '' ) }}</textarea>
                 </div>
 
                 <div class="col-md-6 bg-blue" id="notes-section">
                     <label for="notes" class="form-label fw-semibold">Notes:</label>
-                    <textarea id="id_invoice_notes" name="notes" class="form-control" placeholder="Enter Notes">{{ old('notes', $data['estimate']->notes ) }}</textarea>
+                    <textarea id="id_invoice_notes" name="notes" class="form-control" placeholder="Enter Notes">{{ old('notes', $data['estimate']->notes ) ?? '' }}</textarea>
                 </div>
 
 
@@ -909,8 +909,8 @@
         $(document).ready(function() {
 
             var address = `{!! $data['client_details_html'] !!}`;
-            var client_id = `{{ $data['estimate']->client_id }}`;
-            var client_state_id = `{{ $data['estimate']->state_id }}`;
+            var client_id = `{{ $data['estimate']->client_id ?? '' }}`;
+            var client_state_id = `{{ $data['estimate']->state_id ?? '' }}`;
 
             if (address) {
                 $('#clientAddress').html(address).show();

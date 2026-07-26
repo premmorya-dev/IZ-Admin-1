@@ -60,7 +60,7 @@
                         label="Invoice Date"
                         icon="calendar-event"
                         placeholder="Select invoice issue date"
-                        value="{{ old('invoice_date', $data['invoice']->invoice_date) }}"
+                        value="{{ old('invoice_date', $data['invoice']->invoice_date ?? '' ) }}"
                         required />
                 </div>
 
@@ -71,7 +71,7 @@
                         label="Due Date"
                         icon="calendar-check"
                         placeholder="Select invoice due date"
-                        value="{{ old('due_date', $data['invoice']->due_date) }}"
+                        value="{{ old('due_date', $data['invoice']->due_date ?? '' ) }}"
                         required />
                 </div>
 
@@ -86,7 +86,7 @@
                 <select id="upi_id" name="upi_id" class="form-select">
                     <option value="">Please Select</option>
                     @foreach($data['upi_payment_id'] as $upi_payment)
-                    <option value="{{ $upi_payment->upi_id }}" {{ old('upi_id',$data['invoice']->upi_id) == $upi_payment->upi_id ? 'selected' : '' }}>
+                    <option value="{{ $upi_payment->upi_id }}" {{ old('upi_id',$data['invoice']->upi_id ?? '' ) == $upi_payment->upi_id ? 'selected' : '' }}>
                         Name: {{ $upi_payment->upi_name }} | Id: {{ $upi_payment->upi_id }}
                     </option>
                     @endforeach
@@ -255,12 +255,12 @@
             <div class="row mt-3 gx-4">
                 <div class="col-md-6 bg-blue" id="terms-section">
                     <label for="terms" class="form-label fw-semibold">Terms and Conditions:</label>
-                    <textarea id="id_invoice_terms" name="terms" class="form-control" placeholder="Enter Terms">{{ old('terms', $data['invoice']->terms ) }}</textarea>
+                    <textarea id="id_invoice_terms" name="terms" class="form-control" placeholder="Enter Terms">{{ old('terms', $data['invoice']->terms ?? '' ) }}</textarea>
                 </div>
 
                 <div class="col-md-6 bg-blue" id="notes-section">
                     <label for="notes" class="form-label fw-semibold">Notes:</label>
-                    <textarea id="id_invoice_notes" name="notes" class="form-control" placeholder="Enter Notes">{{ old('notes', $data['invoice']->notes ) }}</textarea>
+                    <textarea id="id_invoice_notes" name="notes" class="form-control" placeholder="Enter Notes">{{ old('notes', $data['invoice']->notes ?? '' ) }}</textarea>
                 </div>
 
 
@@ -289,7 +289,7 @@
                     </h5>
                     <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div id="view-record-form-body" class="mb-5">
+                <div id="view-record-form-body" class="px-5 mb-5">
 
                 </div>
             </div>

@@ -6,8 +6,8 @@
     :breadcrumbs="[
         ['label' => 'Estimates', 'url' => route('estimate.list')],
         [
-            'label' => 'Estimate #'.$data['estimate']->estimate_number,
-            'url' => route('estimate.edit', $data['estimate']->estimate_code)
+            'label' => 'Estimate #'.$data['estimate']->estimate_number ?? '',
+            'url' => route('estimate.edit', $data['estimate']->estimate_code ?? '')
         ],
         ['label' => 'Edit']
     ]"
@@ -22,20 +22,20 @@
             <div><a href="{{ route('estimate.list') }}" class="btn btn-outline-secondary btn-sm"> <i data-lucide="arrow-left"></i> Back </a> </div>
             <div class="invoice-actions">
                 <a href="#"
-                    estimate-code="{{ $data['estimate']->estimate_code }}"
+                    estimate-code="{{ $data['estimate']->estimate_code ?? '' }}"
                     class="estimate-view-model action-btn"
                     title="Preview">
                     <i class="fa-regular fa-eye"></i>
                 </a>
 
-                <a href="{{ route('estimate.download',['estimate_code'=>$data['estimate']->estimate_code]) }}?preview=true"
+                <a href="{{ route('estimate.download',['estimate_code'=>$data['estimate']->estimate_code ?? '']) }}?preview=true"
                     target="_blank"
                     class="action-btn"
                     title="Print">
                     <i class="fa-solid fa-print"></i>
                 </a>
 
-                <a href="{{ route('estimate.download',['estimate_code'=>$data['estimate']->estimate_code]) }}"
+                <a href="{{ route('estimate.download',['estimate_code'=>$data['estimate']->estimate_code ?? '']) }}"
                     class="action-btn"
                     title="Download">
                     <i class="fa-solid fa-download"></i>
@@ -62,7 +62,7 @@
                         label="Issue Date"
                         icon="calendar-event"
                         placeholder="Select estimate issue date"
-                        value="{{ old('issue_date', $data['estimate']->issue_date) }}"
+                        value="{{ old('issue_date', $data['estimate']->issue_date ?? '' ) }}"
                         required />
                 </div>
 
@@ -73,7 +73,7 @@
                         label="Expiry Date"
                         icon="calendar-check"
                         placeholder="Select estimate due date"
-                        value="{{ old('expiry_date', $data['estimate']->expiry_date) }}"
+                        value="{{ old('expiry_date', $data['estimate']->expiry_date ?? '' ) }}"
                         required />
                 </div>
 
@@ -256,12 +256,12 @@
             <div class="row mt-3 gx-4">
                 <div class="col-md-6 bg-blue" id="terms-section">
                     <label for="terms" class="form-label fw-semibold">Terms and Conditions:</label>
-                    <textarea id="id_estimate_terms" name="terms" class="form-control" placeholder="Enter Terms">{{ old('terms', $data['estimate']->terms ) }}</textarea>
+                    <textarea id="id_estimate_terms" name="terms" class="form-control" placeholder="Enter Terms">{{ old('terms', $data['estimate']->terms ?? '' ) }}</textarea>
                 </div>
 
                 <div class="col-md-6 bg-blue" id="notes-section">
                     <label for="notes" class="form-label fw-semibold">Notes:</label>
-                    <textarea id="id_estimate_notes" name="notes" class="form-control" placeholder="Enter Notes">{{ old('notes', $data['estimate']->notes ) }}</textarea>
+                    <textarea id="id_estimate_notes" name="notes" class="form-control" placeholder="Enter Notes">{{ old('notes', $data['estimate']->notes ?? '' ) }}</textarea>
                 </div>
 
 
@@ -290,7 +290,7 @@
                     </h5>
                     <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div id="view-record-form-body" class="mb-5">
+                <div id="view-record-form-body" class="px-5 mb-5">
 
                 </div>
             </div>
@@ -699,8 +699,8 @@
         $(document).ready(function() {
 
             var address = `{!! $data['client_details_html'] !!}`;
-            var client_id = `{{ $data['estimate']->client_id }}`;
-             var client_state_id = `{{ $data['estimate']->state_id }}`;
+            var client_id = `{{ $data['estimate']->client_id ?? '' }}`;
+             var client_state_id = `{{ $data['estimate']->state_id ?? '' }}`;
 
             if (address) {
                 $('#clientAddress').html(address).show();

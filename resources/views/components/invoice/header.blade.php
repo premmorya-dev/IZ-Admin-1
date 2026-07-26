@@ -106,7 +106,7 @@
                 Company
             </label>
 
-            <div class="company-logo-wrapper">
+            <div class="company-logo-wrapper" id="company-logo-section" >
 
                 <img
                     src="{{ asset($data['setting']->logo_path) }}"
@@ -130,7 +130,7 @@
                     <i class="bi bi-receipt"></i>
                     Invoice Number
                 </span>
-                @if(empty($data['invoice']->invoice_number))
+                @if(empty($data['invoice']->invoice_number ?? '' ))
                 <div class="form-check form-switch m-0">
 
                     <input
@@ -227,7 +227,7 @@
 
             </label>
 
-            <div class="">
+            <div id="template-section">
 
 
                 <select

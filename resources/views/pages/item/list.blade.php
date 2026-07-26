@@ -13,9 +13,10 @@
             <i data-lucide="trash-2"></i> Delete
         </a>
         <!-- Add Button -->
-        <a class="btn btn-outline-primary btn-sm px-4 py-2 shadow-sm fw-semibold text-uppercase d-flex align-items-center gap-2 new-item"
-            id="add-action" href="#"> <i data-lucide="plus-circle"></i> Add New</a>
 
+
+        <a class="new-item btn btn-add-saas"
+            id="add-action" href="#"> <i data-lucide="plus-circle"></i> Add New</a>
     </div>
 
     <!-- Lucide Init -->
@@ -87,8 +88,8 @@
 
             @php
             $badgeClasses = [
-            'Y' => 'badge text-bg-success text-white',
-            'N' => 'badge text-bg-danger text-white',
+            'Y' => 'badge bg-light-success text-success border',
+            'N' => 'badge bg-light-danger text-danger border',
 
             ];
             @endphp
@@ -108,7 +109,7 @@
             </div>
             <div class="col">
                 <span class="d-block d-md-none text-center mt-2 fw-bold"> Stock </span>
-                <span class="{{ $item->stock > 0 ? 'badge text-bg-success text-white' : 'badge text-bg-danger text-white'  }}"> {{ $item->stock }}</span>
+                <span class="{{ $item->stock > 0 ? 'badge bg-light-success text-success border' : 'badge bg-light-danger text-danger border'  }}"> {{ $item->stock }}</span>
 
             </div>
 

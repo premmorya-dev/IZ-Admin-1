@@ -13,28 +13,28 @@
         </div>
 
         <div class="addr-body">
-            @if(!empty($setting->company_name))
-                <strong>{{ $setting->company_name }}</strong><br>
+            @if(!empty($setting->company_name ?? '' ))
+                <strong>{{ $setting->company_name ?? '' }}</strong><br>
             @endif
 
-            @if(!empty($setting->address_1))
-                {{ $setting->address_1 }}<br>
+            @if(!empty($setting->address_1 ?? '' ))
+                {{ $setting->address_1 ?? '' }}<br>
             @endif
 
-            @if(!empty($setting->address_2))
-                {{ $setting->address_2 }}<br>
+            @if(!empty($setting->address_2 ?? '' ))
+                {{ $setting->address_2 ?? '' }}<br>
             @endif
 
-            @if(!empty($setting->state->state_name))
-                {{ $setting->state->state_name }}
+            @if(!empty($setting->state->state_name ?? ''))
+                {{ $setting->state->state_name ?? ''  }}
             @endif
 
-            @if(!empty($setting->country->country_name))
-                {{ $setting->country->country_name }}
+            @if(!empty($setting->country->country_name ?? ''))
+                {{ $setting->country->country_name ?? ''  }}
             @endif
 
-            @if(!empty($setting->pincode))
-                {{ $setting->pincode }}
+            @if(!empty($setting->pincode ?? '' ))
+                {{ $setting->pincode ?? '' }}
             @endif
         </div>
     </div>
