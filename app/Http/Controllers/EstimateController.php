@@ -839,32 +839,59 @@ class EstimateController extends Controller
     {
         $estimates_code = $request->input('estimates_code');
         $userId = auth()->id();
+        $queued = 0;
+        try {
+            foreach ($estimates_code as $estimate_code) {
+                $estimate =  DB::table('estimates')->where('estimate_code', $estimate_code)->first();
 
-        foreach ($estimates_code as $estimate_code) {
-            $estimate =  DB::table('estimates')->where('estimate_code', $estimate_code)->first();
+
+                DB::table('estimate_notifications')->insert([
+                    'user_id' => $userId,
+                    'estimate_id' => $estimate->estimate_id,
+                    'estimate_code' => $estimate_code,
+                    'notification_type' => 'email',
+                    'template_id' => 1,
+                    'is_read' => 'N',
+                    'processing_status' => 'pending',
+                    'cron_start_datetime' => null,
+                    'cron_end_datetime' => null,
+                    'processing_log' => null,
+                ]);
+                DB::table('estimates')->where([
+                    'user_id' => $userId,
+                    'estimate_code' => $estimates_code,
+                ])->update([
+                    'is_sent' => 'submitted',
+                ]);
+
+                $queued++;
+            }
 
 
-            DB::table('estimate_notifications')->insert([
-                'user_id' => $userId,
-                'estimate_id' => $estimate->estimate_id,
-                'estimate_code' => $estimate_code,
-                'notification_type' => 'email',
-                'template_id' => 1,
-                'is_read' => 'N',
-                'processing_status' => 'pending',
-                'cron_start_datetime' => null,
-                'cron_end_datetime' => null,
-                'processing_log' => null,
+            if ($queued > 0) {
+                session()->flash('success', 'Email queued successfully.');
+            } else {
+                session()->flash('warning', 'No Estimate were queued.');
+            }
+
+           $result =  [
+                'status' => 200,
+                'error' => $queued > 0 ? 0 : 1,
+                'message' => $queued > 0 ? 'Email queued successfully.' : 'No estimate were queued.',
+                'queued' => $queued,
+            ];
+        } catch (\Exception $e) {
+            logger()->error('Estimate email queue failed: ' . $e->getMessage(), [
+                'trace' => $e->getTraceAsString(),
             ]);
-            DB::table('estimates')->where([
-                'user_id' => $userId,
-                'estimate_code' => $estimates_code,
-            ])->update([
-                'is_sent' => 'submitted',
-            ]);
+            $result = [
+                'status' => 500,
+                'error' => 1,
+                'message' => 'Something went wrong while queueing emails.',
+            ];
         }
-        session()->flash('success', 'Email Queued Successfully!');
-        return response()->json(['message' => 'Email Queued Successfully.']);
+
+        return response()->json($result, 200);  
     }
 
 
