@@ -8,6 +8,7 @@ return [
     'secure' => env('SESSION_SECURE_COOKIE', false),
     'same_site' => 'lax', // or 'none' if using secure cookies across domains
     'jwt_secret' => env('JWT_SECRET'),
+    'version' => env('APP_VERSION', '1.0.0'),
     /*
     |--------------------------------------------------------------------------
     | Application Name

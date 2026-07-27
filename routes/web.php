@@ -23,7 +23,7 @@ use App\Http\Controllers\ItemCategoryController;
 use App\Http\Controllers\ExpenseCategoryController;
 use App\Http\Controllers\ExpenseItemController;
 use App\Http\Controllers\ExpenseController;
-
+use App\Http\Controllers\VersionController;
 use App\Http\Middleware\CheckActiveSubscription;
 /*
 |--------------------------------------------------------------------------
@@ -374,5 +374,7 @@ Route::middleware(['auth'])->group(function () {
     });
 });
 
+Route::get('/app-version', [VersionController::class, 'show'])
+    ->name('app-version');
 require __DIR__ . '/auth.php';
 require __DIR__ . '/guest.php';

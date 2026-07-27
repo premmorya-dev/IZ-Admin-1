@@ -1,0 +1,10 @@
+# Add to .env — bump APP_VERSION on every deploy, that's the only required step.
+
+APP_VERSION=2.1.3
+APP_RELEASE_DATE=2026-07-28
+APP_UPDATE_TITLE="Invoicezy has been updated"
+APP_UPDATE_DESCRIPTION="We've made improvements to your workspace."
+APP_UPDATE_COUNTDOWN=60
+
+# Also add to config/app.php:
+# 'version' => env('APP_VERSION', '1.0.0'),

@@ -43,7 +43,7 @@
     <meta property="og:title" content="" />
     <link rel="canonical" href="{{ url()->current() }}" />
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
-
+    <meta name="app-version" content="{{ config('app.version') }}">
     <link href="{{ asset('assets/plugins/global/plugins.bundle.css') }}" rel="stylesheet" type="text/css" />
 
     <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
@@ -174,92 +174,100 @@
         }
 
 
- .floating-help-btn {
-    position: fixed;
-    right: 22px;
-    bottom: 24px;
-    z-index: 999;
+        .floating-help-btn {
+            position: fixed;
+            right: 22px;
+            bottom: 24px;
+            z-index: 999;
 
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
 
-    padding: 10px 16px;
+            padding: 10px 16px;
 
-    border-radius: 999px;
+            border-radius: 999px;
 
-    background: rgba(20, 20, 20, 0.92);
-    backdrop-filter: blur(16px);
+            background: rgba(20, 20, 20, 0.92);
+            backdrop-filter: blur(16px);
 
-    border: 1px solid rgba(255,255,255,.08);
+            border: 1px solid rgba(255, 255, 255, .08);
 
-    text-decoration: none;
+            text-decoration: none;
 
-    box-shadow: 0 12px 30px rgba(0,0,0,.18);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, .18);
 
-    transition: all .3s ease;
-}
+            transition: all .3s ease;
+        }
 
-.floating-help-btn:hover{
-    transform: translateY(-3px);
-    box-shadow:0 16px 36px rgba(0,0,0,.25);
-}
+        .floating-help-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 16px 36px rgba(0, 0, 0, .25);
+        }
 
-.help-icon{
-    width:40px;
-    height:40px;
+        .help-icon {
+            width: 40px;
+            height: 40px;
 
-    border-radius:50%;
+            border-radius: 50%;
 
-    display:flex;
-    align-items:center;
-    justify-content:center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
 
-    background:#25D366;
-    color:#fff;
+            background: #25D366;
+            color: #fff;
 
-    font-size:20px;
+            font-size: 20px;
 
-    animation: pulse 2s infinite;
-}
+            animation: pulse 2s infinite;
+        }
 
-.help-text{
-    color:#fff;
-    font-size:14px;
-    font-weight:600;
-    white-space:nowrap;
-}
+        .help-text {
+            color: #fff;
+            font-size: 14px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
 
-@keyframes pulse{
-    0%{box-shadow:0 0 0 0 rgba(37,211,102,.45);}
-    70%{box-shadow:0 0 0 12px rgba(37,211,102,0);}
-    100%{box-shadow:0 0 0 0 rgba(37,211,102,0);}
-}
+        @keyframes pulse {
+            0% {
+                box-shadow: 0 0 0 0 rgba(37, 211, 102, .45);
+            }
 
-@media(max-width:768px){
+            70% {
+                box-shadow: 0 0 0 12px rgba(37, 211, 102, 0);
+            }
 
-    .floating-help-btn{
-        padding:10px;
-    }
+            100% {
+                box-shadow: 0 0 0 0 rgba(37, 211, 102, 0);
+            }
+        }
 
-    .help-text{
-        display:none;
-    }
+        @media(max-width:768px) {
 
-    .help-icon{
-        width:52px;
-        height:52px;
-        font-size:24px;
-    }
+            .floating-help-btn {
+                padding: 10px;
+            }
 
-}
+            .help-text {
+                display: none;
+            }
+
+            .help-icon {
+                width: 52px;
+                height: 52px;
+                font-size: 24px;
+            }
+
+        }
     </style>
 </head>
 <!--end::Head-->
 <!-- Modal -->
 <a href="https://wa.me/918750101087?text=Hi%20I%20need%20help%20with%20Invoicezy"
-   target="_blank"
-   class="floating-help-btn">
+    target="_blank"
+    class="floating-help-btn">
 
     <span class="help-icon">
         <i class="bi bi-whatsapp text-white"></i>
@@ -437,6 +445,8 @@
 
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="{{ asset('assets/js/invoice.bundle.js') }}"></script>
+
+    <x-update-modal />
 </body>
 <!--end::Body-->
 
