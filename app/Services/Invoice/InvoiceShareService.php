@@ -44,7 +44,9 @@ class InvoiceShareService
             'invoice_number'  => $shortcode['{{invoice_number}}'],
             'invoice_date'    => $shortcode['{{invoice_date}}'],
             'due_date'        => $shortcode['{{invoice_due_date}}'],
-            'amount'          => $shortcode['{{invoice_total_due}}'],
+            'amount'          => $shortcode['{{invoice_grand_total}}'],
+            'total_due'       => $shortcode['{{invoice_total_due}}'],
+            'invoice_currency_symbol'       => $shortcode['{{invoice_currency_symbol}}'],
             'status'          => $invoice->status === 'paid' ? 'Paid' : 'Pending',
             'invoice_url'     => route('download.invoice.securelink', $invoice->share_token),
             'user_company_name' => $shortcode['{{user_company_name}}'],
@@ -73,7 +75,8 @@ class InvoiceShareService
         $message .= "Invoice No.      {$data['invoice_number']}\n";
         $message .= "Invoice Date     {$data['invoice_date']}\n";
         $message .= "Due Date         {$data['due_date']}\n";
-        $message .= "Amount Due       ₹{$data['amount']}\n";
+        $message .= "Amount           {$data['invoice_currency_symbol']} {$data['amount']}\n";
+        $message .= "Due              {$data['invoice_currency_symbol']} {$data['total_due']}\n";
         $message .= "Status           {$data['status']}\n";
         $message .= "```\n";
         $message .= "{$divider}\n\n";

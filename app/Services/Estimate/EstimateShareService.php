@@ -46,7 +46,9 @@ class EstimateShareService
             'estimate_number'  => $shortcode['{{estimate_number}}'],
             'estimate_date'    => $shortcode['{{estimate_date}}'],
             'expiry_date'        => $shortcode['{{estimate_due_date}}'],
-            'amount'          => $shortcode['{{estimate_total_due}}'],
+            'amount'          => $shortcode['{{estimate_grand_total}}'],
+            'total_due'       => $shortcode['{{estimate_final_amount}}'],
+            'estimate_currency_symbol'       => $shortcode['{{estimate_currency_symbol}}'],
             'status'          => $estimate->status === 'paid' ? 'Paid' : 'Pending',
             'estimate_url'     => route('download.estimate.securelink', $estimate->share_token),
             'user_company_name' => $shortcode['{{user_company_name}}'],
@@ -75,7 +77,8 @@ class EstimateShareService
         $message .= "Estimate No.      {$data['estimate_number']}\n";
         $message .= "Estimate Date     {$data['estimate_date']}\n";
         $message .= "Expiry Date       {$data['expiry_date']}\n";
-        $message .= "Amount            ₹{$data['amount']}\n";
+        $message .= "Amount            {$data['estimate_currency_symbol']} {$data['amount']}\n";
+        $message .= "Due               {$data['estimate_currency_symbol']} {$data['total_due']}\n";
         $message .= "Status            {$data['status']}\n";
         $message .= "```\n";
         $message .= "{$divider}\n\n";
