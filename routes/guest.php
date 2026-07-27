@@ -3,10 +3,11 @@
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\EstimateController;
 use App\Http\Controllers\Auth\SocialiteController;
+use App\Http\Controllers\InvoiceController;
 
 // you can use verified middleware for verify email address.
 //Email tracking route
-Route::get('/email-open/{id}', function ($id) { 
+Route::get('/email-open/{id}', function ($id) {
     // Log email open into DB
     \DB::table('leads')
         ->where('id', $id)
@@ -50,3 +51,15 @@ Route::get('/auth/redirect/{provider}', [SocialiteController::class, 'redirect']
 Route::get('/test-error', function () {
     throw new Exception('This is a test production error.');
 });
+
+Route::get('/invoice/{invoice_code}/share-whatsapp', [InvoiceController::class, 'shareWhatsapp'])
+    ->name('invoice.whatsapp.share');
+
+Route::get('/i/{token}', [InvoiceController::class, 'invoiceDownloadSecureLink'])
+    ->name('download.invoice.securelink');
+
+Route::get('/estimate/{estimate_code}/share-whatsapp', [EstimateController::class, 'shareWhatsapp'])
+    ->name('estimate.whatsapp.share');
+
+Route::get('/e/{token}', [EstimateController::class, 'estimateDownloadSecureLink'])
+    ->name('download.estimate.securelink');

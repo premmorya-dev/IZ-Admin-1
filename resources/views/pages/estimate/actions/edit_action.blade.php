@@ -32,13 +32,14 @@
             <i data-lucide="download" class="text-success"></i> Download
         </a>
 
+        <a href="#" class="single-send-estimate-model" estimate-code="{{ $estimate->estimate_code }}">
+            <i data-lucide="send" class="text-info"></i>
+            Share to Email
+        </a>
 
-
-        <a href="#"
-            class="send-estimate"
-            estimate-code="{{ $estimate->estimate_code }}"
-            title="Send Estimate">
-            <i data-lucide="send" class="text-primary"></i> Send
+        <a href="{{ route('estimate.whatsapp.share', ['estimate_code' => $estimate->estimate_code]) }}" target="__blank">
+            <i data-lucide="message-circle" class="text-success"></i>
+            Share to WhatsApp
         </a>
 
         @if($estimate->status == 'converted' && !empty($estimate->invoice_code))

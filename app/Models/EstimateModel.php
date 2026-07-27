@@ -33,6 +33,8 @@ class EstimateModel extends Model
         'estimate_number',
         'invoice_number',
         'invoice_code',
+        'share_token',
+        'public_link_expires_at',
         'issue_date',
         'expiry_date',
         'status',

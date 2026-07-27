@@ -22,6 +22,7 @@ use App\Services\InvoiceService;
 use Illuminate\Validation\Rule;
 use App\Services\Invoice\DocumentSequenceService;
 use App\Services\Estimate\EstimateService as EstimateModuleService;
+use App\Services\Estimate\EstimateShareService;
 
 
 class EstimateController extends Controller
@@ -237,7 +238,7 @@ class EstimateController extends Controller
 
     public function convertToInvoice(Request $request, $estimate_code, EstimateModuleService $estimateService)
     {
-       
+
         $data = $estimateService->getEditData($estimate_code);
         if (empty($data)) {
             return abort(404);
@@ -720,7 +721,6 @@ class EstimateController extends Controller
 
 
         $estimate_template_id =  shortcode('estimate', $estimate_code, "{{estimate_template_id}}");
-
         $template =  DB::table('estimate_templates')->where('template_id', $estimate_template_id)->first();
 
 
@@ -757,6 +757,28 @@ class EstimateController extends Controller
         }
     }
 
+    public function shareWhatsapp($estimate_code, EstimateShareService $shareService)
+    {
+        $estimate = EstimateModel::where('estimate_code', $estimate_code)->firstOrFail();
+
+        $publicUrl = $shareService->generatePublicLink($estimate);
+
+        $url = $shareService->sendWhatsAppEstimate($estimate);
+
+        return $url;
+    }
+
+    public function estimateDownloadSecureLink(Request $request, $share_token)
+    {
+        $estimate = EstimateModel::where('share_token', $share_token,)
+            ->where(function ($q) {
+                $q->whereNull('public_link_expires_at')
+                    ->orWhere('public_link_expires_at', '>', now());
+            })
+            ->firstOrFail();
+
+        return  $this->estimateDownload($request, $estimate->estimate_code);
+    }
 
     public function bulkDelete(Request $request)
     {

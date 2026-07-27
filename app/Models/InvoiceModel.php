@@ -24,9 +24,13 @@ class InvoiceModel extends Model
      */
     // The attributes that are mass assignable.
     protected $fillable = [
-     'user_id',
+        'user_id',
         'client_id',
         'invoice_number',
+
+        'share_token',
+        'public_link_expires_at',
+
         'invoice_date',
         'due_date',
         'status',
@@ -34,7 +38,7 @@ class InvoiceModel extends Model
         'total_tax',
         'total_tax_percent',
         'taxable_value',
-    
+
         'cgst_amount',
         'sgst_amount',
         'igst_amount',

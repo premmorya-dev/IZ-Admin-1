@@ -29,23 +29,26 @@
             Edit
         </a>
 
-        <a href="#" class="single-send-invoice-model"  invoice-code="{{ $invoice->invoice_code }}">
-            <i data-lucide="send" class="text-info"></i>
-            Send Invoice
-        </a>
-       
+
+
         <a href="{{ route('invoice.download',['invoice_code'=>$invoice->invoice_code]) }}?preview=true"
             target="_blank">
-           <i data-lucide="printer" class="text-info"></i> Print
-            
+            <i data-lucide="printer" class="text-info"></i> Print
+
         </a>
 
         <a href="{{ route('invoice.download',['invoice_code'=>$invoice->invoice_code]) }}">
             <i data-lucide="download" class="text-success"></i>
             Download PDF
-        </a>   
-        
-
+        </a>
+        <a href="#" class="single-send-invoice-model" invoice-code="{{ $invoice->invoice_code }}">
+            <i data-lucide="send" class="text-info"></i>
+            Share to Email
+        </a>
+        <a href="{{ route('invoice.whatsapp.share', ['invoice_code' => $invoice->invoice_code]) }}" target="__blank">
+            <i data-lucide="message-circle" class="text-success"></i>
+            Share to WhatsApp
+        </a>
         <a href="#" title="Delete Invoice"
             class="single-delete"
             invoice-code="{{ $invoice->invoice_code }}">

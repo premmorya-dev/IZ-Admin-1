@@ -18,6 +18,8 @@ use App\Services\Invoice\InvoiceFilterService;
 use App\Services\Invoice\InvoiceService as InvoiceModuleService;
 use App\Services\Invoice\InvoiceTemplateService;
 use Illuminate\Http\Request;
+use App\Services\Invoice\InvoiceShareService;
+use App\Models\InvoiceModel;
 
 class InvoiceController extends Controller
 {
@@ -120,6 +122,31 @@ class InvoiceController extends Controller
     {
         return $action->download($invoice_code, $request->input('preview') === 'true');
     }
+
+    public function shareWhatsapp($invoice_code, InvoiceShareService $shareService)
+    {
+        $invoice = InvoiceModel::where('invoice_code', $invoice_code)->firstOrFail();
+
+        $publicUrl = $shareService->generatePublicLink($invoice);
+
+        $url = $shareService->sendWhatsAppInvoice($invoice);
+
+        return $url;
+    }
+
+    public function invoiceDownloadSecureLink(Request $request, $token, DownloadInvoicePdfAction $action)
+    {
+
+        $invoice = InvoiceModel::where('share_token', $token,)
+            ->where(function ($q) {
+                $q->whereNull('public_link_expires_at')
+                    ->orWhere('public_link_expires_at', '>', now());
+            })
+            ->firstOrFail();
+
+        return $action->download($invoice->invoice_code, $request->input('preview') === 'true');
+    }
+
 
     public function bulkDelete(BulkDeleteInvoiceRequest $request, BulkDeleteInvoiceAction $action)
     {

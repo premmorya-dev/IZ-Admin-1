@@ -384,6 +384,28 @@
     </div>
 
 
+     <div class="modal fade" id="singleEmailConfirmModal" tabindex="-1" aria-labelledby="singleEmailConfirmModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white rounded-top-3">
+                    <h5 class="modal-title">Send Estimate Email</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    Are you sure you want to send this estimates to clients via email?
+                </div>
+                <div class="modal-footer">
+                    <input type="hidden" name="single-estimate-email-estimate-code" id="single-estimate-email-estimate-code" value="">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                    <button type="button" class="btn btn-primary" id="single-send-estimate">
+                        <i class="fa-solid fa-paper-plane text-white"></i> Send
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+
 
     <!-- View Modal -->
     <div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
@@ -653,6 +675,42 @@
 
                 form.submit(); // Normal form POST → Laravel returns ZIP → Browser prompts download
             });
+
+
+             function sendEstimateEmail(estimateCode){
+                 $.ajax({
+                    url: "{{ route('estimate.send_bulk_email') }}",
+                    type: "POST",
+                    data: {
+                        _token: "{{ csrf_token() }}",
+                        estimates_code: estimateCode
+                    },
+                    success: function(response) {
+                        if (response.error === 0) {
+                            $('#emailConfirmModal').modal('hide');
+                            location.reload();
+                        } else {
+                            alert(response.message || "An error occurred. Please try again.");
+                        }
+                    },
+                    error: function(xhr) {
+                        alert("An error occurred. Please try again.");
+                    }
+                });
+            }
+
+
+           $('.single-send-estimate-model').click(function() {
+                $("#single-estimate-email-estimate-code").val($(this).attr('estimate-code'))
+                $('#singleEmailConfirmModal').modal('show');
+            });
+
+             $('#single-send-estimate').click(function() {
+                $('#singleEmailConfirmModal').modal('hide');                   
+                let estimateCode = $("#single-estimate-email-estimate-code").val() ? [$("#single-estimate-email-estimate-code").val()] : [];
+                sendEstimateEmail(estimateCode);
+            });
+
 
 
             $('#confirm-send-email').click(function() {
