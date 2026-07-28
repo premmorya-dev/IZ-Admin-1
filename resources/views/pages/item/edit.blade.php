@@ -89,8 +89,7 @@
                                 <button type="button" class="iz-help" data-bs-toggle="tooltip" data-bs-placement="top" title="The default rate used when this item is added to an invoice.">?</button>
                             </label>
                             <div class="iz-input-prefix">
-                                <span class="iz-prefix-symbol">₹</span>
-                                <input type="number" name="unit_price" id="id_unit_price" value="{{ old('unit_price', $data['item']->unit_price ?? '' ) }}" class="form-control" placeholder="0.00">
+                                <input type="number" name="unit_price" id="id_unit_price" value="{{ old('unit_price', $data['item']->unit_price ?? '' ) }}" class="form-control" placeholder="₹0.00">
                             </div>
                         </div>
 
@@ -100,8 +99,7 @@
                                 <button type="button" class="iz-help" data-bs-toggle="tooltip" data-bs-placement="top" title="What this item costs you. Used to calculate your profit margin.">?</button>
                             </label>
                             <div class="iz-input-prefix">
-                                <span class="iz-prefix-symbol">₹</span>
-                                <input type="number" name="cost_price" id="id_cost_price" value="{{ old('cost_price', $data['item']->cost_price ?? '' ) }}" class="form-control" placeholder="0.00">
+                                <input type="number" name="cost_price" id="id_cost_price" value="{{ old('cost_price', $data['item']->cost_price ?? '' ) }}" class="form-control" placeholder="₹0.00">
                             </div>
                         </div>
 
@@ -111,8 +109,7 @@
                                 <button type="button" class="iz-help" data-bs-toggle="tooltip" data-bs-placement="top" title="Use this if you want a selling price different from the unit price.">?</button>
                             </label>
                             <div class="iz-input-prefix">
-                                <span class="iz-prefix-symbol">₹</span>
-                                <input type="number" name="selling_price" id="id_selling_price" value="{{ old('selling_price', $data['item']->selling_price ?? '' ) }}" class="form-control" placeholder="0.00">
+                                <input type="number" name="selling_price" id="id_selling_price" value="{{ old('selling_price', $data['item']->selling_price ?? '' ) }}" class="form-control" placeholder="₹0.00">
                             </div>
                         </div>
                     </div>

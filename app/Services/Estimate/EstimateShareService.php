@@ -77,8 +77,8 @@ class EstimateShareService
         $message .= "Estimate No.      {$data['estimate_number']}\n";
         $message .= "Estimate Date     {$data['estimate_date']}\n";
         $message .= "Expiry Date       {$data['expiry_date']}\n";
-        $message .= "Amount            {$data['estimate_currency_symbol']} {$data['amount']}\n";
-        $message .= "Due               {$data['estimate_currency_symbol']} {$data['total_due']}\n";
+        $message .= "Amount            {$data['estimate_currency_symbol']}{$data['amount']}\n";
+        $message .= "Due               {$data['estimate_currency_symbol']}{$data['total_due']}\n";
         $message .= "Status            {$data['status']}\n";
         $message .= "```\n";
         $message .= "{$divider}\n\n";

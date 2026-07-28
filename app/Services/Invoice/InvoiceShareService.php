@@ -75,8 +75,8 @@ class InvoiceShareService
         $message .= "Invoice No.      {$data['invoice_number']}\n";
         $message .= "Invoice Date     {$data['invoice_date']}\n";
         $message .= "Due Date         {$data['due_date']}\n";
-        $message .= "Amount           {$data['invoice_currency_symbol']} {$data['amount']}\n";
-        $message .= "Due              {$data['invoice_currency_symbol']} {$data['total_due']}\n";
+        $message .= "Amount           {$data['invoice_currency_symbol']}{$data['amount']}\n";
+        $message .= "Due              {$data['invoice_currency_symbol']}{$data['total_due']}\n";
         $message .= "Status           {$data['status']}\n";
         $message .= "```\n";
         $message .= "{$divider}\n\n";

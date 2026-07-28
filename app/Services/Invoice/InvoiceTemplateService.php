@@ -9,8 +9,8 @@ class InvoiceTemplateService
     public function renderInvoiceHtml(string $invoiceCode): ?string
     {
        
-       
-        $invoiceTemplateId = shortcode('invoice', $invoiceCode, '{{invoice_template_id}}');
+        $user  = DB::table('invoices')->where('invoice_code', $invoiceCode)->select('user_id')->first();
+        $invoiceTemplateId = shortcode('invoice', $invoiceCode, '{{invoice_template_id}}' , $user->user_id);
         $template = DB::table('templates')->where('template_id', $invoiceTemplateId)->first();
 
         if (!$template) {
@@ -19,7 +19,7 @@ class InvoiceTemplateService
 
         $html = $this->cleanHtml((string) ($template->content ?? ''));
 
-        return shortcode('invoice', $invoiceCode, $html);
+        return shortcode('invoice', $invoiceCode, $html,$user->user_id);
     }
 
     public function cleanHtml(string $html): string

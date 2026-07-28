@@ -718,9 +718,9 @@ class EstimateController extends Controller
         // $invoice = $invoiceService->getDocumentData('1b7c1d2027f16b7ec156e5297b51404f4c679539dbdfe2e03bf3394583a7774f');
         // $tt   = getShortcode('estimate', 'a80ed6a59745ad7f2cf5e5c9eb6c4614c0211a2de6941a3223aeb9fa0021fd3c');
 
+        $user  = DB::table('estimates')->where('estimate_code', $estimate_code)->select('user_id')->first();
 
-
-        $estimate_template_id =  shortcode('estimate', $estimate_code, "{{estimate_template_id}}");
+        $estimate_template_id =  shortcode('estimate', $estimate_code, "{{estimate_template_id}}",  $user->user_id);
         $template =  DB::table('estimate_templates')->where('template_id', $estimate_template_id)->first();
 
 
@@ -740,7 +740,7 @@ class EstimateController extends Controller
         );
 
 
-        $html =  shortcode('estimate', $estimate_code, $html);
+        $html =  shortcode('estimate', $estimate_code, $html, $user->user_id);
 
         $pdf = Pdf::loadHTML($html)
             ->setPaper('a4', 'portrait')
