@@ -127,7 +127,10 @@ abstract class DocumentService
         $document->signature_image = $document->signature && file_exists(public_path($document->signature))
         ?   url('/') . "/" . $document->signature : '';
         
-        
+        if($this->table == 'estimates'){
+            $document->total_due = $document->grand_total;
+        }
+         
         $document->qr_base64 = '';
         if (!empty($document->upi_id)) {
             $note = "Payment|{$document->company_name}|{$document->{$this->numberField}}";
