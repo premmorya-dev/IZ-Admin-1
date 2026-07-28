@@ -149,7 +149,7 @@ if (!function_exists('getShortcode')) {
 
         if (!$service) return [];
 
-    
+
         $doc = $service->getDocumentData($code, $userId);
 
 
@@ -248,7 +248,7 @@ if (!function_exists('getShortcode')) {
             '{{invoice_advance_payment}}' => $doc->advance_payment ?? 0,
 
             '{{' . $type . '_total_due}}' => $doc->total_due ?? 0,
-            '{{' . $type . '_final_amount}}' => ($doc->grand_total +  $doc->round_off )  ?? 0 ,
+            '{{' . $type . '_final_amount}}' => ($doc->grand_total +  $doc->round_off)  ?? 0,
             '{{' . $type . '_notes}}' => $doc->notes,
             '{{' . $type . '_terms}}' => $doc->terms,
             '{{' . $type . '_currency_code}}' => $doc->currency_code,
@@ -264,8 +264,8 @@ if (!function_exists('getShortcode')) {
             '{{' . $party . '_name}}' => $doc->{$party . '_name'} ?? '',
             '{{' . $party . '_company_name}}' => $doc->{$party . '_company_name'} ?? $doc->{$party . '_name'} ?? '',
             '{{' . $party . '_email}}' => $doc->{$party . '_email'} ?? '',
-            '{{' . $party . '_phone}}' => $doc->{$party . '_phone'} ?? '',  
-             '{{' . $party . '_email_phone_text}}' => $email_phone_text,
+            '{{' . $party . '_phone}}' => $doc->{$party . '_phone'} ?? '',
+            '{{' . $party . '_email_phone_text}}' => $email_phone_text,
             '{{' . $party . '_address_1}}' => $doc->{$party . '_address_1'} ?? '',
             '{{' . $party . '_address_2}}' => $doc->{$party . '_address_2'} ?? '',
             '{{' . $party . '_city}}' => $doc->{$party . '_city'} ?? '',
@@ -284,6 +284,7 @@ if (!function_exists('getShortcode')) {
             '{{' . $party . '_shipping_country}}' => $doc->{$party . '_shipping_country'} ?? '',
             '{{' . $party . '_shipping_zip}}' => $doc->{$party . '_shipping_zip'} ?? '',
             '{{' . $party . '_shipping_address}}' => $shipping_address ?? '',
+            '{{display_shipping_status}}' =>$doc->display_shipping_status ?? '',
 
 
 

@@ -601,21 +601,18 @@ class EstimateController extends Controller
 
         $template =  DB::table('estimate_templates')->where('template_id', $estimate_template_id)->first();
 
+        $display_shipping_status = shortcode('estimate', $estimate_code, '{{display_shipping_status}}');
 
-
-        $search = [
-            '/\>[^\S ]+/s',  // Remove spaces after tags, except spaces
-            '/[^\S ]+\</s',  // Remove spaces before tags, except spaces
-            '/(\s)+/s',       // Reduce multiple whitespace sequences
-            '/<!--(.|\s)*?-->/' // Remove HTML comments
-        ];
-        $replace = ['>', '<', '\\1', ''];
-        $html = preg_replace($search, $replace, $template->content);
-        $html = preg_replace(
-            ['/>\s+</', '/\s{2,}/', '/<!--(.*?)-->/'],
-            ['><', ' ', ''],
-            $html
-        );
+        if ($display_shipping_status == 'N') {
+            $template_content = preg_replace('/\{\{#shipping\}\}.*?\{\{\/shipping\}\}/s', '', $template->content);
+        } else {
+            $template_content = str_replace(
+                ['{{#shipping}}', '{{/shipping}}'],
+                '',
+                $template->content
+            );
+        }
+        $html = $this->cleanHtml((string) ($template_content ?? ''));
 
 
         $html =  shortcode('estimate', $estimate_code, $html);
@@ -625,6 +622,22 @@ class EstimateController extends Controller
             'html' => $html,
             "message" => "Estimate Saved Successfully!"
         ]);
+    }
+
+    public function cleanHtml(string $html): string
+    {
+        $html = preg_replace([
+            '/\>[^\S ]+/s',
+            '/[^\S ]+\</s',
+            '/(\s)+/s',
+            '/<!--(.|\s)*?-->/',
+        ], ['>', '<', '\\1', ''], $html);
+
+        return preg_replace([
+            '/>\s+</',
+            '/\s{2,}/',
+            '/<!--(.*?)-->/',
+        ], ['><', ' ', ''], $html);
     }
 
     public function shortcode($estimate_code)
@@ -711,34 +724,23 @@ class EstimateController extends Controller
     public function estimateDownload(Request $request, $estimate_code)
     {
 
-        // $estimateService = new EstimateService();
-        // $estimate = $estimateService->getDocumentData('EST-003');
-
-        // $invoiceService = new InvoiceService();
-        // $invoice = $invoiceService->getDocumentData('1b7c1d2027f16b7ec156e5297b51404f4c679539dbdfe2e03bf3394583a7774f');
-        // $tt   = getShortcode('estimate', 'a80ed6a59745ad7f2cf5e5c9eb6c4614c0211a2de6941a3223aeb9fa0021fd3c');
-
         $user  = DB::table('estimates')->where('estimate_code', $estimate_code)->select('user_id')->first();
 
         $estimate_template_id =  shortcode('estimate', $estimate_code, "{{estimate_template_id}}",  $user->user_id);
         $template =  DB::table('estimate_templates')->where('template_id', $estimate_template_id)->first();
 
+        $display_shipping_status = shortcode('estimate', $estimate_code, '{{display_shipping_status}}', $user->user_id);
 
-
-        $search = [
-            '/\>[^\S ]+/s',  // Remove spaces after tags, except spaces
-            '/[^\S ]+\</s',  // Remove spaces before tags, except spaces
-            '/(\s)+/s',       // Reduce multiple whitespace sequences
-            '/<!--(.|\s)*?-->/' // Remove HTML comments
-        ];
-        $replace = ['>', '<', '\\1', ''];
-        $html = preg_replace($search, $replace, $template->content);
-        $html = preg_replace(
-            ['/>\s+</', '/\s{2,}/', '/<!--(.*?)-->/'],
-            ['><', ' ', ''],
-            $html
-        );
-
+        if ($display_shipping_status == 'N') {
+            $template_content = preg_replace('/\{\{#shipping\}\}.*?\{\{\/shipping\}\}/s', '', $template->content);
+        } else {
+            $template_content = str_replace(
+                ['{{#shipping}}', '{{/shipping}}'],
+                '',
+                $template->content
+            );
+        }
+        $html = $this->cleanHtml((string) ($template_content ?? ''));
 
         $html =  shortcode('estimate', $estimate_code, $html, $user->user_id);
 
@@ -874,7 +876,7 @@ class EstimateController extends Controller
                 session()->flash('warning', 'No Estimate were queued.');
             }
 
-           $result =  [
+            $result =  [
                 'status' => 200,
                 'error' => $queued > 0 ? 0 : 1,
                 'message' => $queued > 0 ? 'Email queued successfully.' : 'No estimate were queued.',
@@ -891,7 +893,7 @@ class EstimateController extends Controller
             ];
         }
 
-        return response()->json($result, 200);  
+        return response()->json($result, 200);
     }
 
 

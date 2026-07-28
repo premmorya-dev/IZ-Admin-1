@@ -8,18 +8,32 @@ class InvoiceTemplateService
 {
     public function renderInvoiceHtml(string $invoiceCode): ?string
     {
-       
+
         $user  = DB::table('invoices')->where('invoice_code', $invoiceCode)->select('user_id')->first();
-        $invoiceTemplateId = shortcode('invoice', $invoiceCode, '{{invoice_template_id}}' , $user->user_id);
+        $invoiceTemplateId = shortcode('invoice', $invoiceCode, '{{invoice_template_id}}', $user->user_id);
         $template = DB::table('templates')->where('template_id', $invoiceTemplateId)->first();
 
         if (!$template) {
             return null;
         }
 
-        $html = $this->cleanHtml((string) ($template->content ?? ''));
 
-        return shortcode('invoice', $invoiceCode, $html,$user->user_id);
+        $display_shipping_status = shortcode('invoice', $invoiceCode, '{{display_shipping_status}}', $user->user_id);
+
+        if ($display_shipping_status == 'N') {
+            $template_content = preg_replace('/\{\{#shipping\}\}.*?\{\{\/shipping\}\}/s', '', $template->content);
+        } else {
+            $template_content = str_replace(
+                ['{{#shipping}}', '{{/shipping}}'],
+                '',
+                $template->content
+            );
+        }
+
+
+        $html = $this->cleanHtml((string) ($template_content ?? ''));
+
+        return shortcode('invoice', $invoiceCode, $html, $user->user_id);
     }
 
     public function cleanHtml(string $html): string
