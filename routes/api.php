@@ -7,7 +7,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\ApiController;
-
+use App\Http\Controllers\Api\BlogController;
 /*
 |--------------------------------------------------------------------------
 | API Routes
@@ -22,8 +22,8 @@ use App\Http\ApiController;
 Route::post('register', [ApiController::class, 'register']);
 Route::get('plans', [ApiController::class, 'plans']);
 Route::post('contact', [ApiController::class, 'contact']);
-
-
+Route::get('/blogs', [BlogController::class, 'index']);
+Route::get('/blogs/{slug}', [BlogController::class, 'show']);
 
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
