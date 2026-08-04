@@ -51,6 +51,8 @@ class Handler extends ExceptionHandler
     {
         $this->reportable(function (Throwable $e) {
 
+            $request = request();
+            $user = auth()->user();
 
             $errorHash = md5(
                 $e->getMessage() .
@@ -59,55 +61,37 @@ class Handler extends ExceptionHandler
             );
 
             $data = [
-
                 'error_hash' => $errorHash,
-
                 'message' => $e->getMessage(),
-
                 'file' => $e->getFile(),
-
                 'line' => $e->getLine(),
-
                 'trace' => $e->getTraceAsString(),
 
-                'url' => request()->fullUrl(),
-
-                'method' => request()->method(),
-
-                'request_data' => request()->except([
+                'url' => $request ? $request->fullUrl() : null,
+                'method' => $request ? $request->method() : null,
+                'request_data' => $request ? $request->except([
                     '_token',
                     'password',
                     'password_confirmation'
-                ]),
+                ]) : null,
 
-                'user_id' => auth()->id(),
+                'user_id' => $user?->id,
+                'user_name' => $user?->name,
+                'user_email' => $user?->email,
 
-                'user_name' => optional(auth()->user())->name,
+                'ip_address' => $request ? $request->ip() : null,
+                'user_agent' => $request ? $request->userAgent() : null,
 
-                'user_email' => optional(auth()->user())->email,
-
-                'ip_address' => request()->ip(),
-
-                'user_agent' => request()->userAgent(),
-
-                'server_name' => gethostname(),
-
+                'server_name' => gethostname() ?: null,
                 'environment' => app()->environment(),
-
                 'laravel_version' => app()->version(),
-
                 'php_version' => PHP_VERSION,
 
                 'error_count' => 1,
-
                 'first_seen_at' => now(),
-
                 'last_seen_at' => now(),
-
-                'time' => now()->toDateTimeString()
-
+                'time' => now()->toDateTimeString(),
             ];
-
 
             $exists = DB::table('production_errors')
                 ->where('error_hash', $errorHash)
@@ -118,62 +102,37 @@ class Handler extends ExceptionHandler
                 DB::table('production_errors')
                     ->where('id', $exists->id)
                     ->update([
-
-                        'error_count' => DB::raw('error_count+1'),
-
+                        'error_count' => DB::raw('error_count + 1'),
                         'last_seen_at' => now(),
-
-                        'updated_at' => now()
-
+                        'updated_at' => now(),
                     ]);
             } else {
 
                 DB::table('production_errors')->insert([
-
-                    'error_hash' => $data['error_hash'],
-
-                    'message' => $data['message'],
-
-                    'file' => $data['file'],
-
-                    'line' => $data['line'],
-
-                    'trace' => $data['trace'],
-
-                    'url' => $data['url'],
-
-                    'method' => $data['method'],
-
-                    'request_data' => json_encode($data['request_data']),
-
-                    'user_id' => $data['user_id'],
-
-                    'user_name' => $data['user_name'],
-
-                    'user_email' => $data['user_email'],
-
-                    'ip_address' => $data['ip_address'],
-
-                    'user_agent' => $data['user_agent'],
-
-                    'server_name' => $data['server_name'],
-
-                    'environment' => $data['environment'],
-
-                    'laravel_version' => $data['laravel_version'],
-
-                    'php_version' => $data['php_version'],
-
-                    'error_count' => 1,
-
-                    'first_seen_at' => now(),
-
-                    'last_seen_at' => now(),
-
+                    'error_hash' => data_get($data, 'error_hash'),
+                    'message' => data_get($data, 'message'),
+                    'file' => data_get($data, 'file'),
+                    'line' => data_get($data, 'line'),
+                    'trace' => data_get($data, 'trace'),
+                    'url' => data_get($data, 'url'),
+                    'method' => data_get($data, 'method'),
+                    'request_data' => data_get($data, 'request_data')
+                        ? json_encode(data_get($data, 'request_data'))
+                        : null,
+                    'user_id' => data_get($data, 'user_id'),
+                    'user_name' => data_get($data, 'user_name'),
+                    'user_email' => data_get($data, 'user_email'),
+                    'ip_address' => data_get($data, 'ip_address'),
+                    'user_agent' => data_get($data, 'user_agent'),
+                    'server_name' => data_get($data, 'server_name'),
+                    'environment' => data_get($data, 'environment'),
+                    'laravel_version' => data_get($data, 'laravel_version'),
+                    'php_version' => data_get($data, 'php_version'),
+                    'error_count' => data_get($data, 'error_count', 1),
+                    'first_seen_at' => data_get($data, 'first_seen_at'),
+                    'last_seen_at' => data_get($data, 'last_seen_at'),
                     'created_at' => now(),
-
-                    'updated_at' => now()
-
+                    'updated_at' => now(),
                 ]);
             }
 
