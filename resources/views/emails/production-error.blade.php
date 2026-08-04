@@ -76,7 +76,7 @@ pre{
 
 <tr>
 <td><b>IP</b></td>
-<td>{{ $data['ip'] }}</td>
+<td>{{ !empty($data['ip']) ? $data['ip'] : 'N/A' }}</td>
 </tr>
 
 <tr>
