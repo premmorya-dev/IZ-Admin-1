@@ -13,6 +13,7 @@ use Illuminate\Validation\ValidationException;
 use Firebase\JWT\JWT;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use App\Jobs\SendOnboardingEmailJob;
 
 class ApiController extends Controller
 {
@@ -62,7 +63,7 @@ class ApiController extends Controller
             $url = 'https://pro.invoicezy.com/auth/callback?token=' . $jwt;
 
 
-
+            SendOnboardingEmailJob::scheduleFor($user);
             // ✅ Success Response
             return response()->json([
                 'status' => true,
@@ -134,7 +135,7 @@ class ApiController extends Controller
             // ✅ Success Response
             return response()->json([
                 'status' => true,
-                'message' => 'Your message has been sent successfully.',              
+                'message' => 'Your message has been sent successfully.',
             ], 201);
         } catch (\Exception $e) {
             // ❌ Server error
