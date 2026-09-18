@@ -21,29 +21,65 @@ class VendorController extends Controller
     {
 
 
-        $query = $request->get('query');
+        $query = trim($request->get('query', ''));
 
+        $vendors = collect();
 
-        $vendors = DB::table('vendors')
-            ->leftJoin('countries', 'countries.country_id', '=', 'vendors.country_id')
-            ->leftJoin('country_states', 'country_states.state_id', '=', 'vendors.state_id')
-            ->where('vendors.user_id', auth()->id())
-            ->where('status', 'active')
-            ->where(function ($q) use ($query) {
-                $q->where('vendors.vendor_name', 'LIKE', "%{$query}%")
-                    ->orWhere('vendors.company_name', 'LIKE', "%{$query}%")
-                    ->orWhere('vendors.email', 'LIKE', "%{$query}%")
-                    ->orWhere('vendors.phone', 'LIKE', "%{$query}%")
-                    ->orWhere('vendors.gst_number', 'LIKE', "%{$query}%");
-            })
-            ->select(
-                'vendors.*',               
-                'countries.country_name',
-                'country_states.state_name'
+        if ($query !== '') {
 
-            )
-            ->take(5)
-            ->get();
+            // Remove MySQL BOOLEAN FULLTEXT special characters
+            $searchTerms = preg_split('/\s+/', $query, -1, PREG_SPLIT_NO_EMPTY);
+
+            $searchTerms = array_map(function ($term) {
+                // Remove BOOLEAN MODE special characters
+                $term = preg_replace('/[+\-><()~*"@]/', '', $term);
+
+                return trim($term);
+            }, $searchTerms);
+
+            // Remove empty terms
+            $searchTerms = array_filter($searchTerms);
+
+            // Add wildcard to each word
+            $booleanSearch = collect($searchTerms)
+                ->map(fn($term) => $term . '*')
+                ->implode(' ');
+
+            if ($booleanSearch !== '') {
+                $vendors = DB::table('vendors')
+                    ->leftJoin(
+                        'countries',
+                        'countries.country_id',
+                        '=',
+                        'vendors.country_id'
+                    )
+                    ->leftJoin(
+                        'country_states',
+                        'country_states.state_id',
+                        '=',
+                        'vendors.state_id'
+                    )
+                    ->where('vendors.user_id', auth()->id())
+                    ->where('vendors.status', 'active')
+                    ->whereRaw(
+                        "MATCH(
+                    " . dbPrefix() . "vendors.vendor_name,
+                    " . dbPrefix() . "vendors.company_name,
+                    " . dbPrefix() . "vendors.email,
+                    " . dbPrefix() . "vendors.phone,
+                    " . dbPrefix() . "vendors.gst_number
+                ) AGAINST(? IN BOOLEAN MODE)",
+                        [$booleanSearch]
+                    )
+                    ->select(
+                        'vendors.*',
+                        'countries.country_name',
+                        'country_states.state_name'
+                    )
+                    ->take(5)
+                    ->get();
+            }
+        }
 
 
         return response()->json($vendors);

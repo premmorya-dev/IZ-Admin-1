@@ -430,33 +430,79 @@ class ItemController extends Controller
 
     public function search(Request $request)
     {
-        $query = $request->get('query', '');
+        $query = trim($request->get('query', ''));
 
-        // Example: search by name or code; limit to 20 results
-        $results = DB::table('items')
-            ->leftJoin('item_categories', 'items.item_category_id', '=', 'item_categories.item_category_id')
-            ->leftJoin('taxes', 'items.tax_id', '=', 'taxes.tax_id')
-            ->leftJoin('discounts', 'items.discount_id', '=', 'discounts.discount_id')
-            ->where('items.user_id', auth()->id())
-            ->whereRaw("MATCH(" . dbPrefix() . "items.item_name, " . dbPrefix() . "items.sku, " . dbPrefix() . "items.hsn_sac) AGAINST(? IN BOOLEAN MODE)",[$query . '*'])
-            ->select(
-                'items.item_id',
-                'items.item_name',
-                'items.description',
-                'items.hsn_sac',
-                'items.sku',
-                'items.unit_price',
-                'items.stock',
-                'item_categories.item_category_name',
-                'taxes.name as tax_name',
-                'taxes.percent as tax_percent',
-                'taxes.tax_id',
-                'discounts.name as discount_name',
-                'discounts.percent as discount_percent',
-                'discounts.discount_id'
-            )
-            ->take(20)
-            ->get();
+        $results = collect();
+
+        if ($query !== '') {
+
+            // Remove MySQL BOOLEAN FULLTEXT special characters
+            $searchTerms = preg_split('/\s+/', $query, -1, PREG_SPLIT_NO_EMPTY);
+
+            $searchTerms = array_map(function ($term) {
+                // Remove BOOLEAN MODE special characters
+                $term = preg_replace('/[+\-><()~*"@]/', '', $term);
+
+                return trim($term);
+            }, $searchTerms);
+
+            // Remove empty terms
+            $searchTerms = array_filter($searchTerms);
+
+            // Add wildcard to each individual word
+            $booleanSearch = collect($searchTerms)
+                ->map(fn($term) => $term . '*')
+                ->implode(' ');
+
+            if ($booleanSearch !== '') {
+                $results = DB::table('items')
+                    ->leftJoin(
+                        'item_categories',
+                        'items.item_category_id',
+                        '=',
+                        'item_categories.item_category_id'
+                    )
+                    ->leftJoin(
+                        'taxes',
+                        'items.tax_id',
+                        '=',
+                        'taxes.tax_id'
+                    )
+                    ->leftJoin(
+                        'discounts',
+                        'items.discount_id',
+                        '=',
+                        'discounts.discount_id'
+                    )
+                    ->where('items.user_id', auth()->id())
+                    ->whereRaw(
+                        "MATCH(
+                    " . dbPrefix() . "items.item_name,
+                    " . dbPrefix() . "items.sku,
+                    " . dbPrefix() . "items.hsn_sac
+                ) AGAINST(? IN BOOLEAN MODE)",
+                        [$booleanSearch]
+                    )
+                    ->select(
+                        'items.item_id',
+                        'items.item_name',
+                        'items.description',
+                        'items.hsn_sac',
+                        'items.sku',
+                        'items.unit_price',
+                        'items.stock',
+                        'item_categories.item_category_name',
+                        'taxes.name as tax_name',
+                        'taxes.percent as tax_percent',
+                        'taxes.tax_id',
+                        'discounts.name as discount_name',
+                        'discounts.percent as discount_percent',
+                        'discounts.discount_id'
+                    )
+                    ->take(20)
+                    ->get();
+            }
+        }
 
 
         // $queryString = vsprintf(

@@ -21,22 +21,66 @@ class ClientController extends Controller
     {
 
 
-        $query = $request->get('query');
+     
+        $query = trim($request->get('query', ''));
 
+        $clients = collect();
 
-        $clients = DB::table('clients')
-            ->leftJoin('countries', 'countries.country_id', '=', 'clients.country_id')
-            ->leftJoin('country_states', 'country_states.state_id', '=', 'clients.state_id')
-            ->where('clients.user_id', auth()->id())
-            ->where('clients.status', 'active')
-            ->whereRaw("MATCH(" . dbPrefix() . "clients.client_name, " . dbPrefix() . "clients.company_name, " . dbPrefix() . "clients.email, " . dbPrefix() . "clients.phone, " . dbPrefix() . "clients.gst_number) AGAINST (? IN BOOLEAN MODE)", [$query . '*'])
-            ->select(
-                'clients.*',
-                'countries.country_name',
-                'country_states.state_name'
-            )
-            ->take(5)
-            ->get();
+        if ($query !== '') {
+
+            // Remove MySQL BOOLEAN FULLTEXT special characters
+            $searchTerms = preg_split('/\s+/', $query, -1, PREG_SPLIT_NO_EMPTY);
+
+            $searchTerms = array_map(function ($term) {
+                // Remove BOOLEAN MODE special characters
+                $term = preg_replace('/[+\-><()~*"@]/', '', $term);
+
+                return trim($term);
+            }, $searchTerms);
+
+            // Remove empty terms
+            $searchTerms = array_filter($searchTerms);
+
+            // Add wildcard to each word
+            $booleanSearch = collect($searchTerms)
+                ->map(fn($term) => $term . '*')
+                ->implode(' ');
+
+            if ($booleanSearch !== '') {
+                $clients = DB::table('clients')
+                    ->leftJoin(
+                        'countries',
+                        'countries.country_id',
+                        '=',
+                        'clients.country_id'
+                    )
+                    ->leftJoin(
+                        'country_states',
+                        'country_states.state_id',
+                        '=',
+                        'clients.state_id'
+                    )
+                    ->where('clients.user_id', auth()->id())
+                    ->where('clients.status', 'active')
+                    ->whereRaw(
+                        "MATCH(
+                    " . dbPrefix() . "clients.client_name,
+                    " . dbPrefix() . "clients.company_name,
+                    " . dbPrefix() . "clients.email,
+                    " . dbPrefix() . "clients.phone,
+                    " . dbPrefix() . "clients.gst_number
+                ) AGAINST(? IN BOOLEAN MODE)",
+                        [$booleanSearch]
+                    )
+                    ->select(
+                        'clients.*',
+                        'countries.country_name',
+                        'country_states.state_name'
+                    )
+                    ->take(5)
+                    ->get();
+            }
+        }
 
 
         // $sql = str_replace('?', "'%s'", $clients->toSql());

@@ -400,30 +400,71 @@ class ExpenseItemController extends Controller
 
     public function search(Request $request)
     {
-        $query = $request->get('query', '');
+        $query = trim($request->get('query', ''));
 
-        $results = DB::table('expense_items')
-            ->leftJoin('expense_categories', 'expense_items.expense_category_id', '=', 'expense_categories.expense_category_id')
-            ->leftJoin('taxes', 'expense_items.tax_id', '=', 'taxes.tax_id')
-            ->leftJoin('discounts', 'expense_items.discount_id', '=', 'discounts.discount_id')
-            ->where('expense_items.user_id', auth()->id())
-            ->whereRaw("MATCH(" . dbPrefix() . "expense_items.expense_item_name, " . dbPrefix() . "expense_items.hsn_sac) AGAINST(? IN BOOLEAN MODE)", [$query . '*'])
-            ->select(
-                'expense_items.expense_item_id',
-                'expense_items.expense_item_name',
-                'expense_items.hsn_sac',
-                'expense_items.unit_price',
-                'expense_categories.expense_category_name',
-                'taxes.name as tax_name',
-                'taxes.percent as tax_percent',
-                'taxes.tax_id',
-                'discounts.name as discount_name',
-                'discounts.percent as discount_percent',
-                'discounts.discount_id'
+        $results = collect();
+
+        if ($query !== '') {
+
+            // Keep only letters, numbers and spaces
+            $booleanSearch = preg_replace('/[^\p{L}\p{N}\s]/u', ' ', $query);
+
+            // Normalize multiple spaces
+            $booleanSearch = preg_replace('/\s+/', ' ', trim($booleanSearch));
+
+            // Add wildcard to each word
+            $booleanSearch = collect(
+                preg_split('/\s+/', $booleanSearch, -1, PREG_SPLIT_NO_EMPTY)
             )
-            ->take(20)
-            ->get();
+                ->map(fn($term) => $term . '*')
+                ->implode(' ');
 
+            if ($booleanSearch !== '') {
+
+                $results = DB::table('expense_items')
+                    ->leftJoin(
+                        'expense_categories',
+                        'expense_items.expense_category_id',
+                        '=',
+                        'expense_categories.expense_category_id'
+                    )
+                    ->leftJoin(
+                        'taxes',
+                        'expense_items.tax_id',
+                        '=',
+                        'taxes.tax_id'
+                    )
+                    ->leftJoin(
+                        'discounts',
+                        'expense_items.discount_id',
+                        '=',
+                        'discounts.discount_id'
+                    )
+                    ->where('expense_items.user_id', auth()->id())
+                    ->whereRaw(
+                        "MATCH(
+                    " . dbPrefix() . "expense_items.expense_item_name,
+                    " . dbPrefix() . "expense_items.hsn_sac
+                ) AGAINST(? IN BOOLEAN MODE)",
+                        [$booleanSearch]
+                    )
+                    ->select(
+                        'expense_items.expense_item_id',
+                        'expense_items.expense_item_name',
+                        'expense_items.hsn_sac',
+                        'expense_items.unit_price',
+                        'expense_categories.expense_category_name',
+                        'taxes.name as tax_name',
+                        'taxes.percent as tax_percent',
+                        'taxes.tax_id',
+                        'discounts.name as discount_name',
+                        'discounts.percent as discount_percent',
+                        'discounts.discount_id'
+                    )
+                    ->take(20)
+                    ->get();
+            }
+        }
 
         // $queryString = vsprintf(
         //     str_replace('?', "'%s'", $results->toSql()),
@@ -434,7 +475,7 @@ class ExpenseItemController extends Controller
 
 
 
-         $output = '';
+        $output = '';
         if ($results->count() > 0) {
             $output .= '<div class="p-3 rounded shadow-sm border" style="max-height: 400px; overflow-y:auto; border:1px solid #dee2e6; background-color:#f8f9fa;">';
             foreach ($results as $result) {
