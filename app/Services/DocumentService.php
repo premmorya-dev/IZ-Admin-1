@@ -56,6 +56,8 @@ abstract class DocumentService
                 "{$partyTable}.country_id as {$partyAlias}_country_id",
                 "{$partyTable}.gst_number as {$partyAlias}_gst_number",
                 "{$partyTable}.phone as {$partyAlias}_phone",
+                "{$partyTable}.city as {$partyAlias}_city",
+                "{$partyTable}.zip as {$partyAlias}_zip",
 
                 'settings.company_name as user_company_name',
                 'settings.email as user_email',
