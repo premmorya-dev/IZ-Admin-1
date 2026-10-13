@@ -52,6 +52,10 @@ class InvoiceService
             $clientDetailsHtml .= $invoice->address_2 . '<br>';
         }
 
+        if (!empty($invoice->city)) {
+            $clientDetailsHtml .= $invoice->city . ', ';
+        }
+
         if (!empty($invoice->state_name)) {
             $clientDetailsHtml .= $invoice->state_name . ', ';
         }

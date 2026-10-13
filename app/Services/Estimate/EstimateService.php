@@ -51,6 +51,10 @@ class EstimateService
             $clientDetailsHtml .= $estimate->address_2 . '<br>';
         }
 
+        if (!empty($estimate->city)) {
+            $clientDetailsHtml .= $estimate->city . ', ';
+        }
+
         if (!empty($estimate->state_name)) {
             $clientDetailsHtml .= $estimate->state_name . ', ';
         }

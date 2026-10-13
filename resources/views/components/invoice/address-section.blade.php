@@ -25,6 +25,10 @@
                 {{ $setting->address_2 ?? '' }}<br>
             @endif
 
+             @if(!empty($setting->city ?? ''))
+                {{ $setting->city ?? ''  }}
+            @endif
+
             @if(!empty($setting->state->state_name ?? ''))
                 {{ $setting->state->state_name ?? ''  }}
             @endif
