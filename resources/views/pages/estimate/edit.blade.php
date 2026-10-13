@@ -1,20 +1,19 @@
 <x-default-layout>
- 
-	<x-page-heading
-    title="Edit Estimate"
-    description=""
-    :breadcrumbs="[
+
+    <x-page-heading
+        title="Edit Estimate"
+        description=""
+        :breadcrumbs="[
         ['label' => 'Estimates', 'url' => route('estimate.list')],
         [
             'label' => 'Estimate #'.$data['estimate']->estimate_number ?? '',
             'url' => route('estimate.edit', $data['estimate']->estimate_code ?? '')
         ],
         ['label' => 'Edit']
-    ]"
-/>
+    ]" />
 
 
-    <form action="{{ route('estimate.update') }}"id="estimate-generate" method="POST">
+    <form action="{{ route('estimate.update') }}" id="estimate-generate" method="POST">
         @csrf
 
 
@@ -81,7 +80,7 @@
 
             <x-estimate.setting-switch :data="$data" />
 
-          <!-- UPI Dropdown (Hidden by default) -->
+            <!-- UPI Dropdown (Hidden by default) -->
             <div id="upiDropdownWrapper" class="mt-3" style="display: none;">
                 <label for="upi_id" class="form-label">Select UPI</label>
                 <select id="upi_id" name="upi_id" class="form-select">
@@ -372,7 +371,7 @@
             </div>
         </div>
     </div>
-  
+
 
 
 
@@ -380,7 +379,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-     <script>
+    <script>
         document.addEventListener('DOMContentLoaded', function() {
             var upi = "{{ empty($data['estimate']->upi_id) ? 0 : 1 }}";
 
@@ -514,36 +513,54 @@
 
             $(document).on('click', '.estimate-view-model', function(e) {
                 e.preventDefault();
-                $('#viewModal').modal('show');
-                var estimate_code = $(this).attr('estimate-code')
 
-                try {
+                var estimate_code = $(this).attr('estimate-code');
 
-                    $.ajax({
-                        url: "{{ route('estimate.view.model') }}",
-                        data: {
-                            estimate_code: estimate_code
-                        },
-                        type: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token()  }}'
-                        },
-                        beforeSend: function() {
-                            $('.loader').show()
-                        },
-                        complete: function() {
-                            $('.loader').hide()
-                        },
-                        success: function(response) {
-                            $('#view-record-form-body').html(response.html);
-                            $('#viewModal').modal('show');
-                        }
+                // Show SweetAlert loader
+                Swal.fire({
+                    title: 'Loading Estimate...',
+                    text: 'Please wait while we fetch estimate details.',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: function() {
+                        Swal.showLoading();
+                    }
+                });
 
-                    });
-                } catch (error) {
-                    console.error('Error:', error);
-                }
+                $.ajax({
+                    url: "{{ route('estimate.view.model') }}",
+                    type: 'POST',
+                    data: {
+                        estimate_code: estimate_code
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+
+                    success: function(response) {
+                        $('#view-record-form-body').html(response.html);
+
+                        // Close SweetAlert loader
+                        Swal.close();
+
+                        // Show modal after successful response
+                        $('#viewModal').modal('show');
+                    },
+
+                    error: function(xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: 'Unable to load estimate details. Please try again.',
+                            confirmButtonText: 'OK'
+                        });
+
+                        console.error('Error loading estimate:', xhr.responseText);
+                    }
+                });
             });
+
+
         });
     </script>
 
@@ -589,11 +606,11 @@
                 e.preventDefault();
 
                 $('#send_status').val($(this).attr('send-status'))
-                
-                if($(this).attr('estimate-accept')){
-                   $('#estimate_accept').val($(this).attr('estimate-accept'))
+
+                if ($(this).attr('estimate-accept')) {
+                    $('#estimate_accept').val($(this).attr('estimate-accept'))
                 }
-               
+
 
                 // 🛠️ Update textarea values before creating FormData
                 Object.keys(editors).forEach(id => {
@@ -700,7 +717,7 @@
 
             var address = `{!! $data['client_details_html'] !!}`;
             var client_id = `{{ $data['estimate']->client_id ?? '' }}`;
-             var client_state_id = `{{ $data['estimate']->state_id ?? '' }}`;
+            var client_state_id = `{{ $data['estimate']->state_id ?? '' }}`;
 
             if (address) {
                 $('#clientAddress').html(address).show();
@@ -709,7 +726,7 @@
                 $('#clientActionBtn').text('✏️ Change Client').show();
 
                 $('#client_id').val(client_id);
-                 $('#client_state_id').val(client_state_id);
+                $('#client_state_id').val(client_state_id);
             }
 
 
@@ -784,7 +801,7 @@
             // Select client
             $(document).on('click', '#clientList a', function(e) {
                 e.preventDefault();
-
+               
                 let client = $(this).data();
                 let addressHTML = '';
 
@@ -795,6 +812,7 @@
                 }
                 if (client.address_1) addressHTML += client.address_1 + '<br>';
                 if (client.address_2) addressHTML += client.address_2 + '<br>';
+                if (client.city) addressHTML += client.city + ' ';
                 if (client.state_name) addressHTML += client.state_name + ' ';
                 if (client.country_name) addressHTML += client.country_name + ' ';
                 if (client.zip) addressHTML += client.zip;
@@ -811,7 +829,7 @@
                 $('#clientAddress').html(addressHTML + edit_client).show();
 
                 $('#currency_code').val(client.currency_code).trigger('change');
-               
+
                 $('#clientSearchBox').hide();
                 $('.change-client').show();
                 $('.new-client').hide();
@@ -1071,7 +1089,7 @@
             const grandTotal = subtotal - totalDiscount + totalTax;
             document.getElementById('grand-total').innerText = `${currencySymbol}${grandTotal.toFixed(2)}`;
 
-             // Round to nearest rupee
+            // Round to nearest rupee
             let roundedTotal = Math.round(grandTotal);
             // Calculate round-off difference
             let roundOff = (roundedTotal - grandTotal).toFixed(2);

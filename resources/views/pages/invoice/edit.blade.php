@@ -1,16 +1,15 @@
 <x-default-layout>
-   <x-page-heading
-    title="Edit Invoice"
-    description=""
-    :breadcrumbs="[
+    <x-page-heading
+        title="Edit Invoice"
+        description=""
+        :breadcrumbs="[
         ['label' => 'Invoices', 'url' => route('invoice.list')],
         [
             'label' => 'Invoice #'.$data['invoice']->invoice_number,
             'url' => route('invoice.edit', $data['invoice']->invoice_code)
         ],
         ['label' => 'Edit']
-    ]"
-/>
+    ]" />
 
     <form action="#" id="invoice-generate" method="POST">
         @csrf
@@ -519,37 +518,52 @@
 
         $(document).on('click', '.invoice-view-model', function(e) {
             e.preventDefault();
-            $('#viewModal').modal('show');
-            var invoice_code = $(this).attr('invoice-code')
 
-            try {
+            var invoice_code = $(this).attr('invoice-code');
 
-                $.ajax({
-                    url: "{{ route('invoice.view.model') }}",
-                    data: {
-                        invoice_code: invoice_code
-                    },
-                    type: 'POST',
-                    headers: {
-                        'X-CSRF-TOKEN': '{{ csrf_token()  }}'
-                    },
-                    beforeSend: function() {
-                        $('.loader').show()
-                    },
-                    complete: function() {
-                        $('.loader').hide()
-                    },
-                    success: function(response) {
-                        $('#view-record-form-body').html(response.html);
-                        $('#viewModal').modal('show');
-                    }
+            // Show SweetAlert loader
+            Swal.fire({
+                title: 'Loading Invoice...',
+                text: 'Please wait while we fetch invoice details.',
+                allowOutsideClick: false,
+                allowEscapeKey: false,
+                didOpen: () => {
+                    Swal.showLoading();
+                }
+            });
 
-                });
-            } catch (error) {
-                console.error('Error:', error);
-            }
+            $.ajax({
+                url: "{{ route('invoice.view.model') }}",
+                type: 'POST',
+                data: {
+                    invoice_code: invoice_code
+                },
+                headers: {
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+
+                success: function(response) {
+                    $('#view-record-form-body').html(response.html);
+
+                    // Close loader
+                    Swal.close();
+
+                    // Open modal after successful response
+                    $('#viewModal').modal('show');
+                },
+
+                error: function(xhr) {
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error!',
+                        text: 'Unable to load invoice details. Please try again.',
+                        confirmButtonText: 'OK'
+                    });
+
+                    console.error('Error loading invoice:', xhr.responseText);
+                }
+            });
         });
-
 
         $(document).on("change", ".discount-select", function() {
             let selectedVal = $(this).val();
@@ -1036,10 +1050,10 @@
             // Select client
             $(document).on('click', '#clientList a', function(e) {
                 e.preventDefault();
-
                 let client = $(this).data();
                 let addressHTML = '';
-
+                
+               
                 if (client.company_name) {
                     addressHTML += client.company_name + '<br>';
                 } else {
@@ -1047,6 +1061,7 @@
                 }
                 if (client.address_1) addressHTML += client.address_1 + '<br>';
                 if (client.address_2) addressHTML += client.address_2 + '<br>';
+                if (client.city) addressHTML += client.city + ' ';
                 if (client.state_name) addressHTML += client.state_name + ' ';
                 if (client.country_name) addressHTML += client.country_name + ' ';
                 if (client.zip) addressHTML += client.zip;
@@ -1066,7 +1081,7 @@
                 $('#clientAddress').html(addressHTML + edit_client).show();
 
                 $('#currency_code').val(client.currency_code).trigger('change');
-               
+
                 $('#clientSearchBox').hide();
                 $('.change-client').show();
                 $('.new-client').hide();

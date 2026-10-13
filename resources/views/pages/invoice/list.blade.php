@@ -94,7 +94,7 @@
                         <a href="{{ route('invoice.download',['invoice_code' => $invoice->invoice_code ]) }}" title="Download Invoice"><i class="fa-solid fa-download text-defaults"></i> </a>
                     </span>
                     <span></span>
-                    <div class="d-flex align-items-center flex-wrap gap-1 text-truncate-custom"  >
+                    <div class="d-flex align-items-center flex-wrap gap-1 text-truncate-custom">
                         To: <a href="#" client-code="{{ $invoice->client_code }}" class="edit-client" title="{{ $invoice->company_name ??  $invoice->client_name }}"> {{ $invoice->company_name ??  $invoice->client_name }} </a>
 
 
@@ -614,37 +614,52 @@
 
             $(document).on('click', '.invoice-view-model', function(e) {
                 e.preventDefault();
-                $('#viewModal').modal('show');
-                var invoice_code = $(this).attr('invoice-code')
 
-                try {
+                var invoice_code = $(this).attr('invoice-code');
 
-                    $.ajax({
-                        url: "{{ route('invoice.view.model') }}",
-                        data: {
-                            invoice_code: invoice_code
-                        },
-                        type: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token()  }}'
-                        },
-                        beforeSend: function() {
-                            $('.loader').show()
-                        },
-                        complete: function() {
-                            $('.loader').hide()
-                        },
-                        success: function(response) {
-                            $('#view-record-form-body').html(response.html);
-                            $('#viewModal').modal('show');
-                        }
+                // Show SweetAlert loader
+                Swal.fire({
+                    title: 'Loading Invoice...',
+                    text: 'Please wait while we fetch invoice details.',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
 
-                    });
-                } catch (error) {
-                    console.error('Error:', error);
-                }
+                $.ajax({
+                    url: "{{ route('invoice.view.model') }}",
+                    type: 'POST',
+                    data: {
+                        invoice_code: invoice_code
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+
+                    success: function(response) {
+                        $('#view-record-form-body').html(response.html);
+
+                        // Close SweetAlert loader
+                        Swal.close();
+
+                        // Open invoice modal after loading
+                        $('#viewModal').modal('show');
+                    },
+
+                    error: function(xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: 'Unable to load invoice details. Please try again.',
+                            confirmButtonText: 'OK'
+                        });
+
+                        console.error('Invoice loading error:', xhr.responseText);
+                    }
+                });
             });
-
 
 
 
@@ -718,8 +733,8 @@
 
 
 
-            function sendInvoiceEmail(invoiceCode){
-                 $.ajax({
+            function sendInvoiceEmail(invoiceCode) {
+                $.ajax({
                     url: "{{ route('invoice.send_bulk_email') }}",
                     type: "POST",
                     data: {
@@ -741,18 +756,18 @@
             }
 
 
-           $('.single-send-invoice-model').click(function() {
+            $('.single-send-invoice-model').click(function() {
                 $("#single-invoice-email-invoice-code").val($(this).attr('invoice-code'))
                 $('#singleEmailConfirmModal').modal('show');
             });
 
-             $('#single-send-invoice').click(function() {
-                $('#singleEmailConfirmModal').modal('hide');                   
+            $('#single-send-invoice').click(function() {
+                $('#singleEmailConfirmModal').modal('hide');
                 let invoiceCode = $("#single-invoice-email-invoice-code").val() ? [$("#single-invoice-email-invoice-code").val()] : [];
                 sendInvoiceEmail(invoiceCode);
             });
 
-           
+
 
             $('#confirm-send-email').click(function() {
                 let selected = [];
@@ -786,7 +801,7 @@
                 });
             });
 
-            
+
 
 
 

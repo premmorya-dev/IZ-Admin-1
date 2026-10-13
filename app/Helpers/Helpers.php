@@ -10,6 +10,73 @@ use Carbon\Carbon;
 use SimpleSoftwareIO\QrCode\Facades\QrCode;
 use Illuminate\Support\Facades\Auth;
 
+
+if (!function_exists('amountInWords')) {
+    function amountInWords($amount)
+    {
+        $amount = round((float) $amount, 2);
+
+        $number = (int) $amount;
+        $paise = (int) round(($amount - $number) * 100);
+
+        $words = numberToIndianWords($number);
+
+        $result = 'Indian Rupees ' . $words;
+
+        if ($paise > 0) {
+            $result .= ' and ' . numberToIndianWords($paise) . ' Paise';
+        }
+
+        return $result . ' Only';
+    }
+}
+
+if (!function_exists('numberToIndianWords')) {
+    function numberToIndianWords($number)
+    {
+        $ones = [
+            '', 'One', 'Two', 'Three', 'Four', 'Five',
+            'Six', 'Seven', 'Eight', 'Nine', 'Ten',
+            'Eleven', 'Twelve', 'Thirteen', 'Fourteen',
+            'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen',
+            'Nineteen'
+        ];
+
+        $tens = [
+            '', '', 'Twenty', 'Thirty', 'Forty',
+            'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'
+        ];
+
+        if ($number < 20) {
+            return $ones[$number];
+        }
+
+        if ($number < 100) {
+            return $tens[(int) ($number / 10)] .
+                (($number % 10) ? ' ' . $ones[$number % 10] : '');
+        }
+
+        $units = [
+            10000000 => 'Crore',
+            100000 => 'Lakh',
+            1000 => 'Thousand',
+            100 => 'Hundred'
+        ];
+
+        foreach ($units as $value => $unit) {
+            if ($number >= $value) {
+                $quotient = (int) ($number / $value);
+                $remainder = $number % $value;
+
+                return numberToIndianWords($quotient) . ' ' . $unit .
+                    ($remainder ? ' ' . numberToIndianWords($remainder) : '');
+            }
+        }
+
+        return '';
+    }
+}
+
 function _________getCompanyImage($type = 'url', $user_id = Null)
 {
     $userId =  $user_id ?? Auth::id();
@@ -244,6 +311,7 @@ if (!function_exists('getShortcode')) {
 
             '{{' . $type . '_total_discount}}' => $doc->total_discount,
             '{{' . $type . '_grand_total}}' => $doc->grand_total,
+            '{{' . $type . '_grand_total_in_words}}' => amountInWords($doc->grand_total),
             '{{' . $type . '_round_off}}' => $doc->round_off,
             '{{invoice_advance_payment}}' => $doc->advance_payment ?? 0,
 

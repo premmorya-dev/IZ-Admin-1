@@ -384,7 +384,7 @@
     </div>
 
 
-     <div class="modal fade" id="singleEmailConfirmModal" tabindex="-1" aria-labelledby="singleEmailConfirmModalLabel" aria-hidden="true">
+    <div class="modal fade" id="singleEmailConfirmModal" tabindex="-1" aria-labelledby="singleEmailConfirmModalLabel" aria-hidden="true">
         <div class="modal-dialog">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white rounded-top-3">
@@ -605,42 +605,52 @@
 
             $(document).on('click', '.estimate-view-model', function(e) {
                 e.preventDefault();
-                $('#viewModal').modal('show');
-                var estimate_code = $(this).attr('estimate-code')
 
-                try {
+                var estimate_code = $(this).attr('estimate-code');
 
-                    $.ajax({
-                        url: "{{ route('estimate.view.model') }}",
-                        data: {
-                            estimate_code: estimate_code
-                        },
-                        type: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token()  }}'
-                        },
-                        beforeSend: function() {
-                            $('.loader').show()
-                        },
-                        complete: function() {
-                            $('.loader').hide()
-                        },
-                        success: function(response) {
-                            $('#view-record-form-body').html(response.html);
-                            $('#viewModal').modal('show');
-                        }
+                // Show SweetAlert loader
+                Swal.fire({
+                    title: 'Loading Estimate...',
+                    text: 'Please wait while we fetch estimate details.',
+                    allowOutsideClick: false,
+                    allowEscapeKey: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
 
-                    });
-                } catch (error) {
-                    console.error('Error:', error);
-                }
+                $.ajax({
+                    url: "{{ route('estimate.view.model') }}",
+                    type: 'POST',
+                    data: {
+                        estimate_code: estimate_code
+                    },
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+
+                    success: function(response) {
+                        $('#view-record-form-body').html(response.html);
+
+                        // Close loader
+                        Swal.close();
+
+                        // Open modal after successful response
+                        $('#viewModal').modal('show');
+                    },
+
+                    error: function(xhr) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error!',
+                            text: 'Unable to load estimate details. Please try again.',
+                            confirmButtonText: 'OK'
+                        });
+
+                        console.error('Error loading estimate:', xhr.responseText);
+                    }
+                });
             });
-
-
-
-
-
-
 
             $('#bulk-modal').on('shown.bs.modal', function() {
                 flatpickr("#scheduled_datetime", {
@@ -677,8 +687,8 @@
             });
 
 
-             function sendEstimateEmail(estimateCode){
-                 $.ajax({
+            function sendEstimateEmail(estimateCode) {
+                $.ajax({
                     url: "{{ route('estimate.send_bulk_email') }}",
                     type: "POST",
                     data: {
@@ -700,13 +710,13 @@
             }
 
 
-           $('.single-send-estimate-model').click(function() {
+            $('.single-send-estimate-model').click(function() {
                 $("#single-estimate-email-estimate-code").val($(this).attr('estimate-code'))
                 $('#singleEmailConfirmModal').modal('show');
             });
 
-             $('#single-send-estimate').click(function() {
-                $('#singleEmailConfirmModal').modal('hide');                   
+            $('#single-send-estimate').click(function() {
+                $('#singleEmailConfirmModal').modal('hide');
                 let estimateCode = $("#single-estimate-email-estimate-code").val() ? [$("#single-estimate-email-estimate-code").val()] : [];
                 sendEstimateEmail(estimateCode);
             });

@@ -955,6 +955,7 @@
                 }
                 if (client.address_1) addressHTML += client.address_1 + '<br>';
                 if (client.address_2) addressHTML += client.address_2 + '<br>';
+                if (client.city) addressHTML += client.city + ' ';
                 if (client.state_name) addressHTML += client.state_name + ' ';
                 if (client.country_name) addressHTML += client.country_name + ' ';
                 if (client.zip) addressHTML += client.zip;
