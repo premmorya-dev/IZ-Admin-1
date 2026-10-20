@@ -1,5 +1,16 @@
 <x-default-layout>
 
+
+
+    <script>
+        // for google ads
+        window.dataLayer = window.dataLayer || [];
+
+        window.dataLayer.push({
+            event: "purchased"
+        });
+    </script>
+
     <!-- Meta Pixel Code for pro.invoicezy.com (Subscription Payment Success) -->
     <script>
         ! function(f, b, e, v, n, t, s) {

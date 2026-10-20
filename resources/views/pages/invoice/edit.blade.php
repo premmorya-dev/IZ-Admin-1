@@ -209,6 +209,8 @@
                             </div>
                         </div>
 
+                        <input type="hidden" name="item[{{ $itemCount }}][item_id]" id="hidden-item-id-[{{ $itemCount }}]" value="{{ $item['item_id'] }}">
+
                         <!-- Remove Button -->
                         <div class="col-12">
                             <button
@@ -944,6 +946,17 @@
 
 
 
+                        } else if (response.error == 2) {                          
+                            Swal.fire({
+                                icon: "error",
+                                title: "Stock Error!",
+                                text: response.message,
+                                toast: false,
+                                position: "center",
+                                showConfirmButton: true,
+                                confirmButtonText: "OK",
+                                allowOutsideClick: false
+                            });
                         }
                     },
                     error: function(xhr) {
@@ -1052,8 +1065,8 @@
                 e.preventDefault();
                 let client = $(this).data();
                 let addressHTML = '';
-                
-               
+
+
                 if (client.company_name) {
                     addressHTML += client.company_name + '<br>';
                 } else {

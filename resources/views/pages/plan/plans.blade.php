@@ -1,5 +1,15 @@
-<x-default-layout>
 
+
+
+<x-default-layout>
+ <script>
+        // for google ads
+        window.dataLayer = window.dataLayer || [];
+
+        window.dataLayer.push({
+            event: "admin_view_all_plan"
+        });
+    </script>
     <h2 class="py-3">All Plans</h2>
     @if(isset($activePlan))
     <div class="container py-4">

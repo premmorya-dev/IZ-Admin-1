@@ -1,5 +1,12 @@
 <x-default-layout>
+ <script>
+        // for google ads
+        window.dataLayer = window.dataLayer || [];
 
+        window.dataLayer.push({
+            event: "admin_plan_payment_page"
+        });
+    </script>
     <h2 class="py-3">Plan Description</h2>
 
     <div class="container py-5">

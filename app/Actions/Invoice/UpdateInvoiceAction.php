@@ -13,6 +13,7 @@ use App\Services\Invoice\InvoiceRecurringService;
 use App\Services\Invoice\InvoiceStockService;
 use Illuminate\Support\Facades\DB;
 use Throwable;
+use App\Exceptions\InsufficientStockException;
 
 class UpdateInvoiceAction
 {
@@ -22,8 +23,7 @@ class UpdateInvoiceAction
         protected InvoiceRecurringService $recurringService,
         protected InvoiceNotificationService $notificationService,
         protected InvoicePaymentService $paymentService
-    ) {
-    }
+    ) {}
 
     public function handle(UpdateInvoiceRequest $request): array
     {
@@ -40,7 +40,9 @@ class UpdateInvoiceAction
             }
 
             $invoiceData = InvoiceData::fromRequest($request, $userId);
+
             $oldItems = json_decode($invoice->item_json, true) ?: [];
+
             $newItems = $invoiceData->items;
 
             DB::transaction(function () use ($invoice, $invoiceData, $userId, $request, $oldItems, $newItems) {
@@ -78,7 +80,19 @@ class UpdateInvoiceAction
                 'error' => 0,
                 'message' => 'Invoice Updated Successfully!',
             ];
+        } catch (InsufficientStockException $e) {
+
+            return [
+                'status' => 200,
+                'error' => 2,
+                'errors' => [
+                    'stock' => [$e->getMessage()],
+                ],
+                'message' => $e->getMessage(),
+            ];
         } catch (Throwable $e) {
+
+
             logger()->error('Invoice update failed: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
             ]);
