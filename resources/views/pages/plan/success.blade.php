@@ -7,7 +7,7 @@
         window.dataLayer = window.dataLayer || [];
 
         window.dataLayer.push({
-            event: "purchased"
+            event: "purchase"
         });
     </script>
 
