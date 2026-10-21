@@ -180,7 +180,7 @@ class PlanController extends Controller
             if (!empty($payment)   &&   $payment['status'] == 'captured') {
                 // Expire previous active subscriptions
                 DB::table('subscriptions')
-                    ->where('user_id', auth()->user()->user_id)
+                    ->where('user_id', $userId)
                     ->where('payment_status', 'paid')
                     ->whereDate('ends_at', '>=', now())
                     ->update([
@@ -191,7 +191,6 @@ class PlanController extends Controller
                 // Create new subscription
                 $subscription = SubscriptionModel::create([
                     'user_id'        => $userId,
-                    'user_id'     => auth()->user()->user_id,
                     'plan_id'        => $plan_id,
                     'payment_id'     => $payment_id,
                     'amount_paid'    => $payment['amount'] / 100, // Razorpay stores in paise
@@ -204,7 +203,6 @@ class PlanController extends Controller
                 // Record payment
                 DB::table('payments')->insert([
                     'user_id'         => $userId,
-                    'user_id'      => auth()->user()->user_id,
                     'subscription_id' => $subscription->subscription_id,
                     'plan_id'         => $plan_id,
                     'amount'          => $payment['amount'] / 100,
@@ -217,9 +215,7 @@ class PlanController extends Controller
                     'response'         => json_encode((array)$payment),
                     'created_at'      => now(),
                     'updated_at'      => now(),
-                ]);
-
-                event(new SubscriptionUpgraded(auth()->user(), $subscription));
+                ]);               
 
                 session([
                     'plan_id' => $plan_id,
