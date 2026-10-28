@@ -109,7 +109,7 @@
             <div class="company-logo-wrapper" id="company-logo-section" >
 
                 <img
-                    src="{{ asset($data['setting']->logo_path) }}"
+                    src="{{ asset($data['setting']->logo_path ?? 'no-image.png' ) }}"
                     class="company-logo"
                     alt="Company Logo">
 

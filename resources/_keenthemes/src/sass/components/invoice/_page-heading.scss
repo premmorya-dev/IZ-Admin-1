@@ -1,87 +1,157 @@
+  .izy-page-header{
+        --ph-ink:#0f172a;--ph-mut:#64748b;--ph-bd:#e8ebf3;--ph-i1:#4f46e5;--ph-i2:#7c3aed;
+        display:flex;align-items:flex-end;justify-content:space-between;gap:16px 24px;flex-wrap:wrap;
+        margin:0 0 22px;padding:0 0 18px;border-bottom:1px solid var(--ph-bd);
+        font-family:inherit;
+    }
+    .izy-page-header .izy-ph-main{min-width:0;flex:1 1 320px}
 
+    /* ---------- breadcrumb ---------- */
+    .izy-page-header .izy-page-header-breadcrumb{margin:0 0 12px;max-width:100%}
+    .izy-page-header .izy-breadcrumb{
+        display:flex;flex-wrap:nowrap;align-items:center;gap:2px;
+        margin:0;padding:4px;list-style:none;
+        width:max-content;max-width:100%;overflow-x:auto;scrollbar-width:none;
+        background:#f8fafc;border:1px solid var(--ph-bd);border-radius:99px;
+    }
+    .izy-page-header .izy-breadcrumb::-webkit-scrollbar{display:none}
 
-    /* ===== Page Header Component ===== */
-    .izy-page-header {
-        display: flex;
-        flex-direction: column;
-        gap: 3px;
-        margin-bottom: 1.25rem;
-        padding-bottom: 0.75rem;
-        border-bottom: 1px solid #edf0f5;
-        position: relative;
+    .izy-page-header .izy-breadcrumb .breadcrumb-item{
+        display:inline-flex;align-items:center;flex:none;
+        padding:0;font-size:12.5px;font-weight:600;color:var(--ph-mut);white-space:nowrap;
+    }
+    .izy-page-header .izy-breadcrumb .breadcrumb-item + .breadcrumb-item{padding-left:0}
+    .izy-page-header .izy-breadcrumb .breadcrumb-item + .breadcrumb-item::before{
+        content:"\203A";float:none;padding:0 2px 0 0;margin-left:2px;
+        font-size:16px;font-weight:500;line-height:1;color:#cbd5e1;
     }
 
-    .izy-page-header::before,
-.izy-page-header::after {
-    pointer-events: none;
-}
+    .izy-page-header .izy-breadcrumb .breadcrumb-item a{
+        display:inline-flex;align-items:center;gap:6px;
+        padding:5px 11px;border-radius:99px;
+        color:var(--ph-mut);text-decoration:none;transition:.2s;
+    }
+    .izy-page-header .izy-breadcrumb .breadcrumb-item a:hover{background:#fff;color:var(--ph-i1);box-shadow:0 4px 10px -6px rgba(15,23,42,.25)}
 
-    .izy-page-title {
-        font-size: 1.2rem;
-        font-weight: 700;
-        color: #111827;
-        margin: 0;
-        line-height: 1.3;
-        letter-spacing: -0.01em;
+    /* home chip */
+    .izy-page-header .izy-breadcrumb .breadcrumb-item:first-child a{
+        width:28px;height:28px;padding:0;justify-content:center;
+        background:linear-gradient(135deg,var(--ph-i1),#818cf8);
+        box-shadow:0 8px 14px -8px rgba(79,70,229,.7);
+    }
+    .izy-page-header .izy-breadcrumb .breadcrumb-item:first-child a,
+    .izy-page-header .izy-breadcrumb .breadcrumb-item:first-child a i{color:#fff!important}
+    .izy-page-header .izy-breadcrumb .breadcrumb-item:first-child a i{font-size:13px;line-height:1}
+    .izy-page-header .izy-breadcrumb .breadcrumb-item:first-child a:hover{transform:translateY(-1px);background:linear-gradient(135deg,#4338ca,var(--ph-i1))}
+
+    /* current page */
+    .izy-page-header .izy-breadcrumb .breadcrumb-item.active{
+        padding:5px 12px;border-radius:99px;
+        background:#fff;color:var(--ph-i1);font-weight:700;
+        box-shadow:0 0 0 1.5px #c7d2fe inset,0 6px 12px -8px rgba(79,70,229,.45);
     }
 
-    .izy-page-desc {
-        font-size: 0.8125rem;
-        color: #6b7280;
-        margin: 0;
-        line-height: 1.4;
+    /* ---------- title + description ---------- */
+    .izy-page-header .izy-page-title{
+        position:relative;margin:0;padding:0;
+        font-size:28px;font-weight:800;line-height:1.15;letter-spacing:-.03em;color:var(--ph-ink);
+        word-break:break-word;
+    }
+    .izy-page-header .izy-page-desc{
+        margin:8px 0 0;max-width:640px;
+        font-size:14px;line-height:1.6;color:var(--ph-mut);
     }
 
-    /* Breadcrumb — same working styles as before, just compact */
-    .izy-breadcrumb-wrap {
-        margin-bottom: 2px;
-    }
+    /* ---------- optional actions slot ---------- */
+    .izy-page-header .izy-ph-actions{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
 
-    .izy-breadcrumb {
-        --bs-breadcrumb-divider: '›';
-        font-size: 0.75rem;
-        font-weight: 500;
-        margin: 0;
-        padding: 0;
-        background: transparent;
-        border: none;
-    }
+    @media (max-width:767px){
+        .izy-page-header{margin-bottom:18px;padding-bottom:14px}
+        .izy-page-header .izy-page-title{font-size:22px}
+        .izy-page-header .izy-page-desc{font-size:13px}
+        .izy-page-header .izy-ph-actions{width:100%}
+    } 
 
-    .izy-breadcrumb .breadcrumb-item a {
-        color: #9ca3af;
-        text-decoration: none;
-        display: inline-flex;
-        align-items: center;
-        gap: 4px;
-    }
 
-    .izy-breadcrumb .breadcrumb-item a:hover {
-        color: #4f46e5;
-        text-decoration: underline;
-    }
 
-    .izy-breadcrumb .breadcrumb-item i {
-        font-size: 0.85rem;
-    }
 
-    .izy-breadcrumb .breadcrumb-item.active {
-        color: #6b7280;
-        font-weight: 600;
-    }
-
-    .izy-breadcrumb .breadcrumb-item+.breadcrumb-item::before {
-        content: var(--bs-breadcrumb-divider, "›");
-        color: #d1d5db;
-        padding-right: 0.4rem;
-    }
-
-    /* Mobile: prevent overflow on long breadcrumb trails */
-    @media (max-width: 576px) {
-        .izy-breadcrumb {
-            white-space: nowrap;
-            overflow-x: auto;
+  /* ================= Invoice action bar (sticky) =================
+           Sticky/fixed behaviour wahi purani `.page-header-fixed` class se aata hai (maine usse chheda nahi).
+           Neeche sirf look & feel aur mobile layout hai. */
+        .page-header-fixed.iz-actionbar{
+            --ab-bd:#e8ebf3;--ab-mut:#64748b;--ab-i1:#4f46e5;
+            display:flex;align-items:center;justify-content:space-between;gap:10px;
+            padding:10px 12px;margin-bottom:16px;
+            background:rgba(255,255,255,.88);
+            -webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);
+            border:1px solid var(--ab-bd);border-radius:16px;
+            box-shadow:0 14px 30px -22px rgba(15,23,42,.35);
+            z-index:20;
         }
-    }
 
+        /* ---------- Back ---------- */
+        .iz-actionbar .iz-bar-back{
+            flex:none;display:inline-flex;align-items:center;gap:8px;
+            height:40px;padding:0 16px;border-radius:11px;
+            background:#fff;border:1.5px solid #e2e8f0;
+            font-size:13.5px;font-weight:700;color:#475569;text-decoration:none;transition:.2s;
+        }
+        .iz-actionbar .iz-bar-back:hover{border-color:#c7d2fe;color:var(--ab-i1);background:#f8faff}
+        .iz-actionbar .iz-bar-back svg,.iz-actionbar .iz-bar-back i{width:16px;height:16px;color:inherit}
 
+        /* ---------- right side wrapper ---------- */
+        .iz-actionbar .iz-bar-right{display:flex;align-items:center;gap:10px;min-width:0}
 
+        /* ---------- Preview / Print / Download (segmented icon group) ---------- */
+        .iz-actionbar .invoice-actions{
+            flex:none;display:inline-flex;align-items:center;gap:2px;
+            padding:4px;border-radius:13px;background:#f1f5f9;
+        }
+        .iz-actionbar .invoice-actions .action-btn{
+            display:inline-grid;place-items:center;width:36px;height:36px;margin:0;padding:0;
+            border:0;border-radius:10px;background:transparent;
+            color:var(--ab-mut);font-size:14px;text-decoration:none;transition:.2s;
+        }
+        .iz-actionbar .invoice-actions .action-btn i{color:inherit!important;font-size:14px;line-height:1}
+        .iz-actionbar .invoice-actions .action-btn:hover{
+            background:#fff;color:var(--ab-i1);
+            box-shadow:0 6px 12px -8px rgba(15,23,42,.4);
+        }
+
+        /* ---------- Primary action(s) from update_invoice_action include ---------- */
+        .iz-actionbar .iz-bar-primary{display:flex;align-items:center;gap:8px;min-width:0}
+        .iz-actionbar .iz-bar-primary .btn-primary,
+        .iz-actionbar .iz-bar-primary .btn-success{
+            display:inline-flex;align-items:center;justify-content:center;gap:8px;
+            height:40px;padding:0 20px;border:0;border-radius:11px;
+            background:linear-gradient(135deg,#4f46e5,#6366f1);color:#fff;
+            font-size:13.5px;font-weight:700;white-space:nowrap;
+            box-shadow:0 14px 24px -14px rgba(79,70,229,.75);transition:.2s;
+        }
+        .iz-actionbar .iz-bar-primary .btn-primary i,
+        .iz-actionbar .iz-bar-primary .btn-success i,
+        .iz-actionbar .iz-bar-primary .btn-primary svg,
+        .iz-actionbar .iz-bar-primary .btn-success svg{color:#fff!important;width:15px;height:15px}
+        .iz-actionbar .iz-bar-primary .btn-primary:hover,
+        .iz-actionbar .iz-bar-primary .btn-success:hover{transform:translateY(-1px);box-shadow:0 18px 28px -14px rgba(79,70,229,.8)}
+
+        /* ---------- Responsive ---------- */
+        @media (max-width:767px){
+            .page-header-fixed.iz-actionbar{padding:8px 10px;gap:8px;border-radius:14px}
+            .iz-actionbar .iz-bar-right{flex:1;justify-content:flex-end}
+        }
+        @media (max-width:575px){
+            /* Back sirf icon */
+            .iz-actionbar .iz-bar-back{width:40px;padding:0;justify-content:center}
+            .iz-actionbar .iz-bar-back span{display:none}
+            /* update button bacha hua space le */
+            .iz-actionbar .iz-bar-primary{flex:1}
+            .iz-actionbar .iz-bar-primary .btn-primary,
+            .iz-actionbar .iz-bar-primary .btn-success{flex:1;padding:0 12px;min-width:0}
+        }
+        @media (max-width:380px){
+            .iz-actionbar .invoice-actions .action-btn{width:32px;height:32px}
+            .iz-actionbar .iz-bar-back{width:36px;height:36px}
+            .iz-actionbar .iz-bar-primary .btn-primary,
+            .iz-actionbar .iz-bar-primary .btn-success{height:36px;font-size:13px}
+        }

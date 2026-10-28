@@ -389,12 +389,12 @@ if (!function_exists('shortcode')) {
         $message = replaceTagWithValue($message, $replace);
 
         // Clean up message
-        $message = mb_convert_encoding($message, 'UTF-8', 'auto');
-        $message = preg_replace('/\xA0/u', ' ', $message);
-        $message = str_replace("\xc2\xa0", ' ', $message);
-        $message = trim($message, "\xC2\xA0");
-        $message = preg_replace(["/\s\s+/", "/\r\r+/", "/\n\n+/"], '', $message);
-        $message = str_replace(["\r\n", "\r", "\n"], '', $message);
+        // $message = mb_convert_encoding($message, 'UTF-8', 'auto');
+        // $message = preg_replace('/\xA0/u', ' ', $message);
+        // $message = str_replace("\xc2\xa0", ' ', $message);
+        // $message = trim($message, "\xC2\xA0");
+        // $message = preg_replace(["/\s\s+/", "/\r\r+/", "/\n\n+/"], '', $message);
+        // $message = str_replace(["\r\n", "\r", "\n"], '', $message);
 
         return $message;
     }

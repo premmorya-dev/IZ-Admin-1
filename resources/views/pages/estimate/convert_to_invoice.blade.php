@@ -15,11 +15,22 @@
         @csrf
 
 
-        <div class="page-header-fixed mb-3 d-flex justify-content-between align-items-center">
-            <div><a href="{{ route('estimate.list') }}" class="btn btn-outline-secondary btn-sm"> <i data-lucide="arrow-left"></i> Back </a> </div>
+      
+          <div class="page-header-fixed iz-actionbar mb-3">
 
-            @include('pages/invoice/actions.create_invoice_action')
+            <a href="{{ route('estimate.list') }}" class="iz-bar-back" title="Back to invoices">
+                <i data-lucide="arrow-left"></i> <span>Back</span>
+            </a>
+
+            <div class="iz-bar-right">
+
+                <div class="iz-bar-primary">
+                   @include('pages/invoice/actions.create_invoice_action')
+                </div>
+
+            </div>
         </div>
+
 
 
         <div class="row">

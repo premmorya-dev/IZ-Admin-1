@@ -20,6 +20,7 @@ use App\Http\Controllers\Api\BlogController;
 */
 
 Route::post('register', [ApiController::class, 'register']);
+Route::post('/google-login', [ApiController::class, 'googleLogin']);
 Route::get('plans', [ApiController::class, 'plans']);
 Route::post('contact', [ApiController::class, 'contact']);
 Route::get('/blogs', [BlogController::class, 'index']);

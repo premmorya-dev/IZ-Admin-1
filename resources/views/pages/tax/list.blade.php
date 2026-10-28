@@ -1,6 +1,12 @@
 <x-default-layout>
 
-    <h2 class="py-3">Tax</h2>
+<x-page-heading
+        title="Manage Tax"
+        description=""
+        :breadcrumbs="[
+        ['label' => 'Tax', 'url' => route('tax.list')]
+      
+    ]" />
 
 
     <!-- Accordion Container -->
@@ -204,7 +210,7 @@
 
     <!-- Add Tax Model -->
     <div class="modal fade" id="tax-modal" tabindex="-1" aria-labelledby="taxModalLabel" aria-hidden="true">
-        <div class="modal-dialog  modal-sm">
+        <div class="modal-dialog  modal-md">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white rounded-top-3">
                     <h4 class="modal-title" id="taxModalLabel">Add Tax</h4>
@@ -223,7 +229,7 @@
 
     <!-- Edit Tax Model -->
     <div class="modal fade" id="editTax-modal" tabindex="-1" aria-labelledby="editTaxModalLabel" aria-hidden="true">
-        <div class="modal-dialog  modal-sm">
+        <div class="modal-dialog  modal-md">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white rounded-top-3">
                     <h4 class="modal-title" id="editTaxModalLabel">Edit Tax</h4>

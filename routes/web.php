@@ -252,7 +252,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('list', [UpiIdController::class, 'index'])->name('upi_id.list');
         Route::get('add', [UpiIdController::class, 'create'])->name('upi_id.add');
         Route::post('store', [UpiIdController::class, 'store'])->name('upi_id.store');
-        Route::get('edit/{upi_log_id}', [UpiIdController::class, 'edit'])->name('upi_id.edit');
+        Route::post('edit/{upi_log_id}', [UpiIdController::class, 'edit'])->name('upi_id.edit');
         Route::post('update', [UpiIdController::class, 'update'])->name('upi_id.update');
         Route::post('destroy', [UpiIdController::class, 'destroy'])->name('upi_id.destroy');
     });

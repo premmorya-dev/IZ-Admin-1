@@ -253,7 +253,7 @@ class UpiIdController extends Controller
                     'required',
                     'string',
                     Rule::unique('upi_payment_id', 'upi_id')
-                        ->ignore($request->upi_code, 'upi_code'),
+                        ->ignore($request->upi_id, 'upi_id'),
                 ],
                 'status' => 'required',
             ]);

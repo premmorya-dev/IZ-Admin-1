@@ -1,6 +1,12 @@
 <x-default-layout>
 
-    <h2 class="py-3">Upi Ids</h2>
+<x-page-heading
+        title="Manage UPI IDs"
+        description=""
+        :breadcrumbs="[
+        ['label' => 'UPI IDs', 'url' => route('upi_id.list')]
+      
+    ]" />
 
 
     <div class="d-flex justify-content-between align-items-center my-4 px-2">
@@ -9,8 +15,8 @@
             <i data-lucide="trash-2"></i> Delete
         </a>
         <!-- Add Button -->
-        <a class="btn btn-outline-primary btn-sm px-4 py-2 shadow-sm fw-semibold text-uppercase d-flex align-items-center gap-2"
-            id="add-action" href="{{ route('upi_id.add') }}"> <i data-lucide="plus-circle"></i> Add New</a>
+        <a class="btn btn-outline-primary btn-sm px-4 py-2 shadow-sm fw-semibold text-uppercase d-flex align-items-center gap-2 new-upi"
+            id="add-action" href="#"> <i data-lucide="plus-circle"></i> Add New</a>
 
     </div>
 
@@ -52,8 +58,9 @@
 
             <div class="col">
                 <span class="d-block d-md-none text-center mt-2 fw-bold">Name</span>
-                <span class="text-truncate-custom" title="{{ $upi_id->upi_name }}">
-                    {{ $upi_id->upi_name }}
+                {{-- Name par click karne se bhi edit modal khulega (.upi-name) --}}
+                <span class="text-truncate-custom upi-name" upi-log-id="{{ $upi_id->upi_log_id }}" title="{{ $upi_id->upi_name }}">
+                    <a href="#">{{ $upi_id->upi_name }}</a>
                 </span>
             </div>
 
@@ -204,6 +211,109 @@
             </div>
         </div>
     </div>
+
+
+
+    <!-- Add Upi Id Modal -->
+    <div class="modal fade" id="upi-modal" tabindex="-1" aria-labelledby="upiModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white rounded-top-3">
+                    <h4 class="modal-title" id="upiModalLabel">Add Upi Id</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="upi-modal-body py-3 px-3">
+
+                </div>
+                <div class="modal-footer">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Edit Upi Id Modal -->
+    <div class="modal fade" id="editUpi-modal" tabindex="-1" aria-labelledby="editUpiModalLabel" aria-hidden="true">
+        <div class="modal-dialog modal-md">
+            <div class="modal-content">
+                <div class="modal-header bg-primary text-white rounded-top-3">
+                    <h4 class="modal-title" id="editUpiModalLabel">Edit Upi Id</h4>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="editUpi-modal-body py-3 px-3">
+
+                </div>
+                <div class="modal-footer">
+
+                </div>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        // Add modal: "Add New" button (.new-upi) par click
+        $(document).on('click', '.new-upi', function(e) {
+            e.preventDefault();
+            $('.editUpi-modal-body').empty();
+
+            try {
+
+                $.ajax({
+                    url: "{{ route('upi_id.add') }}",
+                    type: 'GET',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+
+                        $('.upi-modal-body').html(response);
+                        $('#upi-modal').modal('show');
+
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error:', error);
+            }
+
+        });
+    </script>
+
+
+    <script>
+        // Edit modal: pencil/edit link (.edit-upi) ya name (.upi-name) par click
+        $(document).on('click', '.edit-upi, .upi-name', function(e) {
+            e.preventDefault();
+            $('.upi-modal-body').empty();
+
+            var upi_log_id = $(this).attr('upi-log-id');
+
+            try {
+
+                $.ajax({
+                    url: "{{ route('upi_id.edit',['upi_log_id'=> $upi_id->upi_log_id]) }}",
+                    data: {
+                        upi_log_id: upi_log_id
+                    },
+                    type: 'POST',
+                    headers: {
+                        'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                    },
+                    success: function(response) {
+
+                        $('.editUpi-modal-body').html(response);
+                        $('#editUpi-modal').modal('show');
+                    }
+                });
+
+            } catch (error) {
+                console.error('Error:', error);
+            }
+
+        });
+    </script>
 
 
 

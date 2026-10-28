@@ -15,35 +15,44 @@
 
     <form action="{{ route('estimate.update') }}" id="estimate-generate" method="POST">
         @csrf
+        <div class="page-header-fixed iz-actionbar mb-3">
 
+            <a href="{{ route('estimate.list') }}" class="iz-bar-back" title="Back to invoices">
+                <i data-lucide="arrow-left"></i> <span>Back</span>
+            </a>
 
-        <div class="page-header-fixed mb-3 d-flex justify-content-between align-items-center">
-            <div><a href="{{ route('estimate.list') }}" class="btn btn-outline-secondary btn-sm"> <i data-lucide="arrow-left"></i> Back </a> </div>
-            <div class="invoice-actions">
-                <a href="#"
-                    estimate-code="{{ $data['estimate']->estimate_code ?? '' }}"
-                    class="estimate-view-model action-btn"
-                    title="Preview">
-                    <i class="fa-regular fa-eye"></i>
-                </a>
+            <div class="iz-bar-right">
 
-                <a href="{{ route('estimate.download',['estimate_code'=>$data['estimate']->estimate_code ?? '']) }}?preview=true"
-                    target="_blank"
-                    class="action-btn"
-                    title="Print">
+                <div class="invoice-actions">
+                    <a href="#"
+                        estimate-code="{{ $data['estimate']->estimate_code ?? '' }}"
+                         class="estimate-view-model action-btn"
+                        title="Preview">
+                        <i class="fa-regular fa-eye"></i>
+                    </a>
+
+                    <a href="{{ route('estimate.download',['estimate_code'=>$data['estimate']->estimate_code ?? '']) }}?preview=true"
+                       target="_blank"
+                        class="action-btn"
+                        title="Print">
                     <i class="fa-solid fa-print"></i>
-                </a>
+                    </a>
 
-                <a href="{{ route('estimate.download',['estimate_code'=>$data['estimate']->estimate_code ?? '']) }}"
-                    class="action-btn"
-                    title="Download">
-                    <i class="fa-solid fa-download"></i>
-                </a>
+                    <a  href="{{ route('estimate.download',['estimate_code'=>$data['estimate']->estimate_code ?? '']) }}"
+                        class="action-btn"
+                        title="Download">
+                        <i class="fa-solid fa-download"></i>
+                    </a>
+                </div>
+
+                <div class="iz-bar-primary">
+                    @include('pages/estimate/actions.update_estimate_action')
+                </div>
+
             </div>
-
-            @include('pages/estimate/actions.update_estimate_action')
         </div>
 
+      
 
         <div class="row">
 
@@ -317,7 +326,7 @@
 
     <!-- Edit Client Model -->
     <div class="modal fade" id="editClient-modal" tabindex="-1" aria-labelledby="editClientModalLabel" aria-hidden="true">
-        <div class="modal-dialog  modal-xl">
+        <div class="modal-dialog  modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white rounded-top-3">
                     <h4 class="modal-title" id="editClientModalLabel">Edit Client</h4>
@@ -336,7 +345,7 @@
 
     <!-- Add Tax Model -->
     <div class="modal fade" id="tax-modal" tabindex="-1" aria-labelledby="taxModalLabel" aria-hidden="true">
-        <div class="modal-dialog  modal-sm">
+        <div class="modal-dialog  modal-md">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title" id="taxModalLabel">Add Tax</h4>
@@ -356,7 +365,7 @@
 
     <!-- Add Dicount Model -->
     <div class="modal fade" id="discount-modal" tabindex="-1" aria-labelledby="discountModalLabel" aria-hidden="true">
-        <div class="modal-dialog  modal-sm">
+        <div class="modal-dialog  modal-md">
             <div class="modal-content">
                 <div class="modal-header">
                     <h4 class="modal-title" id="discountModalLabel">Add Discount</h4>
@@ -801,7 +810,7 @@
             // Select client
             $(document).on('click', '#clientList a', function(e) {
                 e.preventDefault();
-               
+
                 let client = $(this).data();
                 let addressHTML = '';
 

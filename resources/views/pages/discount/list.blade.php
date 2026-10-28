@@ -1,9 +1,13 @@
 <x-default-layout>
 
 
-
-    <h2 class="py-3">Discount</h2>
-
+<x-page-heading
+        title="Manage Discount"
+        description=""
+        :breadcrumbs="[
+        ['label' => 'Discount', 'url' => route('discount.list')]
+      
+    ]" />
 
 
     <!-- Accordion Container -->
@@ -208,7 +212,7 @@
 
     <!-- Add Dicount Model -->
     <div class="modal fade" id="discount-modal" tabindex="-1" aria-labelledby="discountModalLabel" aria-hidden="true">
-        <div class="modal-dialog  modal-sm">
+        <div class="modal-dialog  modal-md">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white rounded-top-3">
                     <h4 class="modal-title" id="discountModalLabel">Add Discount</h4>
@@ -227,7 +231,7 @@
 
     <!-- Edit Dicount Model -->
     <div class="modal fade" id="editDiscount-modal" tabindex="-1" aria-labelledby="editDiscountModalLabel" aria-hidden="true">
-        <div class="modal-dialog  modal-sm">
+        <div class="modal-dialog  modal-md">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white rounded-top-3">
                     <h4 class="modal-title" id="editDiscountModalLabel">Edit Discount</h4>

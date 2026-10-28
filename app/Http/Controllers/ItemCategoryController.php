@@ -88,11 +88,6 @@ class ItemCategoryController extends Controller
             }
 
 
-
-
-
-
-
             $result =  $query;
 
             $data['totalRecords'] =  $result->count();
@@ -104,6 +99,8 @@ class ItemCategoryController extends Controller
             $query->limit($limit);
             $query = $query->get();
             $query = $query->toArray();
+
+            
 
 
             $data['item_category_string'] = implode(",", array_column($query, 'item_category_id'));

@@ -115,56 +115,102 @@ abstract class DocumentService
 
 
 
-        
+
         // Convert logo and signature to base64 if available
         $document->logo_base64 = $document->logo_path && file_exists(public_path($document->logo_path))
-        ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path($document->logo_path))) : '';
-        
+            ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path($document->logo_path))) : '';
+
         $document->logo_image = $document->logo_path && file_exists(public_path($document->logo_path))
-        ? url('/') . "/" . $document->logo_path : '';
-        
+            ? url('/') . "/" . $document->logo_path : '';
+
         $document->signature_base64 = $document->signature && file_exists(public_path($document->signature))
-        ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path($document->signature))) : '';
-        
+            ? 'data:image/png;base64,' . base64_encode(file_get_contents(public_path($document->signature))) : '';
+
         $document->signature_image = $document->signature && file_exists(public_path($document->signature))
-        ?   url('/') . "/" . $document->signature : '';
-        
-        if($this->table == 'estimates'){
+            ?   url('/') . "/" . $document->signature : '';
+
+        if ($this->table == 'estimates') {
             $document->total_due = $document->grand_total;
         }
-         
+
+
         $document->qr_base64 = '';
-        if (!empty($document->upi_id)) {
-            $note = "Payment|{$document->company_name}|{$document->{$this->numberField}}";
-            $upiUrl = "upi://pay?pa={$document->upi_id}&pn={$document->company_name}&am={$document->total_due}&cu={$document->currency_code}&tn={$note}";
-            $qrCode = QrCode::format('png')->size(100)->generate($upiUrl);
-            $document->qr_base64 = 'data:image/png;base64,' . base64_encode($qrCode);
-            }
-            
-
-
         $document->qr_code_image = '';
+
         if (!empty($document->upi_id)) {
+
             $note = "Payment|{$document->company_name}|{$document->{$this->numberField}}";
-            $upiUrl = "upi://pay?pa={$document->upi_id}&pn={$document->company_name}&am={$document->total_due}&cu={$document->currency_code}&tn={$note}";
 
-            // Generate unique file name
-            $fileName = 'upi_qr_' . Str::random(10) . '.png';
+            $upiUrl = "upi://pay?"
+                . http_build_query([
+                    'pa' => $document->upi_id,
+                    'pn' => $document->company_name,
+                    'am' => $document->total_due,
+                    'cu' => $document->currency_code,
+                    'tn' => $note,
+                ], '', '&', PHP_QUERY_RFC3986);
 
-            // Path to save the image in public folder
-            $filePath = public_path('qrcodes/' . $fileName);
+            // Detect changes in payment data.
+            $payloadHash = hash('sha256', $upiUrl);
 
-            // Ensure the directory exists
-            if (!file_exists(public_path('qrcodes'))) {
-                mkdir(public_path('qrcodes'), 0755, true);
+            // Reuse the existing path if the saved QR is still valid.
+            $savedPath = $document->qr_code_path ?? null;
+
+            $fullPath = $savedPath
+                ? public_path($savedPath)
+                : null;
+
+            $qrExists = $fullPath && is_file($fullPath);
+
+            $samePayload = ($document->qr_payload_hash ?? '') === $payloadHash;
+
+            if (!$qrExists || !$samePayload) {
+
+                $directory = public_path('qrcodes');
+
+                if (!is_dir($directory)) {
+                    mkdir($directory, 0755, true);
+                }
+
+                // Stable filename: don't create a random file on every request.
+                $fileName = 'upi_qr_'
+                    . $this->table . '_'
+                    . $document->{$this->idField}
+                    . '.png';
+
+                $relativePath = 'qrcodes/' . $fileName;
+                $fullPath = public_path($relativePath);
+
+                // Generate only when missing or payment data has changed.
+                QrCode::format('png')
+                    ->size(100)
+                    ->generate($upiUrl, $fullPath);
+
+                // Save the path and payload hash in the document table.
+                DB::table($this->table)
+                    ->where($this->codeField, $code)
+                    ->where('user_id', $userId)
+                    ->update([
+                        'qr_code_path' => $relativePath,
+                        'qr_payload_hash' => $payloadHash,
+                    ]);
+
+                $savedPath = $relativePath;
             }
 
-            // Generate and save the QR code image
-            QrCode::format('png')->size(100)->generate($upiUrl, $filePath);
+            // Use the saved PNG for both the PDF and regular image URL.
+            if (is_file(public_path($savedPath))) {
+                $document->qr_code_path = $savedPath;
+              
+                $qr_base64 = 'data:image/png;base64,'
+                    . base64_encode(file_get_contents(public_path($savedPath)));
 
-            // Get the public URL to show in email or browser
-            $document->qr_code_image = asset('qrcodes/' . $fileName);
+                $document->qr_base64 =  '<img src="' . $qr_base64 . '" style="height:54px; width:54px;">';
+
+                $document->qr_code_image = asset($savedPath);
+            }
         }
+
 
 
 
@@ -174,53 +220,53 @@ abstract class DocumentService
         return $document;
     }
 
-  public function generateDynamicItemRows($items, $currencySymbol)
-{
-    $rows = '';
-    $index = 0;
+    public function generateDynamicItemRows($items, $currencySymbol)
+    {
+        $rows = '';
+        $index = 0;
 
-    foreach ($items as $item) {
+        foreach ($items as $item) {
 
-        $base = $item->rate * $item->quantity;
-        $discount = ($base / 100) * $item->discount;
-        $discountText = $discount > 0 ? "{$item->discount}%<br>{$currencySymbol}{$discount}" : '-';
+            $base = $item->rate * $item->quantity;
+            $discount = ($base / 100) * $item->discount;
+            $discountText = $discount > 0 ? "{$item->discount}%<br>{$currencySymbol}{$discount}" : '-';
 
-        $tax = (($base - $discount) / 100) * $item->tax;
-        $taxText = $tax > 0 ? "{$item->tax}%<br>{$currencySymbol}{$tax}" : '-';
+            $tax = (($base - $discount) / 100) * $item->tax;
+            $taxText = $tax > 0 ? "{$item->tax}%<br>{$currencySymbol}{$tax}" : '-';
 
-        $taxable = $base - $discount;
-        // Initialize
-        $cgstPercent = 0;
-        $sgstPercent = 0;
-        $igstPercent = 0;
-
-        if ($this->same_state) {
-            // CGST + SGST
-            $cgstPercent = $item->tax / 2;
-            $sgstPercent = $item->tax / 2;
-            $igstPercent = 0;
-        } else {
-            // IGST only
+            $taxable = $base - $discount;
+            // Initialize
             $cgstPercent = 0;
             $sgstPercent = 0;
-            $igstPercent = $item->tax;
-        }
+            $igstPercent = 0;
 
-        // Calculate amounts
-        $cgst = ($taxable * $cgstPercent) / 100;
-        $sgst = ($taxable * $sgstPercent) / 100;
-        $igst = ($taxable * $igstPercent) / 100;
+            if ($this->same_state) {
+                // CGST + SGST
+                $cgstPercent = $item->tax / 2;
+                $sgstPercent = $item->tax / 2;
+                $igstPercent = 0;
+            } else {
+                // IGST only
+                $cgstPercent = 0;
+                $sgstPercent = 0;
+                $igstPercent = $item->tax;
+            }
 
-        $cgst_text = $cgst > 0 ? "{$cgstPercent}%<br>{$currencySymbol}{$cgst}" : '-';
-        $sgst_text = $sgst > 0 ? "{$sgstPercent}%<br>{$currencySymbol}{$sgst}" : '-';
-        $igst_text = $igst > 0 ? "{$igstPercent}%<br>{$currencySymbol}{$igst}" : '-';
+            // Calculate amounts
+            $cgst = ($taxable * $cgstPercent) / 100;
+            $sgst = ($taxable * $sgstPercent) / 100;
+            $igst = ($taxable * $igstPercent) / 100;
 
-        $hsn = $item->hsn ?? '-';
-        $item->description = $item->description ?? '';
+            $cgst_text = $cgst > 0 ? "{$cgstPercent}%<br>{$currencySymbol}{$cgst}" : '-';
+            $sgst_text = $sgst > 0 ? "{$sgstPercent}%<br>{$currencySymbol}{$sgst}" : '-';
+            $igst_text = $igst > 0 ? "{$igstPercent}%<br>{$currencySymbol}{$igst}" : '-';
 
-        $rowBg = ($index % 2 === 0) ? '#ffffff' : '#F9FAFB';
+            $hsn = $item->hsn ?? '-';
+            $item->description = $item->description ?? '';
 
-        $rows .= "<tr style='background-color:{$rowBg};'>
+            $rowBg = ($index % 2 === 0) ? '#ffffff' : '#F9FAFB';
+
+            $rows .= "<tr style='background-color:{$rowBg};'>
             <td style='text-align:left; vertical-align:top; border-bottom:1px solid #E5E7EB; padding:6px 6px; width:28%;'>
                 <span style='font-size:9px; font-weight:bold; color:#111827;'>{$item->name}</span>" .
                 ($item->description !== '' ? "<br><span style='font-size:7.5px; color:#6B7280; line-height:1.3;'>{$item->description}</span>" : "") . "
@@ -236,10 +282,10 @@ abstract class DocumentService
             <td style='text-align:right; vertical-align:top; border-bottom:1px solid #E5E7EB; padding:6px 6px; width:10%; font-size:9px; font-weight:bold; color:#111827;'>{$currencySymbol}{$item->amount}</td>
         </tr>";
 
-        $index++;
+            $index++;
+        }
+        return $rows;
     }
-    return $rows;
-}
 
     public function getAttribute($name)
     {

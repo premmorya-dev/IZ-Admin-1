@@ -30,7 +30,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'first_name',
         'last_name',
         'email',
-        'email_verified_at',      
+        'google_id',
+        'email_verified_at',
         'status',
         'user_type',
         'time_zone',
@@ -40,7 +41,7 @@ class User extends Authenticatable implements MustVerifyEmail
         'last_login_ip',
         'profile_photo_path',
         'password',
-    
+
     ];
 
     public $sortable = [
@@ -60,8 +61,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'created_at',
         'updated_at',
-        
-        
+
+
     ];
 
     /**

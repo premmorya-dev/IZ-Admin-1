@@ -42,7 +42,8 @@ class Kernel extends ConsoleKernel
             ->appendOutputTo(storage_path('logs/send_estimate_email.log'));
 
         $schedule->command('invoices:dashboard-summary')
-            ->everyTenMinutes()
+            ->everyMinute()
+            ->withoutOverlapping()
             ->timezone('Asia/Kolkata')
             ->appendOutputTo(storage_path('logs/cron_dashboard_summary.log'));
 

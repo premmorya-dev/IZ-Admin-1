@@ -14,6 +14,8 @@ use Firebase\JWT\JWT;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 use App\Jobs\SendOnboardingEmailJob;
+use Illuminate\Support\Facades\Http;
+use Illuminate\Support\Str;
 
 class ApiController extends Controller
 {
@@ -92,7 +94,97 @@ class ApiController extends Controller
             ], 500);
         }
     }
+    private function authCallbackUrl(User $user): string
+    {
+        $payload = [
+            'iss' => 'https://invoicezy.com',
+            'sub' => $user->user_id,
+            'iat' => time(),
+            'exp' => time() + 3600,
+        ];
 
+        $jwt = JWT::encode($payload, config('app.jwt_secret'), 'HS256');
+
+        return 'https://pro.invoicezy.com/auth/callback?token=' . $jwt;
+    }
+
+    public function googleLogin(Request $request)
+    {
+        try {
+            $request->validate(['access_token' => 'required|string']);
+            $accessToken = $request->access_token;
+
+            // 1. Token humare Google client ke liye hi issue hua hai? (token substitution se bachav)
+            $info = Http::timeout(10)->get('https://oauth2.googleapis.com/tokeninfo', [
+                'access_token' => $accessToken,
+            ]);
+
+            if ($info->failed() || $info->json('aud') !== config('services.google.client_id')) {
+                return response()->json(['status' => false, 'message' => 'Invalid Google token'], 401);
+            }
+
+            // 2. Profile
+            $profile = Http::withToken($accessToken)->timeout(10)
+                ->get('https://www.googleapis.com/oauth2/v3/userinfo');
+
+            if ($profile->failed()) {
+                return response()->json(['status' => false, 'message' => 'Could not fetch Google profile'], 401);
+            }
+
+            $g = $profile->json();
+
+            if (empty($g['email']) || empty($g['email_verified'])) {
+                return response()->json(['status' => false, 'message' => 'Google email is not verified'], 422);
+            }
+
+            // 3. Find or create
+            $user = User::where('google_id', $g['sub'])->first()
+                ?? User::where('email', $g['email'])->first();
+
+            $isNew = false;
+
+            if ($user) {
+                $user->forceFill([
+                    'google_id' => $user->google_id ?: $g['sub'],
+                    'last_login_datetime' => Carbon::now()->toDateTimeString(),
+                    'last_login_ip' => $request->getClientIp(),
+                ])->save();
+            } else {
+                $isNew = true;
+                $user = User::create([
+                    'first_name' => $g['given_name'] ?? Str::before($g['email'], '@'),
+                    'last_name' => $g['family_name'] ?? '',
+                    'email' => $g['email'],
+                    'google_id' => $g['sub'],
+                    'password' => Hash::make(Str::random(32)),
+                    'last_login_datetime' => Carbon::now()->toDateTimeString(),
+                    'last_login_ip' => $request->getClientIp(),
+                ]);
+
+                SendOnboardingEmailJob::scheduleFor($user);
+            }
+
+            return response()->json([
+                'status' => true,
+                'message' => 'Login successful',
+                'data' => [
+                    'id' => $user->user_id,
+                    'email' => $user->email,
+                    'is_new_user' => $isNew,
+                    'url' => $this->authCallbackUrl($user),
+                ],
+            ], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'status' => false,
+                'message' => 'Validation Error',
+                'errors' => $e->errors(),
+            ], 422);
+        } catch (\Exception $e) {
+            report($e);
+            return response()->json(['status' => false, 'message' => 'Something went wrong'], 500);
+        }
+    }
 
     public function plans()
     {

@@ -1,6 +1,12 @@
 <x-default-layout>
 
-    <h2 class="py-3">Items</h2>
+ <x-page-heading
+        title="Manage Items"
+        description=""
+        :breadcrumbs="[
+        ['label' => 'Items', 'url' => route('item.list')]
+      
+    ]" />
 
 
     <!-- Accordion Container -->

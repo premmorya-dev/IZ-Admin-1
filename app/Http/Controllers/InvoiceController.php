@@ -25,8 +25,9 @@ class InvoiceController extends Controller
 {
     public function index(Request $request, InvoiceFilterService $filterService)
     {
+        $started  = microtime(true);
         $data = $filterService->getIndexData($request);
-
+        $data['loading_time'] = microtime(true) - $started ; 
         return view('pages/invoice.list', compact('data'));
     }
 
