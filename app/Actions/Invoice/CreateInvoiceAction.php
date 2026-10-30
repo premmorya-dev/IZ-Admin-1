@@ -13,6 +13,7 @@ use App\Services\Invoice\InvoiceStockService;
 use Illuminate\Support\Facades\DB;
 use Throwable;
 use App\Services\Invoice\DocumentSequenceService;
+use App\Exceptions\InsufficientStockException;
 
 class CreateInvoiceAction
 {
@@ -70,7 +71,21 @@ class CreateInvoiceAction
                 'message' => 'Invoice Saved Successfully!',
                 'invoice_code' => $invoice->invoice_code,
             ];
-        } catch (Throwable $e) {
+       } catch (InsufficientStockException $e) {
+ 
+            return [
+                'status' => 200,
+                'error' => 2,
+                'errors' => [
+                    'stock' => [$e->getMessage()],
+                ],
+                'message' => $e->getMessage(),
+            ];
+        }
+        
+        
+        catch (Throwable $e) {
+      
             logger()->error('Invoice create failed: ' . $e->getMessage(), [
                 'trace' => $e->getTraceAsString(),
             ]);

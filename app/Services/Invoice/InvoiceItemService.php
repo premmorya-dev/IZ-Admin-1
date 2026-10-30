@@ -99,7 +99,7 @@ class InvoiceItemService
                     ->first();
 
                 if (!$item) {
-                    throw new RuntimeException(
+                    throw new InsufficientStockException(
                         "Inventory item {$itemId} not found."
                     );
                 }
@@ -130,13 +130,13 @@ class InvoiceItemService
                     ->first();
 
                 if (!$item) {
-                    throw new RuntimeException(
+                    throw new InsufficientStockException(
                         "Inventory item {$itemId} not found."
                     );
                 }
 
                 if ((float) $item->stock < $quantity) {
-                    throw new RuntimeException(
+                    throw new InsufficientStockException(
                         "Insufficient stock for item: {$item->item_name}. " .
                             "Available: {$item->stock}, Required: {$quantity}"
                     );
@@ -196,7 +196,7 @@ class InvoiceItemService
                     ->first();
 
                 if (!$item) {
-                    throw new RuntimeException(
+                    throw new InsufficientStockException(
                         "Inventory item {$itemId} not found."
                     );
                 }

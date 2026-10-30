@@ -860,6 +860,17 @@
 
 
 
+                         } else if (response.error == 2) {                          
+                            Swal.fire({
+                                icon: "error",
+                                title: "Stock Error!",
+                                text: response.message,
+                                toast: false,
+                                position: "center",
+                                showConfirmButton: true,
+                                confirmButtonText: "OK",
+                                allowOutsideClick: false
+                            });
                         }
                     },
                     error: function(xhr) {
