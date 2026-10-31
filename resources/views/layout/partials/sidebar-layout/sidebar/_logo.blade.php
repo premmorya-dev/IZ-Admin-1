@@ -3,7 +3,7 @@
      <!-- Business Toggle -->
      <a href="#" id="businessToggle" class="list-group-item list-group-item-action d-flex justify-content-between align-items-center">
         <div class="d-flex align-items-center">
-            <img src="{{ \App\Http\Controllers\SettingController::getCompanyImage() }}" 
+            <img src="{{ asset('small-logo.jpg') }}" 
                  class="me-2 rounded-circle" 
                  style="width: 40px; height: 40px; object-fit: contain;">
             <span>{{ Auth::user()->first_name }} {{ Auth::user()->last_name }}</span>

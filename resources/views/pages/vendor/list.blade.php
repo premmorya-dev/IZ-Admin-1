@@ -230,7 +230,7 @@
 
     <!-- Edit vendor Model -->
     <div class="modal fade" id="vendor-modal" tabindex="-1" aria-labelledby="editvendorModalLabel" aria-hidden="true">
-        <div class="modal-dialog  modal-xl">
+        <div class="modal-dialog  modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white rounded-top-3">
                     <h4 class="modal-title" id="vendorModalLabel">Edit Vendor</h4>
@@ -248,7 +248,7 @@
 
     <!-- Edit vendor Model -->
     <div class="modal fade" id="editvendor-modal" tabindex="-1" aria-labelledby="editvendorModalLabel" aria-hidden="true">
-        <div class="modal-dialog  modal-xl">
+        <div class="modal-dialog  modal-lg">
             <div class="modal-content">
                 <div class="modal-header bg-primary text-white rounded-top-3">
                     <h4 class="modal-title" id="editvendorModalLabel">Edit Vendor</h4>

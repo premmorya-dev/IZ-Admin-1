@@ -280,7 +280,7 @@
 
     </div>
     @endif
-    <p class="fw-semibold text-muted"> {{ $data['loading_time'] }}</p>
+   
 
 
     <!-- Bulk Modal -->
