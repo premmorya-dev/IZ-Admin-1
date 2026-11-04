@@ -92,7 +92,7 @@ Hi {{ $user->first_name }} {{ $user->last_name }}, here's what makes InvoiceZy t
 <table role="presentation" cellpadding="0" cellspacing="0">
 <tr>
 <td style="background-color:#4338CA;border-radius:8px;">
-<a href="{{ config('app.url') }}/settings/branding" style="display:inline-block;padding:14px 32px;font-size:15px;color:#ffffff;text-decoration:none;font-weight:bold;">Set Up Your Branding →</a>
+<a href="{{ config('app.url') }}/settings/edit" style="display:inline-block;padding:14px 32px;font-size:15px;color:#ffffff;text-decoration:none;font-weight:bold;">Set Up Your Branding →</a>
 </td>
 </tr>
 </table>

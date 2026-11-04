@@ -24,7 +24,7 @@ Switch to our Annual plan and lock in a discounted rate for the next 12 months, 
 <table role="presentation" cellpadding="0" cellspacing="0">
 <tr>
 <td style="background-color:#4338CA;border-radius:6px;">
-<a href="{{ config('app.url') }}/billing/upgrade?plan=annual" style="display:inline-block;padding:12px 28px;font-size:15px;color:#ffffff;text-decoration:none;font-weight:bold;">Claim Annual Discount</a>
+<a href="{{ config('app.url') }}/plan/all-plans" style="display:inline-block;padding:12px 28px;font-size:15px;color:#ffffff;text-decoration:none;font-weight:bold;">Claim Annual Discount</a>
 </td>
 </tr>
 </table>

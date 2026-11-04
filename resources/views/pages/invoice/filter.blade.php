@@ -38,8 +38,7 @@
                             <div class="col-md-3">
                                 <label for="status" class="form-label">Status</label>
                                 <select id="status" name="status" class="form-select" multiple multiselect-max-items="1" multiselect-search="true">
-                                    <option value="draft" {{ in_array('draft', (array) explode("," , request('status') )  ) ? 'selected' : '' }}>Draft</option>
-                                    <option value="sent" {{ in_array('sent', (array) explode("," , request('status') )  ) ? 'selected' : '' }}>Sent</option>
+                                    <option value="pending" {{ in_array('pending', (array) explode("," , request('status') )  ) ? 'selected' : '' }}>Pending</option>
                                     <option value="paid" {{ in_array('paid', (array) explode("," , request('status') )  ) ? 'selected' : '' }}>Paid</option>
                                     <option value="overdue" {{ in_array('overdue', (array) explode("," , request('status') )  ) ? 'selected' : '' }}>Overdue</option>
                                     <option value="cancelled" {{ in_array('cancelled', (array) explode("," , request('status') )  ) ? 'selected' : '' }}>Cancelled</option>

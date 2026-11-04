@@ -79,7 +79,7 @@ It takes less than 2 minutes on InvoiceZy. Add your client, list your items, and
 <table role="presentation" cellpadding="0" cellspacing="0">
 <tr>
 <td style="background-color:#4338CA;border-radius:8px;">
-<a href="{{ config('app.url') }}/invoices/create" style="display:inline-block;padding:15px 40px;font-size:16px;color:#ffffff;text-decoration:none;font-weight:bold;">Create Invoice Now →</a>
+<a href="{{ config('app.url') }}/invoice/add" style="display:inline-block;padding:15px 40px;font-size:16px;color:#ffffff;text-decoration:none;font-weight:bold;">Create Invoice Now →</a>
 </td>
 </tr>
 </table>

@@ -35,7 +35,7 @@ Your InvoiceZy account is ready. You can now create GST-compliant invoices, mana
 <table role="presentation" cellpadding="0" cellspacing="0">
 <tr>
 <td style="background-color:#4338CA;border-radius:8px;">
-<a href="{{ config('app.url') }}/invoices/create" style="display:inline-block;padding:14px 32px;font-size:15px;color:#ffffff;text-decoration:none;font-weight:bold;">Create Your First Invoice →</a>
+<a href="{{ config('app.url') }}/invoice/add" style="display:inline-block;padding:14px 32px;font-size:15px;color:#ffffff;text-decoration:none;font-weight:bold;">Create Your First Invoice →</a>
 </td>
 </tr>
 </table>

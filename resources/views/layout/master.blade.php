@@ -187,14 +187,14 @@
         .floating-help-btn {
             position: fixed;
             right: 22px;
-            bottom: 24px;
+            bottom: 0px;
             z-index: 999;
 
             display: inline-flex;
             align-items: center;
             gap: 10px;
 
-            padding: 10px 16px;
+            padding: 6px 16px;
 
             border-radius: 999px;
 

@@ -24,6 +24,8 @@ use App\Services\Invoice\DocumentSequenceService;
 use App\Services\Estimate\EstimateService as EstimateModuleService;
 use App\Services\Estimate\EstimateShareService;
 
+use Illuminate\Support\Facades\Cache;
+
 
 class EstimateController extends Controller
 {
@@ -33,184 +35,166 @@ class EstimateController extends Controller
     ) {}
 
 
+
     public function index(Request $request)
     {
+        $userId = Auth::id();
 
-
-
-        if ($request->filled('pagination_per_page')) {
-            $limit = $request->input('pagination_per_page');
-        } else {
+        /* ------------------------------------------------------------------
+     | 1. Pagination (never trust a client supplied page size)
+     |    The filter UI offers 50..1000, default is 10.
+     * ----------------------------------------------------------------- */
+        $limit = (int) $request->input('pagination_per_page', 10);
+        if (!in_array($limit, [10, 50, 100, 200, 500, 1000], true)) {
             $limit = 10;
         }
 
-        $data['page'] = request()->get('page', 1);
-        $data['perPage'] = $limit;
-        $data['offset'] = ($data['page']  - 1) * $data['perPage'];
+        $page = max(1, (int) $request->input('page', 1));
 
+        $data['page']    = $page;
+        $data['perPage'] = $limit;
+        $data['offset']  = ($page - 1) * $limit;
+
+        // Build "?a=b&c=d&page=" safely. The old code produced "?a=b?page=" whenever a
+        // query string existed without `filters`/`direction` (e.g. only pagination_per_page).
         $queryParams = $request->query();
         unset($queryParams['page']);
-        $newQueryString = http_build_query($queryParams);
+        $queryString = http_build_query($queryParams);
+        $data['pagination_url'] = url()->current() . '?' . ($queryString !== '' ? $queryString . '&' : '') . 'page=';
 
-        if (($request->has('filters') && $request->input('filters') == 'true') ||  $request->has('direction')) {
-            $data['pagination_url'] = url()->current() . (!empty($newQueryString) ? '?' . $newQueryString : '') .  '&page=';
-        } else {
-            $data['pagination_url'] = url()->current() . (!empty($newQueryString) ? '?' . $newQueryString : '') . '?page=';
-        }
-
-
-        //pagination
-
-        // sorting
-        $sort_by = [
-            'estimate_id' => 'estimates.estimate_id',
+        /* ------------------------------------------------------------------
+     | 2. Sorting (whitelisted, direction validated)
+     * ----------------------------------------------------------------- */
+        $sortable = [
+            'estimate_id'     => 'estimates.estimate_id',
             'estimate_number' => 'estimates.estimate_number',
-            'issue_date' => 'estimates.issue_date',
-            'expiry_date' => 'estimates.expiry_date',
-            'status' => 'estimates.status',
+            'issue_date'      => 'estimates.issue_date',
+            'expiry_date'     => 'estimates.expiry_date',
+            'status'          => 'estimates.status',
+            'grand_total'     => 'estimates.grand_total', // the list page has a "Total" sort link
         ];
 
-        $order_by = $request->input('direction', 'desc');
+        $sortKey    = $request->input('sort');
+        $sortColumn = (is_string($sortKey) && isset($sortable[$sortKey])) ? $sortable[$sortKey] : 'estimates.estimate_id';
+        $direction  = strtolower((string) $request->input('direction', 'desc')) === 'asc' ? 'asc' : 'desc';
 
-        if (!empty($request->input('sort')) && array_key_exists($request->input('sort'), $sort_by)) {
-            $sort = $sort_by[$request->input('sort')];
-        } else {
-            $sort = 'estimates.estimate_id';
-        }
-        // sorting
+        /* ------------------------------------------------------------------
+     | 3. One base query, filters applied once (no clients join needed here)
+     * ----------------------------------------------------------------- */
+        $base = DB::table('estimates')->where('estimates.user_id', $userId);
 
         if ($request->has('filters')) {
-
-
-
-
-
-            $query = DB::table('estimates')
-                ->select(
-                    'estimates.estimate_id',
-                )->leftJoin('clients', 'estimates.client_id', 'clients.client_id');
-
-
-
-            // **Applying Filters**
-
-
             if ($request->filled('estimate_number')) {
-                $query->where('estimates.estimate_number', 'Like', "%" . $request->input('estimate_number') . "%");
+                $base->where('estimates.estimate_number', 'like', '%' . $request->input('estimate_number') . '%');
             }
-
-
 
             if ($request->filled('status')) {
-                $status = explode(',', $request->input('status'));
-                $query->whereIn('estimates.status', $status);
+                $status = array_filter(explode(',', (string) $request->input('status')));
+                if ($status) {
+                    $base->whereIn('estimates.status', $status);
+                }
             }
+
             if ($request->filled('issue_date')) {
                 $issue_date = $this->parseDateRange($request->input('issue_date'));
 
+                $base->where('estimates.issue_date', '>=', $this->convertToUTC($issue_date['start_date']));
+                $base->where('estimates.issue_date', '<=', $this->convertToUTC($issue_date['end_date']));
+            }
+        }
 
-                $query->where('estimates.issue_date', '>=',  $this->convertToUTC($issue_date['start_date']));
-                $query->where('estimates.issue_date', '<=',  $this->convertToUTC($issue_date['end_date']));
+        $total = (clone $base)->count();
+
+        $data['totalRecords'] = $total;
+        $data['totalPages']   = (int) ceil($total / $limit);
+
+        /* ------------------------------------------------------------------
+     | 4. Fetch only the ids of the current page (index-only scan), with a
+     |    tie-breaker so the page is deterministic.
+     * ----------------------------------------------------------------- */
+        $ids = [];
+
+        if ($total > 0 && $data['offset'] < $total) {
+            $idQuery = (clone $base)->orderBy($sortColumn, $direction);
+
+            if ($sortColumn !== 'estimates.estimate_id') {
+                $idQuery->orderBy('estimates.estimate_id', $direction);
             }
 
-
-
-            $query->where('estimates.user_id', '=', Auth::id());
-            $result =  $query;
-
-            $data['totalRecords'] =  $result->count();
-            $data['totalPages'] = ceil($data['totalRecords'] / $data['perPage']);
-
-
-            $query->orderBy($sort, $order_by);
-            $query->offset($data['offset']);
-            $query->limit($limit);
-            $query = $query->get();
-            $query = $query->toArray();
-
-
-            $data['estimate_string'] = implode(",", array_column($query, 'estimate_id'));
-        } else {
-
-            $query = DB::table('estimates')
-                ->select(
-                    'estimates.estimate_id',
-                );
-
-            $query->where('estimates.user_id', '=', Auth::id());
-            $data['totalRecords'] =  $query->count();
-            $data['totalPages'] = ceil($data['totalRecords'] / $data['perPage']);
-
-            $query->orderBy($sort, $order_by);
-            $query->offset($data['offset']);
-            $query->limit($limit);
-            $query = $query->get();
-            $query = $query->toArray();
-            $data['estimate_string'] = implode(",", array_column($query, 'estimate_id'));
+            $ids = $idQuery
+                ->offset($data['offset'])
+                ->limit($limit)
+                ->pluck('estimates.estimate_id')
+                ->all();
         }
 
+        $data['estimate_string'] = implode(',', $ids);
+        $data['show_pagination'] = !empty($ids);
 
-        $data['estimate'] = explode(",", $data['estimate_string']);
-        if (empty($data['estimate'][0])  ||  count($data['estimate'])  <= 0) {
-            $data['show_pagination'] = false;
-        } else {
-            $data['show_pagination'] = true;
-        }
+        /* ------------------------------------------------------------------
+     | 5. Lookups that were queried again and again -> cached / read once
+     * ----------------------------------------------------------------- */
+        $timeZoneId = Auth::user()->time_zone_id;
 
+        $data['timezone'] = Cache::remember(
+            'time_zone:' . $timeZoneId,
+            now()->addDay(),
+            fn() => DB::table('time_zone')->where('time_zone_id', $timeZoneId)->first()
+        );
 
-        $user = DB::table('users')->where('user_id', Auth::id())->first();
-        $data['timezone'] = DB::table('time_zone')->where('time_zone_id', $user->time_zone_id)->first();
+        // small table: one cached map instead of 2 queries per row
+        $currencySymbols = Cache::remember(
+            'currency_symbols',
+            now()->addDay(),
+            fn() => DB::table('currencies')->pluck('currency_symbol', 'currency_code')->all()
+        );
 
+        /* ------------------------------------------------------------------
+     | 6. Load full rows for just this page (skipped completely when empty)
+     * ----------------------------------------------------------------- */
+        $estimates = collect();
 
-
-
-        if (!empty($data['estimate'])) {
-
-            $data['estimate'] = DB::table('estimates')
-
+        if (!empty($ids)) {
+            $rows = DB::table('estimates')
                 ->select(
                     'estimates.*',
                     'clients.company_name',
                     'clients.client_name',
-                    'clients.client_code',
-
+                    'clients.client_code'
                 )
-                ->leftJoin('clients', 'estimates.client_id', 'clients.client_id')
-                ->where('estimates.user_id', '=', Auth::id())
-                ->whereIn('estimates.estimate_id', $data['estimate'])
-                ->orderBy($sort, $order_by)
+                ->leftJoin('clients', 'estimates.client_id', '=', 'clients.client_id')
+                ->where('estimates.user_id', $userId)
+                ->whereIn('estimates.estimate_id', $ids)
                 ->get();
 
+            // keep the order produced by the id query (no second ORDER BY / filesort)
+            $position  = array_flip($ids);
+            $estimates = $rows->sortBy(fn($row) => $position[$row->estimate_id])->values();
 
-            foreach ($data['estimate'] as $key => $estimate) {
+            $estimates->transform(function ($estimate) use ($currencySymbols, $timeZoneId) {
+                $estimate->symbol = $currencySymbols[$estimate->currency_code] ?? '';
 
+                $estimate->issue_date_utc = $estimate->issue_date;
+                $estimate->issue_date = !empty($estimate->issue_date)
+                    ? getTimeDateDisplay($timeZoneId, $estimate->issue_date, 'Y-m-d', 'Y-m-d') : '';
 
-                $currency_symbol =  DB::table('currencies')->where('currency_code', $estimate->currency_code)->first();
+                $estimate->expiry_date_utc = $estimate->expiry_date;
+                $estimate->expiry_date = !empty($estimate->expiry_date)
+                    ? getTimeDateDisplay($timeZoneId, $estimate->expiry_date, 'Y-m-d', 'Y-m-d') : '';
 
-                if (!empty($currency_symbol)) {
-                    $data['estimate'][$key]->symbol = DB::table('currencies')->where('currency_code', $estimate->currency_code)->first()->currency_symbol;
-                } else {
-                    $data['estimate'][$key]->symbol = '';
-                }
+                $estimate->created_at_utc = $estimate->created_at;
+                $estimate->created_at = !empty($estimate->created_at)
+                    ? getTimeDateDisplay($timeZoneId, $estimate->created_at, 'Y-m-d H:i:s', 'Y-m-d H:i:s') : '';
 
+                $estimate->updated_at_utc = $estimate->updated_at;
+                $estimate->updated_at = !empty($estimate->updated_at)
+                    ? getTimeDateDisplay($timeZoneId, $estimate->updated_at, 'Y-m-d H:i:s', 'Y-m-d H:i:s') : '';
 
-
-                $data['estimate'][$key]->issue_date_utc = $estimate->issue_date;
-                $data['estimate'][$key]->issue_date =  !empty($estimate->issue_date) ? getTimeDateDisplay($user->time_zone_id, $estimate->issue_date, 'Y-m-d', 'Y-m-d') : '';
-
-                $data['estimate'][$key]->expiry_date_utc = $estimate->expiry_date;
-                $data['estimate'][$key]->expiry_date =  !empty($estimate->expiry_date) ? getTimeDateDisplay($user->time_zone_id, $estimate->expiry_date, 'Y-m-d', 'Y-m-d') : '';
-
-
-                $data['estimate'][$key]->created_at_utc = $estimate->created_at;
-                $data['estimate'][$key]->created_at =  !empty($estimate->created_at) ? getTimeDateDisplay($user->time_zone_id, $estimate->created_at, 'Y-m-d H:i:s', 'Y-m-d H:i:s') : '';
-
-                $data['estimate'][$key]->updated_at_utc = $estimate->updated_at;
-                $data['estimate'][$key]->updated_at =  !empty($estimate->updated_at) ? getTimeDateDisplay($user->time_zone_id, $estimate->updated_at, 'Y-m-d H:i:s', 'Y-m-d H:i:s') : '';
-            }
+                return $estimate;
+            });
         }
 
-
+        $data['estimate'] = $estimates;
 
         return view('pages/estimate.list', compact('data'));
     }

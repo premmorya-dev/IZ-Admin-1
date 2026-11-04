@@ -961,7 +961,7 @@
                         } else if (response.error == 2) {                          
                             Swal.fire({
                                 icon: "error",
-                                title: "Stock Error!",
+                                title: "Stock Unavailable!",
                                 text: response.message,
                                 toast: false,
                                 position: "center",
