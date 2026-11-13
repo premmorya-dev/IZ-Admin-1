@@ -633,8 +633,9 @@
                 </a>
 
                 <!-- Add Button -->
-                <a class=" new-vendor btn btn-add-saas"
-                    id="add-action" href="{{ route('vendor.add') }}"> <i data-lucide="plus-circle"></i> Add New</a>
+                
+
+                       <x-invoice.saas-button :href="route('vendor.add')" class=" new-vendor" id="add-action" icon="plus-circle"> Add New</x-invoice.saas-button>
             </div>
         </div>
 

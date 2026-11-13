@@ -26,12 +26,14 @@ class InvoiceService
             ->leftJoin('clients', 'invoices.client_id', '=', 'clients.client_id')
             ->leftJoin('countries', 'countries.country_id', '=', 'clients.country_id')
             ->leftJoin('country_states', 'country_states.state_id', '=', 'clients.state_id')
+            ->leftJoin('invoice_payments', 'invoices.invoice_id', '=', 'invoice_payments.invoice_id')
             ->where('invoices.user_id', $userId)
             ->where('invoices.invoice_code', $invoiceCode)
             ->select(
                 'clients.*',
                 'invoices.*',
                 'countries.country_name',
+                'invoice_payments.invoice_payment_id',
                 'country_states.state_name'
             )
             ->first();

@@ -339,6 +339,8 @@ if (!function_exists('getShortcode')) {
             '{{' . $party . '_city}}' => $doc->{$party . '_city'} ?? '',
             '{{' . $party . '_state}}' => $doc->{$party . '_state'} ?? '',
             '{{' . $party . '_country}}' => $doc->{$party . '_country'} ?? '',
+            '{{' . $party . '_place_of_supply}}' => $doc->{$party . '_place_of_supply'} ?? '',
+             '{{' . $party . '_invoice_number}}' => $doc->{$party . '_invoice_number'} ?? '',
             '{{' . $party . '_zip}}' => $doc->{$party . '_zip'} ?? '',
             '{{' . $party . '_gst_number}}' => $doc->{$party . '_gst_number'} ?? '',
             '{{show_' . $party . '_gst_number}}' => !empty($doc->{$party . '_gst_number'}) ? 'GSTIN: ' . $doc->{$party . '_gst_number'} : '',

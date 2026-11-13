@@ -8,6 +8,7 @@ use App\Actions\Invoice\DeleteInvoiceAction;
 use App\Actions\Invoice\DownloadInvoicePdfAction;
 use App\Actions\Invoice\QueueInvoiceEmailAction;
 use App\Actions\Invoice\RecordPaymentAction;
+use App\Actions\Invoice\MarkUnPaidAction;
 use App\Actions\Invoice\UpdateInvoiceAction;
 use App\Http\Requests\Invoice\BulkDeleteInvoiceRequest;
 use App\Http\Requests\Invoice\QueueEmailRequest;
@@ -26,7 +27,7 @@ class InvoiceController extends Controller
     public function index(Request $request, InvoiceFilterService $filterService)
     {
         $started  = microtime(true);
-        $data = $filterService->getIndexData($request);
+        $data = $filterService->getIndexData($request);       
         $data['loading_time'] = microtime(true) - $started ; 
         return view('pages/invoice.list', compact('data'));
     }
@@ -161,6 +162,16 @@ class InvoiceController extends Controller
         $result = $action->handle((string) $request->input('invoice_code'));
 
         return response()->json($result, 200);
+    }
+
+
+    public function markUnPaid(Request $request, MarkUnPaidAction $action ){
+
+    
+        $result = $action->handle( $request->input("invoice_code"));
+
+         return response()->json($result, 200);
+
     }
 
     public function queueEmail(QueueEmailRequest $request, QueueInvoiceEmailAction $action)

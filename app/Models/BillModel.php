@@ -17,9 +17,18 @@ class BillModel extends Model
         'vendor_id',
         'bill_number',
         'bill_code',
-        'order_number',
         'bill_date',
         'due_date',
+        'order_number',
+        'vendor_invoice_number',
+        'vendor_invoice_date',
+
+        'place_of_supply',
+        'reverse_charge',
+        'itc_eligibility',
+        'rcm_tax_amount',
+
+
         'bill_status',
         'sub_total',
         'total_tax',

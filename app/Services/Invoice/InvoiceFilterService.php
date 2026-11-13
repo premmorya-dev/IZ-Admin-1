@@ -108,13 +108,16 @@ class InvoiceFilterService
         $rows = DB::table('invoices')
             ->select(array_merge(
                 array_map(fn ($c) => 'invoices.' . $c, self::LIST_COLUMNS),
-                ['clients.company_name', 'clients.client_name', 'clients.client_code']
+                ['clients.company_name', 'clients.client_name', 'clients.client_code', 'invoice_payments.invoice_payment_id']
             ))
             ->leftJoin('clients', 'invoices.client_id', '=', 'clients.client_id')
+            ->leftJoin('invoice_payments', 'invoices.invoice_id', '=', 'invoice_payments.invoice_id')
             ->where('invoices.user_id', $userId)
             ->whereIn('invoices.invoice_id', $invoiceIds)
             ->get()
             ->keyBy('invoice_id');
+
+            
 
         $invoices = collect($invoiceIds)
             ->map(fn ($id) => $rows->get($id))
@@ -140,6 +143,8 @@ class InvoiceFilterService
         };
 
         foreach ($invoices as $invoice) {
+
+            $invoice->invoice_payment_id =  $invoice->invoice_payment_id ?? NULL;
             $invoice->symbol = $symbols[$invoice->currency_code] ?? '';
 
             $invoice->invoice_date_utc = $invoice->invoice_date;

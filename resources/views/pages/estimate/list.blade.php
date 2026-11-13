@@ -2,8 +2,8 @@
 
     <style>
         /* ==========================================================================
-           Invoice listing — premium SaaS look (scoped to .inv-page)
-           Mobile-first: card per invoice  ->  table layout from 768px
+           Estimate listing — premium SaaS look (scoped to .inv-page)
+           Mobile-first: card per estimate  ->  table layout from 768px
            ========================================================================== */
         .inv-page {
             --i1: #4f46e5;
@@ -154,9 +154,10 @@
             display: grid;
             grid-template-columns: 28px minmax(0, 1fr) auto;
             grid-template-areas:
-                "check  main   actions"
+                "check  main   main"
                 ".      status status"
-                ".      amount date";
+                ".      amount date"
+                ".      actions actions";
             gap: 12px 12px;
             align-items: start;
             padding: 16px;
@@ -181,7 +182,17 @@
         .inv-page .inv-status { grid-area: status; }
         .inv-page .inv-amount { grid-area: amount; }
         .inv-page .inv-date { grid-area: date; text-align: right; }
-        .inv-page .inv-actions { grid-area: actions; display: flex; justify-content: flex-end; }
+
+        /* actions = quick icons (view / print / download) + existing action menu */
+        .inv-page .inv-actions {
+            grid-area: actions;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            padding-top: 12px;
+            border-top: 1px dashed var(--bd);
+        }
 
         .inv-page .inv-label {
             display: block;
@@ -191,7 +202,7 @@
             color: var(--faint);
         }
 
-        /* invoice number + quick icons */
+        /* estimate number */
         .inv-page .inv-numline { display: flex; align-items: center; flex-wrap: wrap; gap: 4px 10px; }
 
         .inv-page .inv-num {
@@ -204,21 +215,58 @@
 
         .inv-page .inv-num:hover { color: #4338ca; text-decoration: underline; }
 
-        .inv-page .inv-quick { display: inline-flex; align-items: center; gap: 2px; }
-
-        .inv-page .inv-quick a {
-            width: 28px;
-            height: 28px;
-            display: grid;
-            place-items: center;
-            border-radius: 8px;
-            font-size: 12.5px;
-            color: var(--faint);
-            text-decoration: none;
-            transition: .15s;
+        /* quick action buttons (icon-only) */
+        .inv-page .inv-quick {
+            flex: none;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .inv-page .inv-quick a:hover { background: #eef2ff; color: var(--i1); }
+        .inv-page .inv-qbtn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            padding: 0;
+            border-radius: 11px;
+            border: 1px solid var(--bd);
+            background: var(--soft);
+            font-size: 12.5px;
+            font-weight: 600;
+            line-height: 1;
+            color: var(--text);
+            text-decoration: none;
+            white-space: nowrap;
+            transition: .16s;
+        }
+
+        .inv-page .inv-qbtn i { font-size: 15px; color: var(--mut); transition: .16s; }
+
+        .inv-page .inv-qbtn:hover,
+        .inv-page .inv-qbtn:focus-visible {
+            background: #eef2ff;
+            border-color: #c7d2fe;
+            color: var(--i1);
+            transform: translateY(-1px);
+            box-shadow: 0 8px 14px -10px rgba(79, 70, 229, .6);
+        }
+
+        .inv-page .inv-qbtn:hover i,
+        .inv-page .inv-qbtn:focus-visible i { color: var(--i1); }
+
+        .inv-page .inv-qbtn.q-print:hover,
+        .inv-page .inv-qbtn.q-print:focus-visible { background: #fffbeb; border-color: #fde68a; color: #b45309; box-shadow: 0 8px 14px -10px rgba(217, 119, 6, .6); }
+        .inv-page .inv-qbtn.q-print:hover i,
+        .inv-page .inv-qbtn.q-print:focus-visible i { color: #b45309; }
+
+        .inv-page .inv-qbtn.q-download:hover,
+        .inv-page .inv-qbtn.q-download:focus-visible { background: #ecfdf5; border-color: #a7f3d0; color: #047857; box-shadow: 0 8px 14px -10px rgba(5, 150, 105, .6); }
+        .inv-page .inv-qbtn.q-download:hover i,
+        .inv-page .inv-qbtn.q-download:focus-visible i { color: #047857; }
+
+        .inv-page .inv-menu { flex: none; display: flex; align-items: center; }
 
         /* client line */
         .inv-page .inv-client {
@@ -273,18 +321,7 @@
             background: currentColor;
         }
 
-        .inv-page .inv-badge.s-pending { color: #b45309; background: #fffbeb; border-color: #fde68a; }
-        .inv-page .inv-badge.s-sent { color: #1d4ed8; background: #eff6ff; border-color: #bfdbfe; }
-        .inv-page .inv-badge.s-paid { color: #047857; background: #ecfdf5; border-color: #a7f3d0; }
-        .inv-page .inv-badge.s-cancelled { color: #475569; background: #f1f5f9; border-color: #e2e8f0; }
-        .inv-page .inv-badge.s-overdue { color: #be123c; background: #fff1f2; border-color: #fecdd3; }
         .inv-page .inv-badge.s-default { color: #334155; background: #f1f5f9; border-color: #e2e8f0; }
-
-        .inv-page .inv-duetxt { font-size: 12px; font-weight: 600; }
-        .inv-page .inv-duetxt.d-overdue { color: #e11d48; }
-        .inv-page .inv-duetxt.d-upcoming { color: #d97706; }
-        .inv-page .inv-duetxt.d-today { color: var(--i1); }
-        .inv-page .inv-duetxt.d-default { color: var(--mut); }
 
         /* amount */
         .inv-page .inv-total {
@@ -293,19 +330,6 @@
             font-weight: 700;
             letter-spacing: -.01em;
             color: var(--ink);
-            white-space: nowrap;
-        }
-
-        .inv-page .inv-dueamt {
-            display: inline-block;
-            margin-top: 4px;
-            padding: 2px 9px;
-            border-radius: 99px;
-            font-size: 11.5px;
-            font-weight: 600;
-            color: #be123c;
-            background: #fff1f2;
-            border: 1px solid #fecdd3;
             white-space: nowrap;
         }
 
@@ -321,8 +345,6 @@
         }
 
         .inv-page .inv-datev i { font-size: 12px; color: var(--faint); }
-        .inv-page .inv-datev.is-overdue { color: #e11d48; }
-        .inv-page .inv-datev.is-overdue i { color: #e11d48; }
 
         /* ---------- empty state ---------- */
         .inv-page .inv-empty {
@@ -405,6 +427,13 @@
             .inv-page .inv-pager { flex-direction: row; justify-content: space-between; }
         }
 
+        /* very small phones: slightly smaller buttons */
+        @media (max-width: 374.98px) {
+            .inv-page .inv-row { padding: 14px; gap: 10px; }
+            .inv-page .inv-qbtn { width: 38px; height: 38px; }
+            .inv-page .inv-quick { gap: 6px; }
+        }
+
         /* ==========================================================================
            Table layout (tablet landscape and up)
            ========================================================================== */
@@ -419,7 +448,7 @@
             .inv-page .inv-head,
             .inv-page .inv-row {
                 display: grid;
-                grid-template-columns: 44px minmax(0, 2.3fr) minmax(0, 1.15fr) minmax(0, 1.25fr) minmax(0, 1fr) auto;
+                grid-template-columns: 44px minmax(0, 2.2fr) minmax(0, 1.1fr) minmax(0, 1.2fr) minmax(0, 1fr) 152px;
                 grid-template-areas: "check main status amount date actions";
                 gap: 0 14px;
                 align-items: center;
@@ -447,7 +476,7 @@
             }
 
             .inv-page .inv-hcell.inv-hcheck { padding: 0; }
-            .inv-page .inv-hcell.inv-hactions { display: inline-flex; justify-content: flex-end; min-width: 84px; }
+            .inv-page .inv-hcell.inv-hactions { display: inline-flex; justify-content: flex-end; }
             .inv-page .inv-selall { display: none; }
             .inv-page .inv-hcell.h-main { grid-area: main; }
             .inv-page .inv-hcell.h-status { grid-area: status; }
@@ -476,7 +505,28 @@
             .inv-page .inv-label { display: none; }
             .inv-page .inv-status { flex-direction: column; align-items: flex-start; gap: 5px; }
             .inv-page .inv-date { text-align: left; }
-            .inv-page .inv-actions { min-width: 84px; }
+
+            /* actions: compact icon buttons on desktop */
+            .inv-page .inv-actions {
+                padding: 0;
+                border-top: 0;
+                justify-content: flex-end;
+                gap: 6px;
+            }
+
+            .inv-page .inv-quick { gap: 4px; }
+
+            .inv-page .inv-qbtn {
+                width: 32px;
+                height: 32px;
+                border-radius: 9px;
+                border-color: transparent;
+                background: transparent;
+            }
+
+            .inv-page .inv-qbtn i { font-size: 14px; color: var(--faint); }
+            .inv-page .inv-qbtn:hover,
+            .inv-page .inv-qbtn:focus-visible { box-shadow: none; transform: none; }
         }
 
         /* ---------- estimate-specific ---------- */
@@ -666,12 +716,6 @@
                 <div class="inv-cell inv-main">
                     <div class="inv-numline">
                         <a class="inv-num" href="{{ route('estimate.edit',['estimate_code' => $estimate->estimate_code ]) }}" title="{{ $estimate->estimate_number }}">{{ $estimate->estimate_number }}</a>
-
-                        <span class="inv-quick">
-                            <a href="#" estimate-code="{{ $estimate->estimate_code }}" class="estimate-view-model" title="View Estimate"><i class="fa-regular fa-eye"></i></a>
-                            <a href="{{ route('estimate.download',['estimate_code' => $estimate->estimate_code ]) }}?preview=true" target="_blank" rel="noopener" title="Print Estimate"><i class="fa-solid fa-print"></i></a>
-                            <a href="{{ route('estimate.download',['estimate_code' => $estimate->estimate_code ]) }}" title="Download Estimate"><i class="fa-solid fa-download"></i></a>
-                        </span>
                     </div>
 
                     <div class="inv-client">
@@ -728,9 +772,23 @@
                     <span class="inv-datev"><i class="fa-regular fa-calendar"></i>{{ $estimate->issue_date }}</span>
                 </div>
 
-                <!-- Actions -->
+                <!-- Actions: View / Print / Download + existing action menu -->
                 <div class="inv-cell inv-actions">
-                    @include('pages/estimate/actions/edit_action')
+                    <span class="inv-quick">
+                        <a href="#" estimate-code="{{ $estimate->estimate_code }}" class="inv-qbtn q-view estimate-view-model" title="View Estimate" aria-label="View Estimate">
+                            <i class="fa-regular fa-eye"></i>
+                        </a>
+                        <a href="{{ route('estimate.download',['estimate_code' => $estimate->estimate_code ]) }}?preview=true" target="_blank" rel="noopener" class="inv-qbtn q-print" title="Print Estimate" aria-label="Print Estimate">
+                            <i class="fa-solid fa-print"></i>
+                        </a>
+                        <a href="{{ route('estimate.download',['estimate_code' => $estimate->estimate_code ]) }}" class="inv-qbtn q-download" title="Download Estimate" aria-label="Download Estimate">
+                            <i class="fa-solid fa-download"></i>
+                        </a>
+                    </span>
+
+                    <div class="inv-menu">
+                        @include('pages/estimate/actions/edit_action')
+                    </div>
                 </div>
 
             </div>

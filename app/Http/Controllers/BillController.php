@@ -18,6 +18,12 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use ZipArchive;
 use App\Services\Invoice\DocumentSequenceService;
 
+use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+
+
+
 class BillController extends Controller
 {
 
@@ -58,8 +64,7 @@ class BillController extends Controller
         $sort_by = [
             'bill_id' => 'bills.bill_id',
             'bill_number' => 'bills.bill_number',
-            'bill_date' => 'bills.bill_date',
-            'due_date' => 'bills.due_date',
+            'vendor_invoice_date' => 'bills.vendor_invoice_date',
             'bill_status' => 'bills.bill_status',
             'sub_total' => 'bills.sub_total',
             'total' => 'bills.total',
@@ -105,21 +110,15 @@ class BillController extends Controller
                 $bill_status = explode(',', $request->input('bill_status'));
                 $query->whereIn('bills.bill_status', $bill_status);
             }
-            if ($request->filled('due_date')) {
-                $due_date = $this->parseDateRange($request->input('due_date'));
+            if ($request->filled('vendor_invoice_date')) {
+                $vendor_invoice_date = $this->parseDateRange($request->input('vendor_invoice_date'));
 
 
-                $query->where('bills.due_date', '>=',  convertToUTCDateOnly($due_date['start_date']));
-                $query->where('bills.due_date', '<=',  convertToUTCDateOnly($due_date['end_date']));
+                $query->where('bills.vendor_invoice_date', '>=',  convertToUTCDateOnly($vendor_invoice_date['start_date']));
+                $query->where('bills.vendor_invoice_date', '<=',  convertToUTCDateOnly($vendor_invoice_date['end_date']));
             }
 
-            if ($request->filled('bill_date')) {
-                $bill_date = $this->parseDateRange($request->input('bill_date'));
 
-
-                $query->where('bills.bill_date', '>=',  convertToUTCDateOnly($bill_date['start_date']));
-                $query->where('bills.bill_date', '<=',  convertToUTCDateOnly($bill_date['end_date']));
-            }
 
             if ($request->filled('sub_total')) {
                 $query->where('bills.sub_total', '=', $request->input('sub_total'));
@@ -234,11 +233,9 @@ class BillController extends Controller
 
 
 
-                $data['bill'][$key]->bill_date_utc = $bill->bill_date;
-                $data['bill'][$key]->bill_date =  !empty($bill->bill_date) ? getTimeDateDisplay($user->time_zone_id, $bill->bill_date, 'Y-m-d', 'Y-m-d') : '';
 
-                $data['bill'][$key]->due_date_utc = $bill->due_date;
-                $data['bill'][$key]->due_date =  !empty($bill->due_date) ? getTimeDateDisplay($user->time_zone_id, $bill->due_date, 'Y-m-d', 'Y-m-d') : '';
+                $data['bill'][$key]->vendor_invoice_date_utc = $bill->vendor_invoice_date;
+                $data['bill'][$key]->vendor_invoice_date =  !empty($bill->vendor_invoice_date) ? getTimeDateDisplay($user->time_zone_id, $bill->vendor_invoice_date, 'Y-m-d', 'Y-m-d') : '';
 
 
                 $data['bill'][$key]->created_at_utc = $bill->created_at;
@@ -249,8 +246,8 @@ class BillController extends Controller
 
 
                 $today = Carbon::now($data['timezone']->timezone); // user's timezone
-                if (!empty($bill->due_date_utc)) {
-                    $dueDate = Carbon::parse($bill->due_date_utc);
+                if (!empty($bill->vendor_invoice_date_utc)) {
+                    $dueDate = Carbon::parse($bill->vendor_invoice_date_utc);
 
                     if ($dueDate->lt($today)) {
                         // Due date is in past
@@ -386,6 +383,7 @@ class BillController extends Controller
 
     public function edit(Request $request, $bill_code)
     {
+
         $data = [];
 
         $data['bill'] = \DB::table('bills')
@@ -400,7 +398,6 @@ class BillController extends Controller
             ->leftJoin('country_states', 'country_states.state_id', 'vendors.state_id')
             ->where('bills.user_id', '=', Auth::id())
             ->where('bill_code', $bill_code)->first();
-
 
 
 
@@ -472,7 +469,6 @@ class BillController extends Controller
             ->first();
 
         $data['states'] = \DB::table('country_states')->where('country_id', $data['setting']->country_id)->orderBy('state_name', 'ASC')->get();
-        // dd($data);
         return view('pages/bill.edit', compact('data'));
     }
 
@@ -488,380 +484,474 @@ class BillController extends Controller
 
     public function update(Request $request)
     {
-
-
-
         try {
-            $validator = Validator::make($request->all(), [
-                'vendor_id' => 'required',
-                'bill_number' => 'required|string|max:255',
-                'currency_code' => 'required',
-                'template_id' => 'required',
-                'bill_date' => 'required|date',
-                'due_date' => 'required|date',
-                'item' => 'required',
-            ], [
-                'vendor_id.required' => 'Please select a vendor for the bill.',
-                'bill_number.required' => 'Bill number is required.',
-                'bill_number.max' => 'Bill number should not exceed 255 characters.',
-                'currency_code.required' => 'Currency is required.',
-                'template_id.required' => 'Please select template for Bill.',
-                'bill_date.required' => 'Bill date is required.',
-                'bill_date.date' => 'Bill date must be a valid date.',
-                'due_date.required' => 'Due date is required.',
-                'due_date.date' => 'Due date must be a valid date.',
-                'item.required' => 'Please select or enter the items details.',
-
-            ]);
-
-            if ($validator->fails()) {
-                return response()->json([
-                    'error'  => 1,
-                    'errors' => $validator->errors()
-                ], 200);
-            }
-
             $userId = Auth::id();
 
-            // Fetch invoice using bill_code and user_id
+            // Bill pehle fetch karte hain taaki unique rule mein current bill ignore ho sake
             $bill = BillModel::where('bill_code', $request->input('bill_code'))
                 ->where('user_id', $userId)
                 ->firstOrFail();
 
-            $itemJson = $request->input('item');
-            $fieldsToClean = ['rate', 'discount', 'tax', 'amount'];
+            $isRecurring = $request->has('is_recurring');
 
-            if (!empty($itemJson)) {
-                foreach ($itemJson as $index => $item) {
-                    foreach ($fieldsToClean as $field) {
-                        if (isset($item[$field])) {
-                            $itemJson[$index][$field] = preg_replace('/[^\d.]/', '', $item[$field]);
-                        }
+            $validator = Validator::make($request->all(), [
+                'vendor_id'       => 'required',
+                'bill_number'     => 'required|string|max:255',
+                'currency_code'   => 'required',
+                'template_id'     => 'required',
+                'bill_date' => 'required|date',
+                'due_date' => 'required|date',
+
+                // ---- GST purchase fields ----
+                'vendor_invoice_number' => [
+                    'required',
+                    'string',
+                    'max:100',
+                    // same vendor ka same invoice number dobara record na ho
+                    Rule::unique('bills', 'vendor_invoice_number')
+                        ->where(fn($q) => $q->where('user_id', $userId)
+                            ->where('vendor_id', $request->input('vendor_id')))
+                        ->ignore($bill->bill_id, 'bill_id'),
+                ],
+                'vendor_invoice_date' => 'required|date',
+                'place_of_supply'     => 'nullable|integer',
+                'reverse_charge'      => 'nullable|in:Y,N',
+                'itc_eligibility'     => 'nullable|in:input,capital_goods,input_services,ineligible',
+
+                // ---- Items ----
+                'item'            => 'required|array|min:1',
+                'item.*.name'     => 'required|string|max:255',
+                'item.*.quantity' => 'required|numeric|gt:0',
+                'item.*.rate'     => 'required|numeric|min:0',
+
+                // ---- Recurring (sirf tab jab switch on ho) ----
+                'frequency'   => 'required_with:is_recurring|nullable|in:monthly,weekly,yearly',
+                'time_of_day' => 'required_with:is_recurring|nullable|date_format:H:i',
+            ], [
+                'vendor_id.required'       => 'Please select a vendor for the bill.',
+                'bill_number.required'     => 'Bill number is required.',
+                'bill_number.max'          => 'Bill number should not exceed 255 characters.',
+                'currency_code.required'   => 'Currency is required.',
+                'template_id.required'     => 'Please select template for Bill.',
+                'bill_date.required'       => 'Bill date is required.',
+                'bill_date.date'           => 'Bill date must be a valid date.',
+                'vendor_invoice_date.after_or_equal'  => 'Due date cannot be before the bill date.',
+
+                'vendor_invoice_number.required' => 'Vendor invoice number is required.',
+                'vendor_invoice_number.unique'   => 'This vendor invoice number is already recorded for this vendor.',
+                'vendor_invoice_date.before_or_equal' => 'Vendor invoice date cannot be after the bill date.',
+                'itc_eligibility.in'       => 'Please select a valid ITC eligibility.',
+
+                'item.required'            => 'Please select or enter the items details.',
+                'item.min'                 => 'Please select or enter the items details.',
+                'item.*.name.required'     => 'Item name is required.',
+                'item.*.quantity.required' => 'Quantity is required.',
+                'item.*.quantity.gt'       => 'Quantity must be greater than 0.',
+                'item.*.rate.required'     => 'Rate is required.',
+
+                'frequency.required_with'   => 'Please select a recurring frequency.',
+                'time_of_day.required_with' => 'Please select the time to generate.',
+            ]);
+
+            if ($validator->fails()) {
+                // "item.1.name" -> "item[1][name]" taaki frontend sahi input ke neeche error dikha sake
+                $errors = [];
+                foreach ($validator->errors()->messages() as $key => $messages) {
+                    $parts = explode('.', $key);
+                    $field = array_shift($parts);
+                    $errors[$parts ? $field . '[' . implode('][', $parts) . ']' : $field] = $messages;
+                }
+
+                return response()->json(['error' => 1, 'errors' => $errors], 200);
+            }
+
+            // ---- Items clean karo (currency symbol etc. hatao) ----
+            $itemJson = $request->input('item', []);
+            foreach ($itemJson as $index => $item) {
+                foreach (['quantity', 'rate', 'discount', 'tax', 'amount'] as $field) {
+                    if (isset($item[$field])) {
+                        $itemJson[$index][$field] = preg_replace('/[^\d.]/', '', $item[$field]);
                     }
                 }
             }
 
-            if (is_string($itemJson)) {
-                $itemJson = json_decode($itemJson, true);
-            }
+            $billDate = Carbon::parse($request->input('bill_date'));
 
-            $upi_id = $request->input('upi_id') ?? null;
-            // Update invoice fields
-            $bill->update([
-                'vendor_id'        => $request->input('vendor_id'),
-                'bill_number'   => $request->input('bill_number'),
-                'bill_date'     => $request->input('bill_date'),
-                'due_date'         => $request->input('due_date'),
-                'sub_total'        => $request->input('hidden_sub_total'),
-                'total_tax'        => $request->input('hidden_total_tax'),
-                'total_discount'   => $request->input('hidden_total_discount'),
-                'grand_total'      => $request->input('hidden_grand_total'),
-
-                'taxable_value'        => $request->input('hidden_total_taxable'),
-                'cgst_amount'        => $request->input('hidden_total_cgst'),
-                'sgst_amount'        => $request->input('hidden_total_sgst'),
-                'igst_amount'        => $request->input('hidden_total_igst'),
+            DB::transaction(function () use ($request, $bill, $itemJson, $billDate, $isRecurring, $userId) {
 
 
+                $isRcm   = $request->input('reverse_charge') === 'Y';
+                $taxable = round((float) $request->input('hidden_total_taxable'), 2);
+                $tax     = round((float) $request->input('hidden_total_tax'), 2);
 
-                'round_off'      => $request->input('hidden_round_off'),
-                'total_due'        => $request->input('hidden_total_due'),
-                'notes'            => $request->input('notes'),
-                'currency_code'    => $request->input('currency_code'),
-                'item_json'        => json_encode($itemJson),
-                'template_id'      => $request->input('template_id') ?? 1,
-                'bill_file_path'      => $request->input('bill_file_path') ?? '',
-                'is_recurring'      => $request->input('is_recurring') == 'on' ? 'Y' : 'N',
-
-                'supply_source_state_id'    => $request->input('supply_source_state_id'),
-                'destination_source_state_id'    => $request->input('destination_source_state_id'),
-                'bill_month'    => Carbon::parse($request->input('bill_date'))->month,
-                'bill_financial_year'    => Carbon::parse($request->input('bill_date'))->format('Y'),
-            ]);
+                $grandTotal    = round($taxable + $tax, 2);                 // total purchase value
+                $vendorPayable = $isRcm ? $taxable : $grandTotal;           // vendor ko kitna dena hai
+                $totalDue      = round($vendorPayable);
+                $roundOff      = round($totalDue - $vendorPayable, 2);
+                $rcmTax        = $isRcm ? $tax : 0;
 
 
-            if ($request->has('is_recurring')) {
+                $bill->update([
+                    'vendor_id'      => $request->input('vendor_id'),
+                    'bill_number'    => $request->input('bill_number'),
+                    'bill_date'   => $request->input('bill_date') ?: null,
+                    'due_date'   => $request->input('due_date') ?: null,
 
-                $recurring_data = [];
-                $recurring_data['user_id'] = Auth::id();
-                $recurring_data['frequency'] = $request->input('frequency');
+                    // ---- GST purchase fields ----
+                    'vendor_invoice_number' => $request->input('vendor_invoice_number'),
+                    'vendor_invoice_date'   => $request->input('vendor_invoice_date') ?: null,
+                    'place_of_supply'       => $request->input('place_of_supply') ?: null,
+                    'reverse_charge'        => $request->input('reverse_charge') === 'Y' ? 'Y' : 'N',
+                    'itc_eligibility'       => $request->input('itc_eligibility') ?: 'input',
 
-                if (!empty($request->input('frequency')) && $request->input('frequency') == 'monthly') {
-                    $recurring_data['day_of_month'] = $request->input('day_of_month');
-                    $recurring_data['day_of_week'] = null;
-                    $recurring_data['month_of_year'] = null;
-                } elseif (!empty($request->input('frequency')) && $request->input('frequency') == 'weekly') {
-                    $recurring_data['day_of_week'] = $request->input('day_of_week');
-                    $recurring_data['day_of_month'] = null;
-                    $recurring_data['month_of_year'] = null;
-                } elseif (!empty($request->input('frequency')) && $request->input('frequency') == 'yearly') {
-                    $recurring_data['month_of_year'] = $request->input('month_of_year');
-                    $recurring_data['day_of_month'] = $request->input('yearly_day_of_month');
-                    $recurring_data['day_of_week'] = null;
+                    // supplier state vs place of supply (pehle ye null save ho rahe the)
+                    'supply_source_state_id'      => $request->input('vendor_state_id') ?: null,
+                    'destination_source_state_id' => $request->input('place_of_supply')
+                        ?: $request->input('user_state_id'),
+
+                    // ---- Totals ----
+                    'sub_total'      => $request->input('hidden_sub_total'),
+                    'total_tax'      => $request->input('hidden_total_tax'),
+                    'total_discount' => $request->input('hidden_total_discount'),
+                    'taxable_value'  => $request->input('hidden_total_taxable'),
+                    'cgst_amount'    => $request->input('hidden_total_cgst'),
+                    'sgst_amount'    => $request->input('hidden_total_sgst'),
+                    'igst_amount'    => $request->input('hidden_total_igst'),
+
+                    'grand_total'    => $grandTotal,
+                    'round_off'      => $roundOff,
+                    'total_due'      => $totalDue,
+                    'rcm_tax_amount' => $rcmTax,
+
+                    'notes'          => $request->input('notes'),
+                    'currency_code'  => $request->input('currency_code'),
+                    'item_json'      => json_encode($itemJson),
+                    'template_id'    => $request->input('template_id') ?? 1,
+                    'bill_file_path' => $request->input('bill_file_path') ?? '',
+                    'is_recurring'   => $isRecurring ? 'Y' : 'N',
+
+                    'bill_month'          => $billDate->month,
+                    'bill_financial_year' => $billDate->format('Y'),
+                ]);
+
+                // ---- Recurring ----
+                if ($isRecurring) {
+                    $frequency = $request->input('frequency');
+
+                    $recurring_data = [
+                        'user_id'       => $userId,
+                        'frequency'     => $frequency,
+                        'day_of_month'  => null,
+                        'day_of_week'   => null,
+                        'month_of_year' => null,
+                    ];
+
+                    if ($frequency === 'monthly') {
+                        $recurring_data['day_of_month'] = $request->input('day_of_month');
+                    } elseif ($frequency === 'weekly') {
+                        $recurring_data['day_of_week'] = $request->input('day_of_week');
+                    } elseif ($frequency === 'yearly') {
+                        $recurring_data['month_of_year'] = $request->input('month_of_year');
+                        $recurring_data['day_of_month']  = $request->input('yearly_day_of_month');
+                    }
+
+                    $recurring_data['time_of_day'] = Carbon::createFromFormat('H:i', $request->input('time_of_day'), 'Asia/Kolkata')
+                        ->setTimezone('UTC')
+                        ->toDateTimeString();
+                    $recurring_data['status']     = 'active';
+                    $recurring_data['updated_at'] = Carbon::now('UTC')->format('Y-m-d H:i:s');
+
+                    DB::table('recurring_bills')->updateOrInsert(
+                        ['bill_id' => $bill->bill_id, 'user_id' => $userId],
+                        $recurring_data
+                    );
+                } else {
+                    // Switch off kiya hai to schedule band karo (pehle ye active hi rehta tha)
+                    DB::table('recurring_bills')
+                        ->where('bill_id', $bill->bill_id)
+                        ->where('user_id', $userId)
+                        ->update([
+                            'status'     => 'paused',
+                            'updated_at' => Carbon::now('UTC')->format('Y-m-d H:i:s'),
+                        ]);
                 }
-
-                $UTC_TIME = Carbon::createFromFormat('H:i', $request->input('time_of_day'), 'Asia/Kolkata')
-                    ->setTimezone('UTC')
-                    ->toDateTimeString();
-
-                $recurring_data['time_of_day'] = $UTC_TIME;
-                $recurring_data['status'] = 'active';
-                $recurring_data['updated_at'] = Carbon::now('UTC')->format('Y-m-d H:i:s');
-
-
-
-                DB::table('recurring_bills')->updateOrInsert(
-                    [
-                        'bill_id' =>  $bill->bill_id,
-                        'user_id' =>  Auth::id()
-
-                    ],
-                    $recurring_data
-                );
-            }
-
-
+            });
 
             return response()->json([
-                "error" => 0,
-                "message" => "Bill Updated Successfully!"
+                'error'   => 0,
+                'message' => 'Bill Updated Successfully!',
             ]);
-        } catch (ValidationException $e) {
+        } catch (ModelNotFoundException $e) {
+            Log::channel('admin')->error('Bill not found while updating: ' . $e->getMessage());
+
+            return response()->json(['error' => 1, 'message' => 'Bill not found.'], 404);
+        } catch (\Throwable $e) {
+
+            dd($e->getMessage());
             Log::channel('admin')->error('Error while updating bill: ' . $e->getMessage());
 
-            return response()->json([
-                'error' => 1,
-                'errors' => $e->validator->errors()
-            ], 422);
+            return response()->json(['error' => 1, 'message' => 'Something went wrong while updating the bill.'], 500);
         }
     }
 
 
 
-
     public function store(Request $request)
     {
-
         try {
+            $userId = Auth::id();
+
             $validator = Validator::make($request->all(), [
-                'vendor_id' => 'required',
-                'bill_number' => 'required|string|max:255',
+                'vendor_id'     => 'required',
+                'bill_number'   => [
+                    'required',
+                    'string',
+                    'max:255',
+                    // preview number do tabs mein same aa sakta hai, isliye duplicate rokte hain
+                    Rule::unique('bills', 'bill_number')->where(fn($q) => $q->where('user_id', $userId)),
+                ],
                 'currency_code' => 'required',
-                'template_id' => 'required',
-                'bill_date' => 'required|date',
-                'due_date' => 'required|date',
-                'item' => 'required',
+                'template_id'   => 'required',
+                'bill_date'     => 'required|date',
+                'due_date'      => 'nullable|date|after_or_equal:bill_date',
+
+                // ---- GST purchase fields ----
+                'vendor_invoice_number' => [
+                    'required',
+                    'string',
+                    'max:100',
+                    Rule::unique('bills', 'vendor_invoice_number')
+                        ->where(fn($q) => $q->where('user_id', $userId)
+                            ->where('vendor_id', $request->input('vendor_id'))),
+                ],
+                'vendor_invoice_date' => 'nullable|date|before_or_equal:bill_date',
+                'place_of_supply'     => 'nullable|integer',
+                'reverse_charge'      => 'nullable|in:Y,N',
+                'itc_eligibility'     => 'nullable|in:input,capital_goods,input_services,ineligible',
+
+                // ---- Items ----
+                'item'            => 'required|array|min:1',
+                'item.*.name'     => 'required|string|max:255',
+                'item.*.quantity' => 'required|numeric|gt:0',
+                'item.*.rate'     => 'required|numeric|min:0',
+
+                // ---- Recurring (sirf tab jab switch on ho) ----
+                'frequency'   => 'required_with:is_recurring|nullable|in:monthly,weekly,yearly',
+                'time_of_day' => 'required_with:is_recurring|nullable|date_format:H:i',
             ], [
-                'vendor_id.required' => 'Please select a vendor for the bill.',
-                'bill_number.required' => 'Bill number is required.',
-                'bill_number.max' => 'Bill number should not exceed 255 characters.',
-                'currency_code.required' => 'Currency is required.',
-                'template_id.required' => 'Please select template for Bill.',
-                'bill_date.required' => 'Bill date is required.',
-                'bill_date.date' => 'Bill date must be a valid date.',
-                'due_date.required' => 'Due date is required.',
-                'due_date.date' => 'Due date must be a valid date.',
-                'item.required' => 'Please select or enter the items details.',
+                'vendor_id.required'       => 'Please select a vendor for the bill.',
+                'bill_number.required'     => 'Bill number is required.',
+                'bill_number.max'          => 'Bill number should not exceed 255 characters.',
+                'bill_number.unique'       => 'This bill number already exists. Please reload the page to get a new number.',
+                'currency_code.required'   => 'Currency is required.',
+                'template_id.required'     => 'Please select template for Bill.',
+                'bill_date.required'       => 'Bill date is required.',
+                'bill_date.date'           => 'Bill date must be a valid date.',
+                'due_date.date'            => 'Due date must be a valid date.',
+                'due_date.after_or_equal'  => 'Due date cannot be before the bill date.',
 
+                'vendor_invoice_number.required' => 'Vendor invoice number is required.',
+                'vendor_invoice_number.unique'   => 'This vendor invoice number is already recorded for this vendor.',
+                'vendor_invoice_date.date'            => 'Vendor invoice date must be a valid date.',
+                'vendor_invoice_date.before_or_equal' => 'Vendor invoice date cannot be after the bill date.',
+                'itc_eligibility.in'       => 'Please select a valid ITC eligibility.',
+
+                'item.required'            => 'Please select or enter the items details.',
+                'item.min'                 => 'Please select or enter the items details.',
+                'item.*.name.required'     => 'Item name is required.',
+                'item.*.quantity.required' => 'Quantity is required.',
+                'item.*.quantity.gt'       => 'Quantity must be greater than 0.',
+                'item.*.rate.required'     => 'Rate is required.',
+
+                'frequency.required_with'   => 'Please select a recurring frequency.',
+                'time_of_day.required_with' => 'Please select the time to generate.',
             ]);
-
 
             if ($validator->fails()) {
                 return response()->json([
                     'error'  => 1,
-                    'errors' => $validator->errors()
+                    'errors' => $this->formatValidationErrors($validator),
                 ], 200);
             }
 
-            $data = $validator->validated();
-            // Retrieve data from the request
-            $userId = Auth::id();
-            $vendor_id = $request->input('vendor_id');
-            $billNumber = $request->input('bill_number');
-            $billDate = $request->input('bill_date');
-            $dueDate = $request->input('due_date');
-            $status = 'pending';
-            $subTotal = $request->input('hidden_sub_total');
-            $totalTax = $request->input('hidden_total_tax');
-            $totalDiscount = $request->input('hidden_total_discount');
-            $grandTotal = $request->input('hidden_grand_total');
-            $advancePayment = $request->input('hidden_advance_payment');
-            $totalDue = $request->input('hidden_total_due');
-            $notes = $request->input('notes');
-            $terms = $request->input('terms');
-            $currencyCode = $request->input('currency_code');
+            $items       = $this->cleanBillItems($request->input('item', []));
+            $amounts     = $this->calculateBillAmounts($request);
+            $billDate    = Carbon::parse($request->input('bill_date'));
+            $isRecurring = $request->has('is_recurring');
 
-            $template_id = $request->input('template_id');
+            $bill = DB::transaction(function () use ($request, $userId, $items, $amounts, $billDate, $isRecurring) {
 
-            $itemJson = $request->input('item'); // Get the item_json field (can be a string or array)
+                $bill = BillModel::create([
+                    'vendor_id'     => $request->input('vendor_id'),
+                    'bill_number'   => $request->input('bill_number'),
+                    'bill_code'     => $this->generateUniqueBillCode(),
+                    'user_id'       => $userId,
+                    'bill_date'     => $request->input('bill_date'),
+                    'due_date'      => $request->input('due_date'),
 
-            // Fields where you want to remove currency symbols
-            $fieldsToClean = ['rate', 'discount', 'tax', 'amount'];
+                    // ---- GST purchase fields ----
+                    'vendor_invoice_number' => $request->input('vendor_invoice_number'),
+                    'vendor_invoice_date'   => $request->input('vendor_invoice_date') ?: null,
+                    'place_of_supply'       => $request->input('place_of_supply') ?: null,
+                    'reverse_charge'        => $amounts['reverse_charge'],
+                    'itc_eligibility'       => $request->input('itc_eligibility') ?: 'input',
 
-            if (!empty($itemJson)) {
-                foreach ($itemJson as $index => $item) {
-                    foreach ($fieldsToClean as $field) {
-                        if (isset($item[$field])) {
-                            // Remove everything except numbers and decimal points
-                            $itemJson[$index][$field] = preg_replace('/[^\d.]/', '', $item[$field]);
-                        }
-                    }
-                }
-            }
+                    // supplier state vs place of supply
+                    'supply_source_state_id'      => $request->input('vendor_state_id') ?: null,
+                    'destination_source_state_id' => $request->input('place_of_supply')
+                        ?: $request->input('user_state_id'),
 
+                    // ---- Totals ----
+                    'sub_total'      => $request->input('hidden_sub_total'),
+                    'total_tax'      => $request->input('hidden_total_tax'),
+                    'total_discount' => $request->input('hidden_total_discount'),
+                    'taxable_value'  => $request->input('hidden_total_taxable'),
+                    'cgst_amount'    => $request->input('hidden_total_cgst'),
+                    'sgst_amount'    => $request->input('hidden_total_sgst'),
+                    'igst_amount'    => $request->input('hidden_total_igst'),
+                    'grand_total'    => $amounts['grand_total'],
+                    'round_off'      => $amounts['round_off'],
+                    'total_due'      => $amounts['total_due'],
+                    'rcm_tax_amount' => $amounts['rcm_tax_amount'],
 
+                    'notes'          => $request->input('notes'),
+                    'currency_code'  => $request->input('currency_code'),
+                    'item_json'      => json_encode($items),
+                    'template_id'    => $request->input('template_id') ?? 1,
+                    'bill_file_path' => $request->input('bill_file_path') ?? '',
+                    'is_recurring'   => $isRecurring ? 'Y' : 'N',
 
-            // If item_json is a string, decode it into an array (if not already an array)
-            if (is_string($itemJson)) {
-                $itemJson = json_decode($itemJson, true);
-            }
+                    'bill_month'          => $billDate->month,
+                    'bill_financial_year' => $billDate->format('Y'),
+                ]);
 
+                // Sequence tabhi aage badhao jab bill ban chuka ho
+                $this->documentSequenceService->generate($userId, 'bill');
 
-            if (!empty($request->input('upi_id'))) {
-                $upi_id = $request->input('upi_id');
-            } else {
-                $upi_id = NULL;
-            }
-            // Create the invoice
-
-
-
-            $bill = BillModel::create([
-                'vendor_id'        => $request->input('vendor_id'),
-                'bill_number'   => $request->input('bill_number'),
-                'bill_code'   => $this->generateUniqueBillCode(),
-                'user_id'   => Auth::id(),
-                'bill_date'     => $request->input('bill_date'),
-                'due_date'         => $request->input('due_date'),
-                'sub_total'        => $request->input('hidden_sub_total'),
-                'total_tax'        => $request->input('hidden_total_tax'),
-                'total_discount'   => $request->input('hidden_total_discount'),
-                'grand_total'      => $request->input('hidden_grand_total'),
-
-                'taxable_value'        => $request->input('hidden_total_taxable'),
-                'cgst_amount'        => $request->input('hidden_total_cgst'),
-                'sgst_amount'        => $request->input('hidden_total_sgst'),
-                'igst_amount'        => $request->input('hidden_total_igst'),
-
-
-
-
-                'round_off'      => $request->input('hidden_round_off'),
-                'total_due'        => $request->input('hidden_total_due'),
-                'notes'            => $request->input('notes'),
-                'currency_code'    => $request->input('currency_code'),
-                'item_json'        => json_encode($itemJson),
-                'template_id'      => $request->input('template_id') ?? 1,
-                'bill_file_path'      => $request->input('bill_file_path') ?? '',
-                'is_recurring'      => $request->input('is_recurring') == 'on' ? 'Y' : 'N',
-                'supply_source_state_id'    => $request->input('supply_source_state_id'),
-                'destination_source_state_id'    => $request->input('destination_source_state_id'),
-                'bill_month'    => Carbon::parse($request->input('bill_date'))->month,
-                'bill_financial_year'    => Carbon::parse($request->input('bill_date'))->format('Y'),
-            ]);
-
-            // Get the last inserted ID (bill_id)
-            $lastInsertedId = $bill->bill_id;
-            $this->documentSequenceService->generate(auth()->id(), 'bill');
-
-            if (!empty($lastInsertedId)) {
-                foreach ($itemJson as $item) {
-                    if (!empty($item['item_id'])) {
+                // ---- Purchase = stock IN ----
+                foreach ($items as $item) {
+                    $qty = (float) ($item['quantity'] ?? 0);
+                    if (!empty($item['item_id']) && $qty > 0) {
                         DB::table('items')
-                            ->where('user_id', Auth::id())
+                            ->where('user_id', $userId)
                             ->where('item_id', $item['item_id'])
-                            ->update([
-                                'stock' => DB::raw('stock - ' . $item['quantity'])
-                            ]);
+                            ->increment('stock', $qty);
                     }
                 }
 
+                // ---- Recurring ----
+                if ($isRecurring) {
+                    $frequency = $request->input('frequency');
+                    $now       = Carbon::now('UTC')->format('Y-m-d H:i:s');
 
+                    $recurring_data = [
+                        'bill_id'       => $bill->bill_id,
+                        'user_id'       => $userId,
+                        'frequency'     => $frequency,
+                        'day_of_month'  => null,
+                        'day_of_week'   => null,
+                        'month_of_year' => null,
+                    ];
 
-
-                if ($request->has('is_recurring')) {
-
-
-                    $recurring_data['bill_id'] =  $lastInsertedId;
-                    $recurring_data['user_id'] =  Auth::id();
-                    $recurring_data['frequency'] =  $request->input('frequency');
-
-
-                    if (!empty($request->input('frequency')) && $request->input('frequency') == 'monthly') {
-                        $recurring_data['day_of_month'] =  $request->input('day_of_month');
-                    } else  if (!empty($request->input('frequency')) && $request->input('frequency') == 'weekly') {
-                        $recurring_data['day_of_week'] =  $request->input('day_of_week');
-                    } else  if (!empty($request->input('frequency')) && $request->input('frequency') == 'yearly') {
-                        $recurring_data['month_of_year'] =  $request->input('month_of_year');
-                        $recurring_data['day_of_month'] =  $request->input('yearly_day_of_month');
+                    if ($frequency === 'monthly') {
+                        $recurring_data['day_of_month'] = $request->input('day_of_month');
+                    } elseif ($frequency === 'weekly') {
+                        $recurring_data['day_of_week'] = $request->input('day_of_week');
+                    } elseif ($frequency === 'yearly') {
+                        $recurring_data['month_of_year'] = $request->input('month_of_year');
+                        $recurring_data['day_of_month']  = $request->input('yearly_day_of_month');
                     }
 
-
-                    $UTC_TIME = Carbon::createFromFormat('H:i', $request->input('time_of_day'), 'Asia/Kolkata')
+                    $recurring_data['time_of_day'] = Carbon::createFromFormat('H:i', $request->input('time_of_day'), 'Asia/Kolkata')
                         ->setTimezone('UTC')
                         ->toDateTimeString();
-
-
-                    $recurring_data['time_of_day'] =  $UTC_TIME;
-                    $recurring_data['status'] = 'active';
-                    $recurring_data['created_at'] =  Carbon::now('UTC')->format('Y-m-d H:i:s');
-                    $recurring_data['updated_at'] =   Carbon::now('UTC')->format('Y-m-d H:i:s');
-
-
-
+                    $recurring_data['status']     = 'active';
+                    $recurring_data['created_at'] = $now;
+                    $recurring_data['updated_at'] = $now;
 
                     DB::table('recurring_bills')->insert($recurring_data);
                 }
-            }
 
-            if ($request->has('send_status') && $request->input('send_status') == 'true') {
+                // ---- Email notification ----
+                if ($request->input('send_status') == 'true') {
+                    DB::table('notifications')->insert([
+                        'user_id'             => $userId,
+                        'bill_id'             => $bill->bill_id,
+                        'notification_type'   => 'email',
+                        'template_id'         => 1,
+                        'is_read'             => 'N',
+                        'processing_status'   => 'pending',
+                        'cron_start_datetime' => null,
+                        'cron_end_datetime'   => null,
+                        'processing_log'      => null,
+                    ]);
 
-                $last_notification_id = DB::table('notifications')->insertGetId([
-                    'user_id' => $userId,
-                    'bill_id' => $lastInsertedId,  // This should be the invoice ID
-                    'notification_type' => 'email',
-                    'template_id' => 1,
-                    'is_read' => 'N',
-                    'processing_status' => 'pending',
-                    'cron_start_datetime' => null,
-                    'cron_end_datetime' => null,
-                    'processing_log' => null,
-                ]);
+                    DB::table('bills')->where('bill_id', $bill->bill_id)->update(['is_sent' => 'submitted']);
+                }
 
-                // Check if the notification was inserted successfully and get the associated bill_id from the notifications table
-                if ($last_notification_id) {
-                    // Get the bill_id from the notification (because it should be linked)
-                    $billIdFromNotification = DB::table('notifications')
-                        ->where('notification_id', $last_notification_id)
-                        ->value('bill_id'); // Get the bill_id from the notification table
+                return $bill;
+            });
 
-                    // Update the invoice's 'is_sent' status
-                    if ($billIdFromNotification) {
-                        DB::table('bills')->where('bill_id', $billIdFromNotification) // Use the bill_id here
-                            ->update([
-                                'is_sent' => 'submitted',
-                            ]);
-                    }
+            return response()->json([
+                'error'     => 0,
+                'bill_code' => $bill->bill_code,
+                'message'   => 'Bill Saved Successfully!',
+            ]);
+        } catch (\Throwable $e) {
+            Log::channel('admin')->error('Error while saving bill: ' . $e->getMessage());
+
+            return response()->json([
+                'error'   => 1,
+                'message' => 'Something went wrong while saving the bill.',
+            ], 500);
+        }
+    }
+
+    /* ---------- Helpers (store() aur update() dono use karein) ---------- */
+
+    private function cleanBillItems(array $items): array
+    {
+        foreach ($items as $index => $item) {
+            foreach (['quantity', 'rate', 'discount', 'tax', 'amount'] as $field) {
+                if (isset($item[$field])) {
+                    $items[$index][$field] = preg_replace('/[^\d.]/', '', $item[$field]);
                 }
             }
-
-
-
-
-            return response()->json([
-                "error" => 0,
-                //'download_url' => route('invoice.download', ['bill_code' => $data['bill_code']]),
-                "message" => "Invoice Saved Successfully!"
-            ]);
-        } catch (ValidationException $e) {
-
-            Log::channel('admin')->error('error while preparing invoice: ' . $e->getMessage());
-
-            return response()->json([
-                'error' => 1,
-                'errors' => $e->validator->errors()
-            ], 422);
         }
+
+        return $items;
+    }
+
+    private function calculateBillAmounts(Request $request): array
+    {
+        $isRcm   = $request->input('reverse_charge') === 'Y';
+        $taxable = round((float) $request->input('hidden_total_taxable'), 2);
+        $tax     = round((float) $request->input('hidden_total_tax'), 2);
+
+        $grandTotal    = round($taxable + $tax, 2);          // total purchase value
+        $vendorPayable = $isRcm ? $taxable : $grandTotal;    // RCM mein vendor ko sirf taxable
+        $totalDue      = round($vendorPayable);
+
+        return [
+            'reverse_charge' => $isRcm ? 'Y' : 'N',
+            'grand_total'    => $grandTotal,
+            'total_due'      => $totalDue,
+            'round_off'      => round($totalDue - $vendorPayable, 2),
+            'rcm_tax_amount' => $isRcm ? $tax : 0,
+        ];
+    }
+
+    // "item.1.name" -> "item[1][name]" taaki frontend sahi input ke neeche error dikha sake
+    private function formatValidationErrors($validator): array
+    {
+        $errors = [];
+        foreach ($validator->errors()->messages() as $key => $messages) {
+            $parts = explode('.', $key);
+            $field = array_shift($parts);
+            $errors[$parts ? $field . '[' . implode('][', $parts) . ']' : $field] = $messages;
+        }
+
+        return $errors;
     }
 
 

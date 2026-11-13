@@ -1,284 +1,905 @@
 <x-default-layout>
 
+    <style>
+        /* ==========================================================================
+           Estimate add — premium SaaS look (scoped to .ie-page)
+           Same design language as the edit estimate / invoice edit page
+           Desktop: form (left) + sticky summary (right)  |  Mobile: single column
+           ========================================================================== */
+        .ie-page {
+            --i1: #4f46e5;
+            --i2: #7c3aed;
+            --ink: #0f172a;
+            --text: #334155;
+            --mut: #64748b;
+            --faint: #94a3b8;
+            --bd: #e8ebf3;
+            --soft: #f8fafc;
+            margin-top: 4px;
+        }
 
- <x-page-heading
+        /* ---------- layout ---------- */
+        .ie-page .ie-grid {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr);
+            grid-template-areas: "bill" "opts" "items" "sum" "notes";
+            gap: 16px;
+            align-items: start;
+        }
+
+        .ie-page .ie-area-bill { grid-area: bill; }
+        .ie-page .ie-area-opts { grid-area: opts; }
+        .ie-page .ie-area-items { grid-area: items; }
+        .ie-page .ie-area-notes { grid-area: notes; }
+        .ie-page .ie-area-sum { grid-area: sum; }
+
+        @media (min-width: 1200px) {
+            .ie-page .ie-grid {
+                grid-template-columns: minmax(0, 1fr) 356px;
+                grid-template-areas:
+                    "bill  sum"
+                    "opts  sum"
+                    "items sum"
+                    "notes sum";
+            }
+
+            .ie-page .ie-area-sum {
+                position: sticky;
+                top: 96px;
+            }
+        }
+
+        /* ---------- card ---------- */
+        .ie-page .ie-card {
+            background: #fff;
+            border: 1px solid var(--bd);
+            border-radius: 18px;
+            box-shadow: 0 10px 28px -22px rgba(15, 23, 42, .28);
+        }
+
+        .ie-page .ie-card-head {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 14px 18px;
+            border-bottom: 1px solid #eef0f7;
+        }
+
+        .ie-page .ie-card-ic {
+            flex: none;
+            width: 34px;
+            height: 34px;
+            display: grid;
+            place-items: center;
+            border-radius: 10px;
+            color: var(--i1);
+            background: #eef2ff;
+        }
+
+        .ie-page .ie-card-ic svg,
+        .ie-page .ie-card-ic i { width: 17px; height: 17px; }
+
+        .ie-page .ie-card-title { min-width: 0; flex: 1; }
+        .ie-page .ie-card-title h3 {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: -.01em;
+            color: var(--ink);
+        }
+        .ie-page .ie-card-title p { margin: 1px 0 0; font-size: 12.5px; color: var(--mut); }
+        .ie-page .ie-req { color: #e11d48; margin-left: 2px; }
+
+        .ie-page .ie-card-body { padding: 18px; }
+
+        @media (max-width: 575.98px) {
+            .ie-page .ie-card-head { padding: 12px 14px; }
+            .ie-page .ie-card-body { padding: 14px; }
+        }
+
+        /* ---------- form controls ---------- */
+        .ie-page .form-label,
+        .ie-page .ie-lbl {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--text);
+        }
+
+        .ie-page .ie-lbl { font-size: 11.5px; color: var(--faint); margin-bottom: 5px; }
+
+        .ie-page .form-control,
+        .ie-page .form-select {
+            min-height: 40px;
+            padding: 8px 12px;
+            border: 1px solid var(--bd);
+            border-radius: 10px;
+            background-color: #fff;
+            font-size: 13.5px;
+            font-weight: 500;
+            color: var(--ink);
+            box-shadow: none;
+            transition: border-color .15s, box-shadow .15s, background .15s;
+        }
+
+        .ie-page .form-select { padding-right: 34px; }
+        .ie-page textarea.form-control { min-height: 0; }
+        .ie-page .form-control::placeholder { color: var(--faint); font-weight: 400; }
+
+        .ie-page .form-control:focus,
+        .ie-page .form-select:focus {
+            border-color: var(--i1);
+            box-shadow: 0 0 0 4px rgba(99, 102, 241, .14);
+        }
+
+        .ie-page .input-group > .form-select:not(:last-child) { border-top-right-radius: 0; border-bottom-right-radius: 0; }
+        .ie-page .input-group > .input-group-text {
+            min-height: 40px;
+            padding: 0 12px;
+            border: 1px solid var(--bd);
+            border-left: 0;
+            border-radius: 0 10px 10px 0;
+            background: var(--soft);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--mut);
+            white-space: nowrap;
+            font-variant-numeric: tabular-nums;
+        }
+
+        .ie-page .form-check-input:checked {
+            background-color: var(--i1);
+            border-color: var(--i1);
+        }
+
+        .ie-page .form-check-input:focus { box-shadow: 0 0 0 4px rgba(99, 102, 241, .18); border-color: var(--i1); }
+
+        /* select2 / flatpickr */
+        .ie-page .select2-container { width: 100% !important; }
+        .ie-page .select2-container--default .select2-selection--single {
+            height: 40px;
+            border: 1px solid var(--bd);
+            border-radius: 10px;
+        }
+        .ie-page .select2-container--default .select2-selection--single .select2-selection__rendered { line-height: 38px; padding-left: 12px; font-size: 13.5px; color: var(--ink); }
+        .ie-page .select2-container--default .select2-selection--single .select2-selection__arrow { height: 38px; }
+        .ie-page .select2-container--default.select2-container--focus .select2-selection--single { border-color: var(--i1); }
+
+        /* summernote */
+        .ie-page .note-editor.note-frame {
+            border: 1px solid var(--bd);
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: none;
+        }
+        .ie-page .note-editor .note-toolbar { background: var(--soft); border-bottom: 1px solid var(--bd); padding: 4px 6px; }
+        .ie-page .note-editor .note-editing-area .note-editable { font-size: 13.5px; color: var(--ink); }
+        .ie-page .note-editor.note-frame.focused,
+        .ie-page .note-editor.note-frame:focus-within { border-color: var(--i1); box-shadow: 0 0 0 4px rgba(99, 102, 241, .12); }
+
+        /* ---------- item cards ---------- */
+        .ie-page .ie-items { display: flex; flex-direction: column; gap: 12px; }
+        .ie-page .ie-items { counter-reset: itm; }
+
+        .ie-page .ie-items:empty { display: grid; }
+        .ie-page .ie-items:empty::before {
+            content: "No items yet \2014  click \201CAdd Item\201D below to start";
+            display: grid;
+            place-items: center;
+            min-height: 84px;
+            padding: 16px;
+            border: 1.5px dashed #d6dcf5;
+            border-radius: 16px;
+            background: var(--soft);
+            font-size: 13px;
+            font-weight: 500;
+            color: var(--mut);
+            text-align: center;
+        }
+
+        .ie-page .ie-item {
+            position: relative;
+            z-index: 0;
+            container-type: inline-size;
+            counter-increment: itm;
+            padding: 12px 14px 14px;
+            background: var(--soft);
+            border: 1px solid var(--bd);
+            border-radius: 16px;
+            transition: border-color .18s, background .18s, box-shadow .18s;
+        }
+
+        .ie-page .ie-item:hover { border-color: #d6dcf5; background: #fbfbff; }
+        .ie-page .ie-item:focus-within { z-index: 20; border-color: #c7d2fe; background: #fff; box-shadow: 0 14px 32px -22px rgba(79, 70, 229, .35); }
+
+        .ie-page .ie-item-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+
+        .ie-page .ie-item-no {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 12.5px;
+            font-weight: 700;
+            color: var(--text);
+        }
+
+        .ie-page .ie-item-no::before {
+            content: counter(itm);
+            display: grid;
+            place-items: center;
+            min-width: 22px;
+            height: 22px;
+            padding: 0 6px;
+            border-radius: 7px;
+            font-size: 11.5px;
+            color: var(--i1);
+            background: #eef2ff;
+        }
+
+        .ie-page .ie-item-tools { display: inline-flex; align-items: center; gap: 6px; }
+
+        .ie-page .ie-desc-toggle {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            height: 30px;
+            padding: 0 11px;
+            border: 1px solid var(--bd);
+            border-radius: 9px;
+            background: #fff;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--mut);
+            transition: .16s;
+        }
+
+        .ie-page .ie-desc-toggle svg,
+        .ie-page .ie-desc-toggle i { width: 13px; height: 13px; }
+        .ie-page .ie-desc-toggle:hover,
+        .ie-page .ie-desc-toggle.is-open { border-color: #c7d2fe; background: #eef2ff; color: var(--i1); }
+
+        .ie-page .ie-item .remove-item-btn {
+            position: static !important;
+            inset: auto !important;
+            transform: none !important;
+            display: inline-grid;
+            place-items: center;
+            width: 30px;
+            height: 30px;
+            padding: 0;
+            border: 1px solid var(--bd);
+            border-radius: 9px;
+            background: #fff;
+            color: var(--faint);
+            transition: .16s;
+        }
+
+        .ie-page .ie-item .remove-item-btn svg,
+        .ie-page .ie-item .remove-item-btn i { width: 14px; height: 14px; }
+        .ie-page .ie-item .remove-item-btn:hover { border-color: #fecdd3; background: #fff1f2; color: #be123c; }
+
+        .ie-page .ie-item-grid {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: 10px;
+        }
+
+        .ie-page .f-name { grid-column: 1 / -1; position: relative; }
+        .ie-page .f-hsn,
+        .ie-page .f-qty,
+        .ie-page .f-rate { grid-column: span 2; }
+        .ie-page .f-disc,
+        .ie-page .f-tax,
+        .ie-page .f-amt { grid-column: 1 / -1; }
+
+        @container (min-width: 520px) {
+            .ie-page .ie-item-grid { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+            .ie-page .f-name { grid-column: span 5; }
+            .ie-page .f-hsn { grid-column: span 2; }
+            .ie-page .f-qty { grid-column: span 2; }
+            .ie-page .f-rate { grid-column: span 3; }
+            .ie-page .f-disc { grid-column: span 5; }
+            .ie-page .f-tax { grid-column: span 4; }
+            .ie-page .f-amt { grid-column: span 3; }
+        }
+
+        .ie-page .ie-item-desc { display: none; margin-top: 10px; }
+        .ie-page .ie-item-desc.is-open { display: block; }
+
+        /* inventory suggestions */
+        .ie-page .ie-suggest {
+            position: absolute;
+            top: calc(100% + 4px);
+            left: 0;
+            right: 0;
+            z-index: 40;
+            max-height: 260px;
+            overflow-y: auto;
+            border: 1px solid var(--bd);
+            border-radius: 12px;
+            background: #fff;
+            box-shadow: 0 18px 38px -16px rgba(15, 23, 42, .3);
+        }
+
+        .ie-page .ie-suggest:empty { display: none !important; }
+
+        .ie-page .ie-suggest .list-group-item {
+            padding: 10px 14px;
+            border: 0;
+            border-bottom: 1px solid #eef0f7;
+            font-size: 13px;
+            color: var(--text);
+            cursor: pointer;
+        }
+
+        .ie-page .ie-suggest .list-group-item:last-child { border-bottom: 0; }
+        .ie-page .ie-suggest .list-group-item:hover { background: #f5f6ff; color: var(--i1); }
+
+        .ie-page .ie-add { margin-top: 12px; }
+
+        /* ---------- notes / terms tabs ---------- */
+        .ie-page .ie-tabs {
+            display: inline-flex;
+            gap: 4px;
+            padding: 4px;
+            border: 1px solid var(--bd);
+            border-radius: 12px;
+            background: var(--soft);
+        }
+
+        .ie-page .ie-tab {
+            padding: 6px 14px;
+            border: 0;
+            border-radius: 9px;
+            background: transparent;
+            font-size: 12.5px;
+            font-weight: 600;
+            color: var(--mut);
+            transition: .15s;
+        }
+
+        .ie-page .ie-tab:hover { color: var(--i1); }
+        .ie-page .ie-tab.is-active { background: #fff; color: var(--i1); box-shadow: 0 1px 3px rgba(15, 23, 42, .12); }
+        .ie-page .ie-pane { display: none; }
+        .ie-page .ie-pane.is-active { display: block; }
+
+        /* ---------- summary ---------- */
+        .ie-page .ie-sum-body { padding: 8px 18px 4px; }
+
+        .ie-page .ie-sum-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            padding: 11px 0;
+            border-bottom: 1px dashed var(--bd);
+            font-size: 13.5px;
+            font-weight: 500;
+            color: var(--mut);
+        }
+
+        .ie-page .ie-sum-row:last-child { border-bottom: 0; }
+        .ie-page .ie-sum-row strong {
+            font-weight: 600;
+            color: var(--ink);
+            font-variant-numeric: tabular-nums;
+            white-space: nowrap;
+        }
+
+        .ie-page .ie-sum-due {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 12px;
+            margin: 10px 12px 12px;
+            padding: 16px 18px;
+            border-radius: 14px;
+            color: #fff;
+            background: linear-gradient(135deg, #059669, #10b981);
+            box-shadow: 0 18px 30px -16px rgba(5, 150, 105, .7);
+        }
+
+        .ie-page .ie-sum-due span { font-size: 13px; font-weight: 600; color: rgba(255, 255, 255, .82); }
+        .ie-page .ie-sum-due small { display: block; margin-top: 2px; font-size: 11.5px; font-weight: 500; color: rgba(255, 255, 255, .78); }
+        .ie-page .ie-sum-due strong {
+            font-size: 24px;
+            font-weight: 700;
+            letter-spacing: -.02em;
+            font-variant-numeric: tabular-nums;
+            word-break: break-all;
+            text-align: right;
+        }
+
+        .ie-page .ie-sum-words {
+            margin: 0 12px 12px;
+            padding: 10px 14px;
+            border: 1px dashed #a7f3d0;
+            border-radius: 12px;
+            background: #ecfdf5;
+        }
+
+        .ie-page .ie-sum-words span { display: block; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #059669; }
+        .ie-page .ie-sum-words b { display: block; margin-top: 2px; font-size: 13px; font-weight: 600; line-height: 1.45; color: #065f46; }
+
+        /* ---------- item colours: discount = red, tax = blue, amount = green ---------- */
+        .ie-page .ie-item .amount {
+            font-weight: 700;
+            font-variant-numeric: tabular-nums;
+            color: #047857;
+            background: #ecfdf5;
+            border-color: #a7f3d0;
+        }
+
+        .ie-page .ie-item .input-group-text.discount-amount { color: #e11d48; background: #fff1f2; }
+        .ie-page .ie-item .input-group-text.tax-amount { color: #0369a1; background: #f0f9ff; }
+
+        /* ---------- detailed summary ---------- */
+        .ie-page .ie-sum-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+            margin: 12px 0 4px;
+        }
+
+        .ie-page .ie-sum-meta div {
+            display: flex;
+            align-items: baseline;
+            justify-content: space-between;
+            gap: 8px;
+            padding: 8px 12px;
+            border: 1px solid var(--bd);
+            border-radius: 12px;
+            background: var(--soft);
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--mut);
+        }
+
+        .ie-page .ie-sum-meta strong { font-size: 14px; font-weight: 700; color: var(--ink); }
+
+        .ie-page .ie-sum-lbl { display: flex; align-items: center; gap: 10px; min-width: 0; }
+        .ie-page .ie-sum-lbl b { display: block; font-size: 13.5px; font-weight: 600; color: var(--text); }
+        .ie-page .ie-sum-lbl small { display: block; margin-top: 1px; font-size: 11.5px; font-weight: 500; line-height: 1.35; color: var(--faint); }
+
+        .ie-page .ie-op {
+            flex: none;
+            width: 24px;
+            height: 24px;
+            display: grid;
+            place-items: center;
+            border-radius: 8px;
+            font-size: 13px;
+            font-weight: 700;
+            color: var(--mut);
+            background: #f1f5f9;
+        }
+
+        .ie-page .ie-sum-row.is-child { padding: 8px 0 8px 34px; }
+        .ie-page .ie-sum-row.is-child .ie-sum-lbl b { font-size: 12.5px; font-weight: 600; }
+
+        .ie-page .ie-sum-row.s-discount .ie-op { color: #e11d48; background: #fff1f2; }
+        .ie-page .ie-sum-row.s-discount strong { color: #e11d48; }
+
+        .ie-page .ie-sum-row.s-taxable .ie-op { color: var(--i1); background: #eef2ff; }
+        .ie-page .ie-sum-row.s-taxable strong { color: var(--i1); }
+
+        .ie-page .ie-sum-row.s-tax .ie-op { color: #0369a1; background: #e0f2fe; }
+        .ie-page .ie-sum-row.s-tax strong { color: #0284c7; }
+
+        .ie-page .ie-sum-row.s-grand { border-top: 1px solid var(--bd); border-bottom: 1px dashed var(--bd); }
+        .ie-page .ie-sum-row.s-grand .ie-op { color: #047857; background: #ecfdf5; }
+        .ie-page .ie-sum-row.s-grand .ie-sum-lbl b { font-weight: 700; color: var(--ink); }
+        .ie-page .ie-sum-row.s-grand strong { font-size: 16px; font-weight: 700; color: #059669; }
+
+        .ie-page .ie-sum-row.s-round.is-plus .ie-op { color: #047857; background: #ecfdf5; }
+        .ie-page .ie-sum-row.s-round.is-plus strong { color: #059669; }
+        .ie-page .ie-sum-row.s-round.is-minus .ie-op { color: #e11d48; background: #fff1f2; }
+        .ie-page .ie-sum-row.s-round.is-minus strong { color: #e11d48; }
+
+        /* modals */
+        .modal.fade .modal-content { border: 0; border-radius: 18px; overflow: hidden; }
+        .modal-header.bg-primary { background: linear-gradient(135deg, #4f46e5, #7c3aed) !important; }
+
+        @media (prefers-reduced-motion: reduce) {
+            .ie-page * { transition: none !important; }
+        }
+    </style>
+
+    <x-page-heading
         title="Add Estimate"
         description=""
         :breadcrumbs="[
-        ['label' => 'Estimate', 'url' => route('estimate.list')],
+        ['label' => 'Estimates', 'url' => route('estimate.list')],
         ['label' => 'Add Estimate']
     ]" />
 
 
     <form action="{{ route('estimate.store') }}" id="estimate-generate" method="POST">
         @csrf
-
-
         <div class="page-header-fixed iz-actionbar mb-3">
 
-            <a href="{{ route('estimate.list') }}" class="iz-bar-back" title="Back to invoices">
+            <a href="{{ route('estimate.list') }}" class="iz-bar-back" title="Back to estimates">
                 <i data-lucide="arrow-left"></i> <span>Back</span>
             </a>
 
             <div class="iz-bar-right">
-
                 <div class="iz-bar-primary">
                     @include('pages/estimate/actions.create_estimate_action')
                 </div>
-
             </div>
         </div>
 
 
-        <div class="row">
+        <div class="ie-page">
+            <div class="ie-grid">
 
-            <x-estimate.header :data="$data" />
-
-            <!-- From Address Section -->
-            <x-invoice.address-section :setting="$data['setting']" />
-
-            <div class="row g-4">
-
-                <div class="col-lg-6 col-md-6">
-                    <x-date
-                        id="expiry_date"
-                        name="issue_date"
-                        label="Issue Date"
-                        icon="calendar-event"
-                        placeholder="Select estimate issue date"
-                        value="{{ old('issue_date') }}"
-                        required />
-                </div>
-
-                <div class="col-lg-6 col-md-6">
-                    <x-date
-                        id="expiry_date"
-                        name="expiry_date"
-                        label="Expiry Date"
-                        icon="calendar-check"
-                        placeholder="Select estimate due date"
-                        value="{{ old('expiry_date') }}"
-                        required />
-                </div>
-
-            </div>
-
-            <x-estimate.setting-switch :data="$data" />
-
-            <!-- UPI Dropdown (Hidden by default) -->
-            <div id="upiDropdownWrapper" class="mt-3" style="display: none;">
-                <label for="upi_id" class="form-label">Select UPI</label>
-                <select id="upi_id" name="upi_id" class="form-select">
-                    <option value="">Please Select</option>
-                    @foreach($data['upi_payment_id'] as $upi_payment)
-                    <option value="{{ $upi_payment->upi_id }}" {{ old('upi_id') == $upi_payment->upi_id ? 'selected' : '' }}>
-                        Name: {{ $upi_payment->upi_name }} | Id: {{ $upi_payment->upi_id }}
-                    </option>
-                    @endforeach
-                </select>
-            </div>
-
-
-            <!-- test -->
-            <div class="container my-4">
-                <h4 class="mb-3 text-danger">Item Entry *</h4>
-
-
-
-                <div id="form-container">
-                    @php $itemCount = 0; @endphp
-                    @if(!empty($data['items']))
-                    @foreach($data['items'] as $itemCount => $item)
-                    @php $itemCount++; @endphp
-                    <div class="row bg-blue g-3 p-3 border rounded shadow-sm bg-light align-items-start mb-3 mt-3 position-relative" data-item-id="{{ $itemCount }}">
-                        <div class="row w-100 g-2">
-
-                            <!-- Item Name -->
-                            <div class="col-12 col-md-6 position-relative">
-                                <div id="item-list-{{ $itemCount }}" class="list-group" style="position: absolute; z-index: 1000;margin-top:35px;"></div>
-                                <div class="d-flex align-items-center">
-                                    <input type="text"
-                                        name="item[{{ $itemCount }}][name]"
-                                        value="{{ $item['name'] ?? '' }}"
-                                        placeholder="Search product or type manually"
-                                        class="form-control form-control-sm add-items"
-                                        autocomplete="off"
-                                        id="item-{{ $itemCount }}"
-                                        item-id="{{ $itemCount }}">
-                                    <span class="ms-2" title="Select from inventory or type manually." style="cursor: pointer;">
-                                        <i class="fas fa-question-circle text-primary"></i>
-                                    </span>
-                                </div>
-                            </div>
-
-                            <!-- HSN -->
-                            <div class="col-4 col-md-2">
-                                <input type="text"
-                                    name="item[{{ $itemCount }}][hsn]"
-                                    value="{{ $item['hsn'] ?? '' }}"
-                                    placeholder="HSN/SAC"
-                                    class="form-control form-control-sm hsn"
-                                    oninput="calculateestimate()">
-                            </div>
-
-                            <!-- Quantity -->
-                            <div class="col-4 col-md-2">
-                                <input type="number"
-                                    name="item[{{ $itemCount }}][quantity]"
-                                    value="{{ $item['quantity'] ?? '' }}"
-                                    placeholder="Quantity"
-                                    class="form-control form-control-sm quantity"
-                                    oninput="calculateestimate()">
-                            </div>
-
-                            <!-- Rate -->
-                            <div class="col-4 col-md-2">
-                                <input type="number"
-                                    name="item[{{ $itemCount }}][rate]"
-                                    value="{{ $item['rate'] ?? '' }}"
-                                    placeholder="Rate"
-                                    class="form-control form-control-sm rate"
-                                    oninput="calculateestimate()">
-                            </div>
-
-
-                        </div>
-
-
-
-                        <div class="row w-100 g-2 mt-1 align-items-end">
-                            <!-- Discount -->
-                            <div class="col-12 col-md-4">
-                                <div class="input-group input-group-sm w-100">
-                                    <select name="item[{{ $itemCount }}][discount]" class="form-select discount-select flex-grow-1">
-                                        <option value="0" {{ (isset($item['discount']) && $item['discount'] == 0) ? 'selected' : '' }}>No Discount</option>
-                                        @foreach($data['discounts'] as $discount)
-                                        <option value="{{ $discount->percent }}" discount-id="{{ $discount->discount_id }}" {{ (isset($item['discount']) && $item['discount'] == $discount->percent) ? 'selected' : '' }}>
-                                            {{ $discount->name }} ({{ $discount->percent }}%)
-                                        </option>
-                                        @endforeach
-                                        <option value="new">➕ Add New Discount</option>
-                                    </select>
-                                    <span class="input-group-text discount-amount">−$0.00</span>
-                                </div>
-                            </div>
-
-                            <!-- Tax -->
-                            <div class="col-12 col-md-4">
-                                <div class="input-group input-group-sm w-100">
-                                    <select name="item[{{ $itemCount }}][tax]" class="form-select tax-select flex-grow-1">
-                                        <option value="0" {{ (isset($item['tax']) && $item['tax'] == 0) ? 'selected' : '' }}>No Tax</option>
-                                        @foreach($data['taxes'] as $tax)
-                                        <option value="{{ $tax->percent }}" tax-id="{{ $tax->tax_id }}" {{ (isset($item['tax']) && $item['tax'] == $tax->percent) ? 'selected' : '' }}>
-                                            {{ $tax->name }} ({{ $tax->percent }}%)
-                                        </option>
-                                        @endforeach
-                                        <option value="new">➕ Add New Tax</option>
-                                    </select>
-                                    <span class="input-group-text tax-amount">+$0.00</span>
-                                </div>
-                            </div>
-
-                            <!-- Amount -->
-                            <div class="col-6 col-md-4">
-                                <input type="text" name="item[{{ $itemCount }}][amount]" value="{{ $item['amount'] }}" class="form-control form-control-sm amount" readonly>
-                            </div>
-
-                            <!-- Description (New Field) -->
-                            <div class="w-100 mt-2">
-                                <textarea
-                                    class="id_description"
-                                    name="item[{{ $itemCount }}][description]"
-                                    class="form-control form-control-sm"
-                                    placeholder="Item Description"
-                                    rows="2">{{ $item['description'] ?? '' }}</textarea>
-                            </div>
-                        </div>
-
-                        <!-- Remove Button -->
-                        <div class="col-12">
-                            <button
-                                type="button"
-                                class="remove-item-btn"
-                                onclick="removeRow(this)"
-                                title="Remove Item">
-
-                                <i data-lucide="x"></i>
-
+                <!-- 1. Client & addresses -->
+                <section class="ie-card ie-area-bill">
+                    <div class="ie-card-head">
+                        <span class="ie-card-ic"><i data-lucide="users"></i></span>
+                        <div class="ie-card-title">
+                            <h3>Client &amp; Addresses</h3>
+                            <p>Who you are billing and where it is from</p>
                         </div>
                     </div>
-                    @endforeach
-                    @endif
-                </div>
+                    <div class="ie-card-body">
+                        <div class="row">
+                            <x-estimate.header :data="$data" />
 
+                            <!-- From Address Section -->
+                            <x-invoice.address-section :setting="$data['setting']" />
+                        </div>
+                    </div>
+                </section>
 
+                <!-- 2. Schedule & options -->
+                <section class="ie-card ie-area-opts">
+                    <div class="ie-card-head">
+                        <span class="ie-card-ic"><i data-lucide="calendar"></i></span>
+                        <div class="ie-card-title">
+                            <h3>Schedule &amp; Options</h3>
+                            <p>Dates and payment options</p>
+                        </div>
+                    </div>
+                    <div class="ie-card-body">
+                        <div class="row g-3">
 
-                <x-invoice.add-item-button
-                    id="add-item-btn"
-                    text="Add Item"
-                    onclick="addItemRow()" />
+                            <div class="col-lg-6 col-md-6">
+                                <x-date
+                                    id="expiry_date"
+                                    name="issue_date"
+                                    label="Issue Date"
+                                    icon="calendar-event"
+                                    placeholder="Select estimate issue date"
+                                    value="{{ old('issue_date') }}"
+                                    required />
+                            </div>
 
-                <!-- estimate Summary Section -->
-                <x-invoice.summary />
+                            <div class="col-lg-6 col-md-6">
+                                <x-date
+                                    id="expiry_date"
+                                    name="expiry_date"
+                                    label="Expiry Date"
+                                    icon="calendar-check"
+                                    placeholder="Select estimate due date"
+                                    value="{{ old('expiry_date') }}"
+                                    required />
+                            </div>
 
-                <input type="hidden" name="hidden_sub_total" value="" id="hidden_sub_total">
-                <input type="hidden" name="hidden_total_discount" value="" id="hidden_total_discount">
-                <input type="hidden" name="hidden_total_taxable" value="" id="hidden_total_taxable">
-                <input type="hidden" name="hidden_total_cgst" value="" id="hidden_total_cgst">
-                <input type="hidden" name="hidden_total_sgst" value="" id="hidden_total_sgst">
-                <input type="hidden" name="hidden_total_igst" value="" id="hidden_total_igst">
-                <input type="hidden" name="hidden_total_tax" value="" id="hidden_total_tax">
-                <input type="hidden" name="hidden_grand_total" value="" id="hidden_grand_total">
-                <input type="hidden" name="hidden_round_off" value="" id="hidden_round_off">
-                <input type="hidden" name="hidden_total_due" value="" id="hidden_total_due">
+                        </div>
 
+                        <div class="row mt-1">
+                            <x-estimate.setting-switch :data="$data" />
+                        </div>
+
+                        <!-- UPI Dropdown (Hidden by default) -->
+                        <div id="upiDropdownWrapper" class="mt-3" style="display: none;">
+                            <label for="upi_id" class="form-label">Select UPI</label>
+                            <select id="upi_id" name="upi_id" class="form-select">
+                                <option value="">Please Select</option>
+                                @foreach($data['upi_payment_id'] as $upi_payment)
+                                <option value="{{ $upi_payment->upi_id }}" {{ old('upi_id') == $upi_payment->upi_id ? 'selected' : '' }}>
+                                    Name: {{ $upi_payment->upi_name }} | Id: {{ $upi_payment->upi_id }}
+                                </option>
+                                @endforeach
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- 3. Items -->
+                <section class="ie-card ie-area-items">
+                    <div class="ie-card-head">
+                        <span class="ie-card-ic"><i data-lucide="package"></i></span>
+                        <div class="ie-card-title">
+                            <h3>Items <span class="ie-req">*</span></h3>
+                            <p>Pick from inventory or type manually</p>
+                        </div>
+                    </div>
+                    <div class="ie-card-body">
+
+                        <div id="form-container" class="ie-items">
+                            @php $itemCount = 0; @endphp
+                            @if(!empty($data['items']))
+                            @foreach($data['items'] as $itemCount => $item)
+                            @php
+                            $itemCount++;
+                            $hasDesc = trim(strip_tags((string) ($item['description'] ?? ''))) !== '';
+                            @endphp
+                            <div class="ie-item" data-item-id="{{ $itemCount }}">
+
+                                <div class="ie-item-head">
+                                    <span class="ie-item-no"></span>
+                                    <div class="ie-item-tools">
+                                        <button type="button" class="ie-desc-toggle {{ $hasDesc ? 'is-open' : '' }}" title="Add or hide description">
+                                            <i data-lucide="align-left"></i><span>Description</span>
+                                        </button>
+                                        <button type="button" class="remove-item-btn" onclick="removeRow(this)" title="Remove Item">
+                                            <i data-lucide="x"></i>
+                                        </button>
+                                    </div>
+                                </div>
+
+                                <div class="ie-item-grid">
+
+                                    <!-- Item Name -->
+                                    <div class="f-name">
+                                        <label class="ie-lbl" for="item-{{ $itemCount }}">Item</label>
+                                        <input type="text"
+                                            name="item[{{ $itemCount }}][name]"
+                                            value="{{ $item['name'] ?? '' }}"
+                                            placeholder="Search product or type manually"
+                                            class="form-control form-control-sm add-items"
+                                            autocomplete="off"
+                                            id="item-{{ $itemCount }}"
+                                            item-id="{{ $itemCount }}">
+                                        <div id="item-list-{{ $itemCount }}" class="list-group ie-suggest"></div>
+                                    </div>
+
+                                    <!-- HSN -->
+                                    <div class="f-hsn">
+                                        <label class="ie-lbl">HSN/SAC</label>
+                                        <input type="text"
+                                            name="item[{{ $itemCount }}][hsn]"
+                                            value="{{ $item['hsn'] ?? '' }}"
+                                            placeholder="HSN/SAC"
+                                            class="form-control form-control-sm hsn"
+                                            oninput="calculateestimate()">
+                                    </div>
+
+                                    <!-- Quantity -->
+                                    <div class="f-qty">
+                                        <label class="ie-lbl">Qty</label>
+                                        <input type="number"
+                                            name="item[{{ $itemCount }}][quantity]"
+                                            value="{{ $item['quantity'] ?? '' }}"
+                                            placeholder="Quantity"
+                                            class="form-control form-control-sm quantity"
+                                            oninput="calculateestimate()">
+                                    </div>
+
+                                    <!-- Rate -->
+                                    <div class="f-rate">
+                                        <label class="ie-lbl">Rate</label>
+                                        <input type="number"
+                                            name="item[{{ $itemCount }}][rate]"
+                                            value="{{ $item['rate'] ?? '' }}"
+                                            placeholder="Rate"
+                                            class="form-control form-control-sm rate"
+                                            oninput="calculateestimate()">
+                                    </div>
+
+                                    <!-- Discount -->
+                                    <div class="f-disc">
+                                        <label class="ie-lbl">Discount</label>
+                                        <div class="input-group input-group-sm w-100">
+                                            <select name="item[{{ $itemCount }}][discount]" class="form-select discount-select flex-grow-1">
+                                                <option value="0" {{ (isset($item['discount']) && $item['discount'] == 0) ? 'selected' : '' }}>No Discount</option>
+                                                @foreach($data['discounts'] as $discount)
+                                                <option value="{{ $discount->percent }}" discount-id="{{ $discount->discount_id }}" {{ (isset($item['discount']) && $item['discount'] == $discount->percent) ? 'selected' : '' }}>
+                                                    {{ $discount->name }} ({{ $discount->percent }}%)
+                                                </option>
+                                                @endforeach
+                                                <option value="new">➕ Add New Discount</option>
+                                            </select>
+                                            <span class="input-group-text discount-amount">−$0.00</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Tax -->
+                                    <div class="f-tax">
+                                        <label class="ie-lbl">Tax</label>
+                                        <div class="input-group input-group-sm w-100">
+                                            <select name="item[{{ $itemCount }}][tax]" class="form-select tax-select flex-grow-1">
+                                                <option value="0" {{ (isset($item['tax']) && $item['tax'] == 0) ? 'selected' : '' }}>No Tax</option>
+                                                @foreach($data['taxes'] as $tax)
+                                                <option value="{{ $tax->percent }}" tax-id="{{ $tax->tax_id }}" {{ (isset($item['tax']) && $item['tax'] == $tax->percent) ? 'selected' : '' }}>
+                                                    {{ $tax->name }} ({{ $tax->percent }}%)
+                                                </option>
+                                                @endforeach
+                                                <option value="new">➕ Add New Tax</option>
+                                            </select>
+                                            <span class="input-group-text tax-amount">+$0.00</span>
+                                        </div>
+                                    </div>
+
+                                    <!-- Amount -->
+                                    <div class="f-amt">
+                                        <label class="ie-lbl">Amount</label>
+                                        <input type="text" name="item[{{ $itemCount }}][amount]" value="{{ $item['amount'] ?? '' }}" class="form-control form-control-sm amount" readonly>
+                                    </div>
+
+                                </div>
+
+                                <!-- Description (collapsed unless it has content) -->
+                                <div class="ie-item-desc {{ $hasDesc ? 'is-open' : '' }}">
+                                    <textarea
+                                        class="id_description form-control form-control-sm"
+                                        name="item[{{ $itemCount }}][description]"
+                                        placeholder="Item Description"
+                                        rows="2">{{ $item['description'] ?? '' }}</textarea>
+                                </div>
+
+                            </div>
+                            @endforeach
+                            @endif
+                        </div>
+
+                        <div class="ie-add">
+                            <x-invoice.add-item-button
+                                id="add-item-btn"
+                                text="Add Item"
+                                onclick="addItemRow()" />
+                        </div>
+
+                        <input type="hidden" name="hidden_sub_total" value="" id="hidden_sub_total">
+                        <input type="hidden" name="hidden_total_discount" value="" id="hidden_total_discount">
+                        <input type="hidden" name="hidden_total_taxable" value="" id="hidden_total_taxable">
+                        <input type="hidden" name="hidden_total_cgst" value="" id="hidden_total_cgst">
+                        <input type="hidden" name="hidden_total_sgst" value="" id="hidden_total_sgst">
+                        <input type="hidden" name="hidden_total_igst" value="" id="hidden_total_igst">
+                        <input type="hidden" name="hidden_total_tax" value="" id="hidden_total_tax">
+                        <input type="hidden" name="hidden_grand_total" value="" id="hidden_grand_total">
+                        <input type="hidden" name="hidden_round_off" value="" id="hidden_round_off">
+                        <input type="hidden" name="hidden_total_due" value="" id="hidden_total_due">
+                    </div>
+                </section>
+
+                <!-- 4. Notes & terms (tabs) -->
+                <section class="ie-card ie-area-notes">
+                    <div class="ie-card-head">
+                        <span class="ie-card-ic"><i data-lucide="file-text"></i></span>
+                        <div class="ie-card-title">
+                            <h3>Notes &amp; Terms</h3>
+                            <p>Shown on the estimate</p>
+                        </div>
+                        <div class="ie-tabs" role="tablist">
+                            <button type="button" class="ie-tab is-active" data-target="#notes-section" role="tab" aria-selected="true">Notes</button>
+                            <button type="button" class="ie-tab" data-target="#terms-section" role="tab" aria-selected="false">Terms</button>
+                        </div>
+                    </div>
+                    <div class="ie-card-body">
+                        <div class="ie-pane is-active bg-blue" id="notes-section">
+                            <label for="id_estimate_notes" class="form-label visually-hidden">Notes:</label>
+                            <textarea id="id_estimate_notes" name="notes" class="form-control" placeholder="Enter Notes">{{ old('notes', setting('notes')) }}</textarea>
+                        </div>
+
+                        <div class="ie-pane bg-blue" id="terms-section">
+                            <label for="id_estimate_terms" class="form-label visually-hidden">Terms and Conditions:</label>
+                            <textarea id="id_estimate_terms" name="terms" class="form-control" placeholder="Enter Terms">{{ old('terms', setting('terms')) }}</textarea>
+                        </div>
+                    </div>
+                </section>
+
+                <!-- Summary (sticky on desktop) -->
+                <aside class="ie-area-sum">
+                    <div class="ie-card">
+                        <div class="ie-card-head">
+                            <span class="ie-card-ic"><i data-lucide="receipt"></i></span>
+                            <div class="ie-card-title">
+                                <h3>Summary</h3>
+                                <p>Step by step: how your total is calculated</p>
+                            </div>
+                        </div>
+
+                        <div class="ie-sum-body">
+
+                            <div class="ie-sum-meta">
+                                <div><span>Items</span><strong id="sum-items">0</strong></div>
+                                <div><span>Total qty</span><strong id="sum-qty">0</strong></div>
+                            </div>
+
+                            <div class="ie-sum-row s-subtotal">
+                                <div class="ie-sum-lbl"><span class="ie-op">Σ</span>
+                                    <div><b>Subtotal</b><small>Qty × Rate of all items, before discount</small></div>
+                                </div>
+                                <strong id="subtotal">$0.00</strong>
+                            </div>
+
+                            <div class="ie-sum-row s-discount">
+                                <div class="ie-sum-lbl"><span class="ie-op">−</span>
+                                    <div><b>Total Discount</b><small>Sum of discount given on every item</small></div>
+                                </div>
+                                <strong id="total-discount">−$0.00</strong>
+                            </div>
+
+                            <div class="ie-sum-row s-taxable">
+                                <div class="ie-sum-lbl"><span class="ie-op">=</span>
+                                    <div><b>Taxable Value</b><small>Subtotal − Total Discount (tax is charged on this)</small></div>
+                                </div>
+                                <strong id="total-taxable">$0.00</strong>
+                            </div>
+
+                            <div class="ie-sum-row s-tax is-child same-state-class d-none">
+                                <div class="ie-sum-lbl">
+                                    <div><b>CGST</b><small>Half of the tax, on Taxable Value</small></div>
+                                </div>
+                                <strong id="total-cgst">$0.00</strong>
+                            </div>
+
+                            <div class="ie-sum-row s-tax is-child same-state-class d-none">
+                                <div class="ie-sum-lbl">
+                                    <div><b>SGST</b><small>Other half of the tax, on Taxable Value</small></div>
+                                </div>
+                                <strong id="total-sgst">$0.00</strong>
+                            </div>
+
+                            <div class="ie-sum-row s-tax is-child diffrent-state-class d-none">
+                                <div class="ie-sum-lbl">
+                                    <div><b>IGST</b><small>Full tax on Taxable Value (client in another state)</small></div>
+                                </div>
+                                <strong id="total-igst">$0.00</strong>
+                            </div>
+
+                            <div class="ie-sum-row s-tax">
+                                <div class="ie-sum-lbl"><span class="ie-op">+</span>
+                                    <div><b>Total Tax</b><small>CGST + SGST (or IGST)</small></div>
+                                </div>
+                                <strong id="total-tax">$0.00</strong>
+                            </div>
+
+                            <div class="ie-sum-row s-grand">
+                                <div class="ie-sum-lbl"><span class="ie-op">=</span>
+                                    <div><b>Grand Total</b><small>Taxable Value + Total Tax</small></div>
+                                </div>
+                                <strong id="grand-total">$0.00</strong>
+                            </div>
+
+                            <div class="ie-sum-row s-round" id="round-off-row">
+                                <div class="ie-sum-lbl"><span class="ie-op">±</span>
+                                    <div><b>Round off</b><small id="round-off-note">No rounding needed</small></div>
+                                </div>
+                                <strong id="round-off">$0.00</strong>
+                            </div>
+
+                        </div>
+
+                        <div class="ie-sum-due">
+                            <div>
+                                <span>Total due</span>
+                                <small>Grand Total ± Round off</small>
+                            </div>
+                            <strong id="remaining-balance">$0.00</strong>
+                        </div>
+
+                        <div class="ie-sum-words">
+                            <span>Total due in words</span>
+                            <b id="total-words">Zero Only</b>
+                        </div>
+                    </div>
+                </aside>
 
             </div>
-            <!-- test -->
-
-            <div class="row mt-3 gx-4">
-                <div class="col-md-6 bg-blue" id="terms-section">
-                    <label for="terms" class="form-label fw-semibold">Terms and Conditions:</label>
-                    <textarea id="id_estimate_terms" name="terms" class="form-control" placeholder="Enter Terms">{{ old('terms', setting('terms') ) }}</textarea>
-                </div>
-
-                <div class="col-md-6 bg-blue" id="notes-section">
-                    <label for="notes" class="form-label fw-semibold">Notes:</label>
-                    <textarea id="id_estimate_notes" name="notes" class="form-control" placeholder="Enter Notes">{{ old('notes', setting('notes') ) }}</textarea>
-                </div>
-
-
-            </div>
-
-
-
-
-
         </div>
-
-        <!-- Submit Button -->
-
-
-
 
     </form>
-
-    <!-- View Modal -->
-    <div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-centered">
-            <div class="modal-content rounded-4 shadow">
-                <div class="modal-header bg-primary text-white rounded-top-4 mb-3">
-                    <h5 class="modal-title" id="viewModalLabel">
-                        View Estimate
-                    </h5>
-                    <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
-                </div>
-                <div id="view-record-form-body" class="mb-5">
-
-                </div>
-            </div>
-        </div>
-    </div>
 
 
     <!-- Add Client Model -->
@@ -286,7 +907,7 @@
         <div class="modal-dialog  modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h4 class="modal-title" id="clientModalLabel">Edit Client</h4>
+                    <h4 class="modal-title" id="clientModalLabel">Add Client</h4>
                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
                 <div class="client-modal-body py-3 px-3">
@@ -337,7 +958,6 @@
     </div>
 
 
-
     <!-- Add Dicount Model -->
     <div class="modal fade" id="discount-modal" tabindex="-1" aria-labelledby="discountModalLabel" aria-hidden="true">
         <div class="modal-dialog  modal-md">
@@ -357,14 +977,11 @@
     </div>
 
 
-
-
-
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css" />
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 
-      <script>
+    <script>
         function toggleInvoiceMode(elem) {
             const input = document.getElementById('estimate_number');
             if (elem.checked) {
@@ -384,7 +1001,6 @@
 
             function generateInvoiceNumber() {
                 let estimate_number = "{{ $data['estimate_number'] }}";
-
                 return estimate_number;
             }
 
@@ -410,27 +1026,23 @@
                 $("#estimate_number").fadeOut(200).fadeIn(400);
             }
 
-            // When the switch is toggled
             $("#invoiceModeSwitch").change(function() {
                 updateInvoiceField();
             });
 
-            // On page load
             updateInvoiceField();
         });
     </script>
 
-
-
     <script>
         document.addEventListener('DOMContentLoaded', function() {
-            var upi = "{{ empty($data['estimate']->upi_id) ? 0 : 1 }}";
+            var upi = "{{ old('upi_id') ? 1 : 0 }}";
 
             const upiDropdown = document.getElementById('upiDropdownWrapper');
             const upiToggle = document.getElementById('useUpiToggle');
 
             if (upi == '1') {
-                $('#useUpiToggle').prop('checked', true); //
+                $('#useUpiToggle').prop('checked', true);
                 upiDropdown.style.display = 'block';
             }
 
@@ -455,8 +1067,6 @@
 
             try {
 
-                var editors = {}; // store editors globally so they are not reinitialized
-
                 $.ajax({
                     url: "{{ route('client.edit') }}",
                     data: {
@@ -466,23 +1076,18 @@
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
-                    beforeSend: function() {
-
-                    },
                     success: function(response) {
 
                         $('.editClient-modal-body').html(response);
                         $('#editClient-modal').modal('show');
 
                         $('#editClient-modal').on('shown.bs.modal', function() {
-                            // Initialize Choices.js (always safe to re-init)
 
                             ['#id_country_id', '#id_state_id', '#id_currency_code', '#id_shipping_state_id', '#id_shipping_country_id'].forEach(function(selector) {
                                 const el = document.querySelector(selector);
-                                if (!el) return; // skip if element not found
+                                if (!el) return;
 
                                 if (!el.choices) {
-                                    // Only initialize if not already done
                                     el.choices = new Choices(el, {
                                         searchEnabled: true,
                                         itemSelectText: '',
@@ -490,7 +1095,6 @@
                                     });
                                 }
                             });
-
 
                             $('#id_notes').summernote({
                                 placeholder: 'Enter notes...',
@@ -514,22 +1118,13 @@
                                 ]
                             });
 
-
-
                         });
-
-
-
-
-
                     }
                 });
 
             } catch (error) {
                 console.error('Error:', error);
             }
-
-
         });
     </script>
 
@@ -538,66 +1133,48 @@
         document.addEventListener('DOMContentLoaded', function() {
             setTimeout(function() {
                 calculateestimate();
-            }, 300); // 300 milliseconds delay
+            }, 300);
         });
     </script>
-
-
-
 
 
     <script>
         $(document).ready(function() {
-
             $('#template_id, #upi_id, #currency_code').select2({
                 placeholder: "Please select",
                 allowClear: true
-            });
-
-            $(document).on('click', '.estimate-view-model', function(e) {
-                e.preventDefault();
-                $('#viewModal').modal('show');
-                var estimate_code = $(this).attr('estimate-code')
-
-                try {
-
-                    $.ajax({
-                        url: "{{ route('estimate.view.model') }}",
-                        data: {
-                            estimate_code: estimate_code
-                        },
-                        type: 'POST',
-                        headers: {
-                            'X-CSRF-TOKEN': '{{ csrf_token()  }}'
-                        },
-                        beforeSend: function() {
-                            $('.loader').show()
-                        },
-                        complete: function() {
-                            $('.loader').hide()
-                        },
-                        success: function(response) {
-                            $('#view-record-form-body').html(response.html);
-                            $('#viewModal').modal('show');
-                        }
-
-                    });
-                } catch (error) {
-                    console.error('Error:', error);
-                }
             });
         });
     </script>
 
 
     <script>
-        // Keep CKEditor instances here
+        // Notes / Terms tabs + item description toggle (UI only)
+        $(document).on('click', '.ie-tab', function() {
+            $('.ie-tab').removeClass('is-active').attr('aria-selected', 'false');
+            $(this).addClass('is-active').attr('aria-selected', 'true');
+            $('.ie-pane').removeClass('is-active');
+            $($(this).data('target')).addClass('is-active');
+        });
+
+        $(document).on('click', '.ie-desc-toggle', function() {
+            $(this).toggleClass('is-open');
+            $(this).closest('.ie-item').find('.ie-item-desc').toggleClass('is-open');
+        });
+
+        document.addEventListener('DOMContentLoaded', function() {
+            if (window.lucide) lucide.createIcons();
+        });
+    </script>
+
+
+    <script>
         const editors = {};
 
         document.addEventListener("DOMContentLoaded", function() {
             $('#id_estimate_notes').summernote({
                 placeholder: 'Enter notes...',
-                height: 120,
+                height: 110,
                 toolbar: [
                     ['style', ['bold', 'italic', 'underline']],
                     ['para', ['ul', 'ol', 'paragraph']],
@@ -608,7 +1185,7 @@
 
             $('#id_estimate_terms').summernote({
                 placeholder: 'Enter terms...',
-                height: 120,
+                height: 110,
                 toolbar: [
                     ['style', ['bold', 'italic', 'underline']],
                     ['para', ['ul', 'ol', 'paragraph']],
@@ -619,7 +1196,7 @@
 
             $('.id_description').summernote({
                 placeholder: 'Enter Description...',
-                height: 120,
+                height: 90,
                 toolbar: [
                     ['style', ['bold', 'italic', 'underline']],
                     ['para', ['ul', 'ol', 'paragraph']],
@@ -636,8 +1213,6 @@
                     $('#estimate_accept').val($(this).attr('estimate-accept'))
                 }
 
-
-                // 🛠️ Update textarea values before creating FormData
                 Object.keys(editors).forEach(id => {
                     const data = editors[id].getData();
                     document.getElementById(id).value = data;
@@ -697,29 +1272,21 @@
                                 timer: 3000
                             });
 
-
-
-
-
                         } else if (response.error == 0) {
                             $('#estimate-download').show();
                             $('#estimate-download').attr('href', response.download_url);
 
                             Swal.fire({
                                 icon: "success",
-                                title: "Estimate Updated Successfully. You Can Download!",
+                                title: "Estimate Created Successfully. You Can Download!",
                                 text: response.message,
                                 toast: false,
                                 position: "center",
                                 showConfirmButton: false,
                                 timer: 2000
                             }).then(function() {
-                                // Redirect after the alert closes
                                 window.location.href = "{{ route('estimate.list') }}";
                             });
-
-
-
                         }
                     },
                     error: function(xhr) {
@@ -740,8 +1307,6 @@
     <script>
         $(document).ready(function() {
 
-
-
             $('#client').on('keyup', function() {
                 let query = $(this).val();
 
@@ -761,14 +1326,14 @@
                                     $('#clientList').append(`
                 <a href="javascript:void(0);" class="list-group-item list-group-item-action mb-2 rounded shadow-sm p-3 select-client"
                    data-id="${client.client_id}"
-                      data-client_code="${client.client_code}"
+                   data-client_code="${client.client_code}"
                    data-company_name="${client.company_name ?? ''}"
                    data-client_name="${client.client_name ?? ''}"
                    data-address_1="${client.address_1 ?? ''}"
                    data-address_2="${client.address_2 ?? ''}"
                    data-city="${client.city ?? ''}"
                    data-state_name="${client.state_name ?? ''}"
-                      data-state_id="${client.state_id ?? ''}"
+                   data-state_id="${client.state_id ?? ''}"
                    data-country_name="${client.country_name ?? ''}"
                    data-currency_code="${client.currency_code ?? ''}"
                    data-notes="${client.notes ?? ''}"
@@ -777,7 +1342,7 @@
                    data-email="${client.email ?? ''}"
                    data-phone="${client.phone ?? ''}"
                    style="cursor:pointer; transition: all 0.2s ease-in-out;">
-                   
+
                    <div class="d-flex justify-content-between align-items-center">
                        <div>
                            <h6 class="mb-1 fw-bold text-primary">
@@ -803,7 +1368,6 @@
                                 $('#clientList').hide();
                             }
                         }
-
                     });
                 } else {
                     $('#clientList').hide();
@@ -831,9 +1395,10 @@
 
                 $('#client').val(client.client_name);
                 $('#client_id').val(client.id);
+                $('#client_state_id').val(client.state_id);
                 $('#clientList').hide();
 
-                let edit_client = `<button client-code="${client.client_code}"  class="edit-client btn btn-primary btn-sm rounded-circle d-flex align-items-center justify-content-center 
+                let edit_client = `<button client-code="${client.client_code}"  class="edit-client btn btn-primary btn-sm rounded-circle d-flex align-items-center justify-content-center
                    position-absolute shadow" style="width: 36px; height: 36px; bottom: 10px; right: 10px;" data-bs-toggle="modal" data-bs-target="#editClientAddressModal">
         <i class="bi bi-pencil-fill"></i>
     </button>`;
@@ -841,11 +1406,12 @@
                 $('#clientAddress').html(addressHTML + edit_client).show();
 
                 $('#currency_code').val(client.currency_code).trigger('change');
-                
+
                 $('#clientSearchBox').hide();
                 $('.change-client').show();
                 $('.new-client').hide();
 
+                calculateestimate();
             });
 
             // Change / Edit client
@@ -857,8 +1423,6 @@
                 $('#clientSearchBox').show();
                 $('.change-client').hide();
                 $('.new-client').show();
-
-
             });
 
             $(document).click(function(e) {
@@ -872,20 +1436,18 @@
     <script>
         flatpickr("#issue_date", {
             enableTime: false,
-            dateFormat: "Y-m-d", // Format: 2025-04-17 14:00
+            dateFormat: "Y-m-d",
             time_24hr: true,
             defaultDate: "today"
         });
 
         flatpickr("#expiry_date", {
             enableTime: false,
-            dateFormat: "Y-m-d", // Format: 2025-04-17 14:00
+            dateFormat: "Y-m-d",
             time_24hr: true,
             defaultDate: "today"
         });
     </script>
-
-
 
 
     <!-- Bootstrap 5 JS Bundle -->
@@ -909,7 +1471,6 @@
             currencies.map(cur => [cur.currency_code, cur.currency_symbol])
         );
 
-
         var itemCount = "{{ $itemCount }}";
         let currencySymbol = '$'; // Default currency
 
@@ -926,90 +1487,178 @@
         });
 
 
-
         function addItemRow() {
             itemCount++;
             const formContainer = document.getElementById('form-container');
 
             const itemRow = document.createElement('div');
-            itemRow.classList.add('row', 'g-3', 'p-3', 'border', 'rounded', 'shadow-sm', 'bg-light', 'align-items-start', 'mb-3', 'mt-3', 'position-relative');
+            itemRow.classList.add('ie-item');
             itemRow.setAttribute('data-item-id', itemCount);
 
             itemRow.innerHTML = `
-      <div class="row w-100 g-2">
-       
-      
-      
-       <div class="col-12 col-md-6">
-          <input type="text" name="item[${itemCount}][name]" placeholder="Item Name & Description" class="form-control form-control-sm add-items" id="item-${itemCount}" item-id="${itemCount}" >
-            <div id="item-list-${itemCount}" class="list-group" style="position: absolute; z-index: 1000;"></div>
+      <div class="ie-item-head">
+        <span class="ie-item-no"></span>
+        <div class="ie-item-tools">
+          <button type="button" class="ie-desc-toggle" title="Add or hide description">
+            <i data-lucide="align-left"></i><span>Description</span>
+          </button>
+          <button type="button" class="remove-item-btn" onclick="removeRow(this)" title="Remove Item">
+            <i data-lucide="x"></i>
+          </button>
+        </div>
+      </div>
+
+      <div class="ie-item-grid">
+
+        <div class="f-name">
+          <label class="ie-lbl" for="item-${itemCount}">Item</label>
+          <input type="text"
+                 name="item[${itemCount}][name]"
+                 class="form-control form-control-sm add-items"
+                 autocomplete="off"
+                 id="item-${itemCount}"
+                 item-id="${itemCount}"
+                 placeholder="Search product or type manually">
+          <div id="item-list-${itemCount}" class="list-group ie-suggest"></div>
         </div>
 
-         <div class="col-4 col-md-2">
+        <div class="f-hsn">
+          <label class="ie-lbl">HSN/SAC</label>
           <input type="text" name="item[${itemCount}][hsn]" placeholder="HSN/SAC" oninput="calculateestimate()" class="form-control form-control-sm hsn">
         </div>
 
-        <div class="col-4 col-md-2">
+        <div class="f-qty">
+          <label class="ie-lbl">Qty</label>
           <input type="number" name="item[${itemCount}][quantity]" placeholder="Quantity" oninput="calculateestimate()" class="form-control form-control-sm quantity">
         </div>
-        <div class="col-4 col-md-2">
+
+        <div class="f-rate">
+          <label class="ie-lbl">Rate</label>
           <input type="number" name="item[${itemCount}][rate]" placeholder="Rate" oninput="calculateestimate()" class="form-control form-control-sm rate">
         </div>
 
+        <div class="f-disc">
+          <label class="ie-lbl">Discount</label>
+          <div class="input-group input-group-sm w-100">
+            <select name="item[${itemCount}][discount]" class="form-select discount-select flex-grow-1">
+              ${discountOptions}
+              <option value="new">➕ Add New Discount</option>
+            </select>
+            <span class="input-group-text discount-amount">−${currencySymbol}0.00</span>
+          </div>
+        </div>
 
-      </div>
-      <div class="row w-100 g-2 mt-1 align-items-end">
-          <div class="col-12 col-md-4">
-        <div class="input-group input-group-sm w-100">
-          <select name="item[${itemCount}][discount]" class="form-select discount-select flex-grow-1" onchange="calculateestimate()">
-            ${discountOptions}
-             <option value="new">➕ Add New Discount</option>
-          </select>
-          <span class="input-group-text discount-amount">−${currencySymbol}0.00</span>
+        <div class="f-tax">
+          <label class="ie-lbl">Tax</label>
+          <div class="input-group input-group-sm w-100">
+            <select name="item[${itemCount}][tax]" class="form-select tax-select flex-grow-1">
+              ${taxOptions}
+              <option value="new">➕ Add New Tax</option>
+            </select>
+            <span class="input-group-text tax-amount">+${currencySymbol}0.00</span>
+          </div>
         </div>
-      </div>
-        <div class="col-12 col-md-4">
-        
-<div class="input-group input-group-sm w-100">
-    <select name="item[${itemCount}][tax]" class="form-select tax-select flex-grow-1" onchange="calculateestimate()">
-        ${taxOptions}
-        <option value="new">➕ Add New Tax</option>
-    </select>
-    <span class="input-group-text tax-amount">+${currencySymbol}0.00</span>
-</div>
-        </div>
-        <div class="col-6 col-md-4">
+
+        <div class="f-amt">
+          <label class="ie-lbl">Amount</label>
           <input type="text" name="item[${itemCount}][amount]" placeholder="Amount" class="form-control form-control-sm amount" readonly>
         </div>
+
       </div>
 
-         <div class="w-100 mt-2">
-                                <textarea
-                                        class="id_description"
-                                        name="item[${itemCount}][description]"
-                                        class="form-control form-control-sm"
-                                        placeholder="Item Description"
-                                        rows="2"></textarea>
-                            </div>
-
-
-      <div class="col-12">
-        <button type="button" class="btn btn-outline btn-sm btn-outline-danger w-100" onclick="removeRow(this)"><i data-lucide="minus"></i> Remove</button>
+      <div class="ie-item-desc">
+        <textarea
+          class="id_description form-control form-control-sm"
+          name="item[${itemCount}][description]"
+          placeholder="Item Description"
+          rows="2"></textarea>
       </div>
     `;
 
             formContainer.appendChild(itemRow);
             lucide.createIcons();
 
-            $('.id_description').summernote({
+            $(itemRow).find('.id_description').summernote({
                 placeholder: 'Enter Description...',
-                height: 120,
+                height: 90,
                 toolbar: [
                     ['style', ['bold', 'italic', 'underline']],
                     ['para', ['ul', 'ol', 'paragraph']],
                     ['view', ['codeview']]
                 ]
             });
+        }
+
+        // ---- amount in words (Indian system for INR / ₹, international otherwise) ----
+        const W_ONES = ['', 'One', 'Two', 'Three', 'Four', 'Five', 'Six', 'Seven', 'Eight', 'Nine', 'Ten', 'Eleven', 'Twelve', 'Thirteen', 'Fourteen', 'Fifteen', 'Sixteen', 'Seventeen', 'Eighteen', 'Nineteen'];
+        const W_TENS = ['', '', 'Twenty', 'Thirty', 'Forty', 'Fifty', 'Sixty', 'Seventy', 'Eighty', 'Ninety'];
+        const W_CURRENCY = {
+            INR: ['Rupees', 'Paise'],
+            USD: ['Dollars', 'Cents'],
+            EUR: ['Euros', 'Cents'],
+            GBP: ['Pounds', 'Pence'],
+            AED: ['Dirhams', 'Fils'],
+            AUD: ['Australian Dollars', 'Cents'],
+            CAD: ['Canadian Dollars', 'Cents']
+        };
+
+        function wordsBelow1000(n) {
+            let s = '';
+            if (n >= 100) {
+                s += W_ONES[Math.floor(n / 100)] + ' Hundred';
+                n %= 100;
+                if (n) s += ' ';
+            }
+            if (n >= 20) {
+                s += W_TENS[Math.floor(n / 10)];
+                if (n % 10) s += ' ' + W_ONES[n % 10];
+            } else if (n > 0) {
+                s += W_ONES[n];
+            }
+            return s;
+        }
+
+        function intToWords(n, indian) {
+            if (n === 0) return 'Zero';
+            const units = indian ? [
+                [10000000, 'Crore'],
+                [100000, 'Lakh'],
+                [1000, 'Thousand']
+            ] : [
+                [1000000000, 'Billion'],
+                [1000000, 'Million'],
+                [1000, 'Thousand']
+            ];
+            const parts = [];
+            units.forEach(([value, label]) => {
+                if (n >= value) {
+                    parts.push(intToWords(Math.floor(n / value), indian) + ' ' + label);
+                    n %= value;
+                }
+            });
+            if (n > 0) parts.push(wordsBelow1000(n));
+            return parts.join(' ');
+        }
+
+        function amountInWords(amount) {
+            const code = ($('#currency_code').val() || '').toString().toUpperCase();
+            const indian = code === 'INR' || currencySymbol === '₹';
+            const names = W_CURRENCY[code] || (indian ? W_CURRENCY.INR : [code, '']);
+
+            const abs = Math.abs(amount);
+            let whole = Math.floor(abs + 1e-9);
+            let minor = Math.round((abs - whole) * 100);
+            if (minor >= 100) {
+                whole += 1;
+                minor = 0;
+            }
+
+            let text = intToWords(whole, indian);
+            if (names[0]) text += ' ' + names[0];
+            if (minor > 0 && names[1]) text += ' and ' + intToWords(minor, indian) + ' ' + names[1];
+            text += ' Only';
+
+            return (amount < 0 ? 'Minus ' : '') + text;
         }
 
         function calculateestimate() {
@@ -1021,7 +1670,6 @@
             let total_sgstAmount = 0;
             let total_igstAmount = 0;
             let total_taxable = 0;
-
 
             const items = document.querySelectorAll('[data-item-id]');
             items.forEach((item) => {
@@ -1044,38 +1692,31 @@
                 if (isSameState) {
                     $('.same-state-class').removeClass('d-none');
                     $('.diffrent-state-class').addClass('d-none');
-                    // CGST + SGST
                     cgstPercent = taxPercent / 2;
                     sgstPercent = taxPercent / 2;
                     igstPercent = 0;
                 } else {
                     $('.same-state-class').addClass('d-none');
                     $('.diffrent-state-class').removeClass('d-none');
-                    // IGST only
                     cgstPercent = 0;
                     sgstPercent = 0;
                     igstPercent = taxPercent;
                 }
 
-                // Calculate GST amount
                 let cgstAmount = (taxable * cgstPercent) / 100;
                 let sgstAmount = (taxable * sgstPercent) / 100;
                 let igstAmount = (taxable * igstPercent) / 100;
 
-
                 const tax = (taxPercent / 100) * (base - discount);
                 const amount = base - discount + tax;
 
-                // Update discount and tax amount spans
                 const discountSpan = item.querySelector('.discount-amount');
                 const taxSpan = item.querySelector('.tax-amount');
                 if (discountSpan) discountSpan.innerText = `−${currencySymbol}${discount.toFixed(2)}`;
-                if (taxSpan) taxSpan.innerText = `${currencySymbol}${tax.toFixed(2)}`;
+                if (taxSpan) taxSpan.innerText = `+${currencySymbol}${tax.toFixed(2)}`;
 
-                // Update each item's amount
                 item.querySelector('.amount').value = `${currencySymbol}${amount.toFixed(2)}`;
 
-                // Add to totals
                 subtotal += base;
                 totalDiscount += discount;
                 totalTax += tax;
@@ -1085,36 +1726,58 @@
                 total_cgstAmount += cgstAmount;
                 total_sgstAmount += sgstAmount;
                 total_igstAmount += igstAmount;
-
             });
 
-            // Update summary
-            document.getElementById('subtotal').innerText = `${currencySymbol}${subtotal.toFixed(2)}`;
-            document.getElementById('total-discount').innerText = `−${currencySymbol}${totalDiscount.toFixed(2)}`;
+            const fmt = (n) => `${currencySymbol}${n.toFixed(2)}`;
 
-            document.getElementById('total-cgst').innerText = `${currencySymbol}${total_cgstAmount.toFixed(2)}`;
-            document.getElementById('total-sgst').innerText = `${currencySymbol}${total_sgstAmount.toFixed(2)}`;
-            document.getElementById('total-igst').innerText = `${currencySymbol}${total_igstAmount.toFixed(2)}`;
+            let totalQty = 0;
+            document.querySelectorAll('[data-item-id] .quantity').forEach((q) => {
+                totalQty += parseFloat(q.value || 0);
+            });
+            document.getElementById('sum-items').innerText = items.length;
+            document.getElementById('sum-qty').innerText = Number.isInteger(totalQty) ? totalQty : totalQty.toFixed(2);
 
+            document.getElementById('subtotal').innerText = fmt(subtotal);
+            document.getElementById('total-discount').innerText = `−${fmt(totalDiscount)}`;
+            document.getElementById('total-taxable').innerText = fmt(total_taxable);
 
+            document.getElementById('total-cgst').innerText = fmt(total_cgstAmount);
+            document.getElementById('total-sgst').innerText = fmt(total_sgstAmount);
+            document.getElementById('total-igst').innerText = fmt(total_igstAmount);
 
-
-            document.getElementById('total-tax').innerText = `${currencySymbol}${totalTax.toFixed(2)}`;
+            document.getElementById('total-tax').innerText = fmt(totalTax);
             const grandTotal = subtotal - totalDiscount + totalTax;
-            document.getElementById('grand-total').innerText = `${currencySymbol}${grandTotal.toFixed(2)}`;
+            document.getElementById('grand-total').innerText = fmt(grandTotal);
 
-            // Round to nearest rupee
+            // Round to nearest whole amount
             let roundedTotal = Math.round(grandTotal);
-            // Calculate round-off difference
+
+            // Round-off difference (+ = added, − = subtracted)
             let roundOff = (roundedTotal - grandTotal).toFixed(2);
+            const roundOffNum = parseFloat(roundOff);
 
-            document.getElementById('round-off').innerText = `${currencySymbol}${roundOff}`;
+            const roundEl = document.getElementById('round-off');
+            const roundRow = document.getElementById('round-off-row');
+            const roundNote = document.getElementById('round-off-note');
+            roundRow.classList.remove('is-plus', 'is-minus');
 
-            // Advance payment & balance
+            if (roundOffNum > 0) {
+                roundEl.innerText = `+${fmt(roundOffNum)}`;
+                roundRow.classList.add('is-plus');
+                roundNote.innerText = 'Added to reach the nearest whole amount';
+            } else if (roundOffNum < 0) {
+                roundEl.innerText = `−${fmt(Math.abs(roundOffNum))}`;
+                roundRow.classList.add('is-minus');
+                roundNote.innerText = 'Subtracted to reach the nearest whole amount';
+            } else {
+                roundEl.innerText = fmt(0);
+                roundNote.innerText = 'No rounding needed';
+            }
 
+            // Total due = Grand Total ± Round off
             const remainingBalance = roundedTotal;
-            document.getElementById('remaining-balance').innerText = `${currencySymbol}${remainingBalance.toFixed(2)}`;
-
+            document.getElementById('remaining-balance').innerText = fmt(remainingBalance);
+            document.getElementById('total-words').innerText = amountInWords(remainingBalance);
 
             $("#hidden_sub_total").val(subtotal.toFixed(2));
             $("#hidden_total_discount").val(totalDiscount.toFixed(2));
@@ -1124,14 +1787,9 @@
             $("#hidden_total_sgst").val(total_sgstAmount.toFixed(2));
             $("#hidden_total_igst").val(total_igstAmount.toFixed(2));
 
-
             $("#hidden_total_tax").val(totalTax.toFixed(2));
             $("#hidden_grand_total").val(grandTotal.toFixed(2));
             $("#hidden_round_off").val(roundOff);
-
-
-
-
         }
 
         function removeRow(button) {
@@ -1151,16 +1809,12 @@
     </script>
 
 
-
-
-
     <script>
+        // Inventory search (suggestions dropdown per item row)
         $(document).on('keyup', '.add-items', function() {
-
 
             let query = $(this).val();
             const row_id = $(this).attr('item-id');
-
 
             if (query.length > 1) {
                 $.ajax({
@@ -1170,84 +1824,65 @@
                         query: query
                     },
                     success: function(data) {
-                        // $('#item-list-' + row_id).fadeIn();
                         $('#item-list-' + row_id).fadeIn().html(data);
                     }
                 });
             } else {
                 $('#item-list-' + row_id).fadeOut();
             }
+        });
 
+        // Bound once
+        $(document).on('click', '.select-item', function(e) {
+            e.preventDefault();
 
-            // Delegate click to any .select-item, but compute row_id inside the handler:
-            $(document).on('click', '.select-item', function(e) {
-                e.preventDefault();
+            const $listDiv = $(this).closest('.list-group');
+            const listDivId = $listDiv.attr('id'); // e.g. "item-list-3"
+            const rowIdx = listDivId.replace('item-list-', '');
 
-                // a) Find the parent .list-group to figure out which row to update:
-                const $listDiv = $(this).closest('.list-group');
-                const listDivId = $listDiv.attr('id'); // e.g. "item-list-3"
-                const rowIdx = listDivId.replace('item-list-', ''); // "3"
+            const dbItemId = $(this).data('item_id');
+            const itemName = $(this).data('item_name');
+            const hsnVal = $(this).data('hsn_sac');
+            const rateVal = $(this).data('unit_price');
+            const taxIdVal = $(this).data('tax_id');
+            const discountIdVal = $(this).data('discount_id');
 
-                // b) Grab all data attributes from the clicked <a>:
-                const dbItemId = $(this).data('item_id'); // actual DB ID
-                const itemName = $(this).data('item_name'); // item name text
-                const hsnVal = $(this).data('hsn_sac'); // HSN/SAC
-                const rateVal = $(this).data('unit_price'); // unit price
-                const taxIdVal = $(this).data('tax_id'); // tax ID
-                const discountIdVal = $(this).data('discount_id');
+            $(`#item-${rowIdx}`).val(itemName);
 
-                console.log(taxIdVal)
+            $listDiv.fadeOut().empty();
 
-                // c) Set the input value (the <input id="item-3">) to the product name:
-                $(`#item-${rowIdx}`).val(itemName);
+            const $row = $(`#item-${rowIdx}`).closest('[data-item-id]');
 
-                // d) Hide & clear that dropdown:
-                $listDiv.fadeOut().empty();
+            $row.find('.hsn').val(hsnVal);
+            $row.find('.quantity').val(1);
+            $row.find('.rate').val(rateVal).trigger('input');
 
-                // e) Find the entire row container (<div data-item-id="3">) so we can fill HSN, rate, tax:
-                const $row = $(`#item-${rowIdx}`).closest('[data-item-id]');
+            $row.find('.tax-select option[tax-id="' + taxIdVal + '"]').prop('selected', true);
+            $row.find('.tax-select').trigger('change');
 
-                // f) Auto-fill HSN, Rate, and set the correct tax-select
-                $row.find('.hsn').val(hsnVal);
-                $row.find('.quantity').val(1);
-                $row.find('.rate').val(rateVal).trigger('input');
+            $row.find('.discount-select option[discount-id="' + discountIdVal + '"]').prop('selected', true);
+            $row.find('.discount-select').trigger('change');
 
-                $row.find('.tax-select option[tax-id="' + taxIdVal + '"]').prop('selected', true);
-                $row.find('.tax-select').trigger('change');
-
-                $row.find('.discount-select option[discount-id="' + discountIdVal + '"]').prop('selected', true);
-                $row.find('.discount-select').trigger('change');
-
-
-
-                // g) (Optional) If you need to submit the actual DB item_id to the server,
-                //    either create a hidden <input> or reuse an existing one:
-                if ($(`#hidden-item-id-${rowIdx}`).length === 0) {
-                    // Insert a hidden field if it doesn’t exist yet:
-                    $(`<input type="hidden"
+            if ($(`#hidden-item-id-${rowIdx}`).length === 0) {
+                $(`<input type="hidden"
                   name="item[${rowIdx}][item_id]"
                   id="hidden-item-id-${rowIdx}"
                   value="${dbItemId}">`)
-                        .appendTo($row);
-                } else {
-                    $(`#hidden-item-id-${rowIdx}`).val(dbItemId);
-                }
+                    .appendTo($row);
+            } else {
+                $(`#hidden-item-id-${rowIdx}`).val(dbItemId);
+            }
 
-                // h) Recompute estimate totals:
-                calculateestimate();
-            });
+            calculateestimate();
+        });
 
-
-            $(document).click(function(e) {
-                if (!$(e.target).closest('#item-list-' + row_id).length) {
-                    $('#item-list-' + row_id).fadeOut();
-                }
-            });
-
+        // Click outside any suggestions list -> close them
+        $(document).on('click', function(e) {
+            if (!$(e.target).closest('.ie-suggest, .add-items').length) {
+                $('.ie-suggest').fadeOut();
+            }
         });
     </script>
-
-
 
 
     <script>
@@ -1255,9 +1890,7 @@
             let selectedVal = $(this).val();
 
             if (selectedVal === "new") {
-                // Reset back to default (No Discount)
                 $(this).val("0");
-                // Open your modal
                 $('.editDiscount-modal-body').empty();
                 try {
                     $.ajax({
@@ -1266,23 +1899,15 @@
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
-                        beforeSend: function() {
-
-                        },
                         success: function(response) {
                             $('.discount-modal-body').html(response);
                             $('#discount-modal').modal('show');
-
                         }
                     });
-
                 } catch (error) {
                     console.error('Error:', error);
                 }
-
-
             } else {
-                // Call your calculation if needed
                 calculateestimate();
             }
         });
@@ -1292,9 +1917,7 @@
             let selectedVal = $(this).val();
 
             if (selectedVal === "new") {
-                // Reset back to default (No Discount)
                 $(this).val("0");
-                // Open your modal
                 $('.edittax-modal-body').empty();
                 try {
                     $.ajax({
@@ -1303,23 +1926,15 @@
                         headers: {
                             'X-CSRF-TOKEN': '{{ csrf_token() }}'
                         },
-                        beforeSend: function() {
-
-                        },
                         success: function(response) {
                             $('.tax-modal-body').html(response);
                             $('#tax-modal').modal('show');
-
                         }
                     });
-
                 } catch (error) {
                     console.error('Error:', error);
                 }
-
-
             } else {
-                // Call your calculation if needed
                 calculateestimate();
             }
         });
@@ -1327,14 +1942,9 @@
         $(document).on('click', '.new-client', function(e) {
             e.preventDefault();
 
-
-            // $('#view-modal').modal('show');
-
             var client_id = 0;
 
             try {
-
-                var editors = {}; // store editors globally so they are not reinitialized
 
                 $.ajax({
                     url: "{{ route('client.add') }}",
@@ -1345,22 +1955,12 @@
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
-                    beforeSend: function() {
-                        // Destroy any existing CKEditor instances before loading new HTML
-                        for (let id in editors) {
-                            if (editors[id]) {
-                                editors[id].destroy().catch(() => {});
-                                editors[id] = null;
-                            }
-                        }
-                    },
                     success: function(response) {
 
                         $('.client-modal-body').html(response);
                         $('#client-modal').modal('show');
 
                         $('#client-modal').on('shown.bs.modal', function() {
-                            // Initialize Choices.js (always safe to re-init)
                             ['#id_country_id', '#id_state_id', '#id_currency_code'].forEach(function(selector) {
                                 new Choices(selector, {
                                     searchEnabled: true,
@@ -1368,9 +1968,6 @@
                                 });
                             });
                         });
-
-
-                        // Initialize CKEditor (destroy old if exists)
 
                         $('#id_notes').summernote({
                             placeholder: 'Enter notes...',
@@ -1393,22 +1990,13 @@
                                 ['view', ['codeview']]
                             ]
                         });
-
-
                     }
                 });
 
             } catch (error) {
                 console.error('Error:', error);
             }
-
-
         });
     </script>
-
-
-
-
-
 
 </x-default-layout>

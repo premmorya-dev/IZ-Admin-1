@@ -271,6 +271,11 @@
             }
 
         }
+
+
+    
+        .modal-header.bg-primary { background: linear-gradient(135deg, #4f46e5, #7c3aed) !important; }
+
     </style>
 </head>
 <!--end::Head-->

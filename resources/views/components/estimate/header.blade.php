@@ -97,30 +97,9 @@
 <div class="row g-3 align-items-end invoice-top-section">
 
     <!-- Company Logo -->
-    <div class="col-xl-2 col-lg-3 col-md-4 col-sm-12">
-
-        <div class="invoice-top-card logo-card">
-
-            <label class="invoice-label">
-                <i class="bi bi-building"></i>
-                Company
-            </label>
-
-            <div class="company-logo-wrapper">
-
-                <img
-                    src="{{ asset($data['setting']->logo_path ?? 'no-image.png' ) }}"
-                    class="company-logo"
-                    alt="Company Logo">
-
-            </div>
-
-        </div>
-
-    </div>
-
+    
     <!-- Invoice Number -->
-    <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6">
+    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6">
 
         <div class="invoice-top-card">
 
@@ -169,7 +148,7 @@
 
     <!-- Currency -->
 
-    <div class="col-xl-3 col-lg-3 col-md-4 col-sm-6">
+    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6">
 
         <div class="invoice-top-card">
 
@@ -215,7 +194,7 @@
 
     <!-- Template -->
 
-    <div class="col-xl-4 col-lg-3 col-md-12">
+    <div class="col-xl-4 col-lg-4 col-md-4 col-sm-6">
 
         <div class="invoice-top-card">
 

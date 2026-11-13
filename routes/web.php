@@ -164,6 +164,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/send-bulk-email', [InvoiceController::class, 'queueEmail'])->name('invoice.send_bulk_email');
         Route::post('/get-payment-form', [InvoiceController::class, 'getRecordPaymentForm'])->name('invoice.get_payment_form');
         Route::post('/record-payment', [InvoiceController::class, 'recordPayment'])->name('invoice.record_payment');
+        Route::post('/mark-unpaid-invoice', [InvoiceController::class, 'markUnPaid'])->name('invoice.mark_unpaid');
         Route::get('shortcode/{invoice_code}', [InvoiceController::class, 'shortcode'])->name('invoice.shortcode');
     });
 

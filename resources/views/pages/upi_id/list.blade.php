@@ -625,8 +625,10 @@
                 </a>
 
                 <!-- Add Button -->
-                <a class="new-upi btn btn-add-saas"
-                    id="add-action" href="#"> <i data-lucide="plus-circle"></i> Add New</a>
+               
+
+                 <x-invoice.saas-button class="new-upi btn btn-add-saas" id="add-action" icon="plus-circle"> Add New</x-invoice.saas-button>
+
             </div>
         </div>
 

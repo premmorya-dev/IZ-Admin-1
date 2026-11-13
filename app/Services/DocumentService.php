@@ -75,6 +75,8 @@ abstract class DocumentService
             ->where('users.user_id', $userId)
             ->first();
 
+           
+
 
         if ($partyTable  == 'clients') {
             if ($document->user_state_id == $document->client_state_id) {
@@ -105,6 +107,13 @@ abstract class DocumentService
         $document->{"{$partyAlias}_country"} = optional(DB::table('countries')->where('country_id', $document->{"{$partyAlias}_country_id"})->first())->country_name ?? '';
         $document->{"{$partyAlias}_state"} = optional(DB::table('country_states')->where('state_id', $document->{"{$partyAlias}_state_id"})->first())->state_name ?? '';
 
+        if(!empty($document->{"place_of_supply"})){
+                $document->{"{$partyAlias}_place_of_supply"} = optional(DB::table('country_states')->where('state_id', $document->{"place_of_supply"})->first())->state_name ?? '';
+
+        }else{
+              $document->{"{$partyAlias}_place_of_supply"} = '';
+        }
+       
         if ($partyTable  == 'clients') {
             $document->client_shipping_country = optional(DB::table('countries')->where('country_id', $document->shipping_country_id)->first())->country_name ?? '';
             $document->client_shipping_state = optional(DB::table('country_states')->where('state_id', $document->shipping_state_id)->first())->state_name ?? '';
@@ -216,7 +225,7 @@ abstract class DocumentService
 
         // Get currency symbol
         $document->currency_symbol = optional(DB::table('currencies')->where('currency_code', $document->currency_code)->first())->currency_symbol ?? '';
-
+ 
         return $document;
     }
 

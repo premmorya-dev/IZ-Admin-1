@@ -13,7 +13,7 @@
 <!-- Header with logo -->
 <tr>
 <td style="background-color:#0A0E1A;padding:32px;text-align:center;">
-<img src="{{ config('app.url') }}/images/logo-white.png" alt="InvoiceZy" width="140" style="display:block;margin:0 auto;border:0;">
+<img src="{{ config('app.url') }}images/logo-white.png" alt="InvoiceZy" width="140" style="display:block;margin:0 auto;border:0;">
 </td>
 </tr>
 
@@ -77,7 +77,7 @@ Hi {{ $user->first_name }} {{ $user->last_name }}, you've been with InvoiceZy fo
 <table role="presentation" cellpadding="0" cellspacing="0">
 <tr>
 <td style="background-color:#4338CA;border-radius:8px;">
-<a href="{{ config('app.url') }}/dashboard" style="display:inline-block;padding:14px 32px;font-size:15px;color:#ffffff;text-decoration:none;font-weight:bold;">Go to Dashboard →</a>
+<a href="{{ config('app.url') }}dashboard" style="display:inline-block;padding:14px 32px;font-size:15px;color:#ffffff;text-decoration:none;font-weight:bold;">Go to Dashboard →</a>
 </td>
 </tr>
 </table>

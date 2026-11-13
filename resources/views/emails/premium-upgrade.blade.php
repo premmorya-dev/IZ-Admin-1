@@ -13,7 +13,7 @@
 <!-- Header with logo -->
 <tr>
 <td style="background-color:#0A0E1A;padding:32px;text-align:center;">
-<img src="{{ config('app.url') }}/logo.png" alt="InvoiceZy" width="140" style="display:block;margin:0 auto;border:0;">
+<img src="{{ config('app.url') logo.png" alt="InvoiceZy" width="140" style="display:block;margin:0 auto;border:0;">
 </td>
 </tr>
 
@@ -107,7 +107,7 @@ You've been actively invoicing on InvoiceZy — that means you're exactly the ki
 <table role="presentation" cellpadding="0" cellspacing="0">
 <tr>
 <td style="background-color:#4338CA;border-radius:8px;">
-<a href="{{ config('app.url') }}/billing/upgrade" style="display:inline-block;padding:15px 40px;font-size:16px;color:#ffffff;text-decoration:none;font-weight:bold;">Upgrade to Premium →</a>
+<a href="{{ config('app.url') }}billing/upgrade" style="display:inline-block;padding:15px 40px;font-size:16px;color:#ffffff;text-decoration:none;font-weight:bold;">Upgrade to Premium →</a>
 </td>
 </tr>
 </table>

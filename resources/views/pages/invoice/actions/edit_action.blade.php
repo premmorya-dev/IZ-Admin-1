@@ -19,6 +19,14 @@
         </a>
         @endif
 
+        @if( !empty($invoice->invoice_payment_id) )
+
+
+        <a href="#" class="dropdown-item mark-unpaid" invoice-code="{{ $invoice->invoice_code }}">
+            <i class="fa-regular fa-circle-xmark"></i> Mark Unpaid
+        </a>
+        @endif
+
         <a href="#" invoice-code="{{ $invoice->invoice_code }}" class="invoice-view-model">
             <i data-lucide="eye" class="text-primary"></i>
             View
