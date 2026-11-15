@@ -47,39 +47,80 @@
             font-size: 13px;
             font-weight: 500;
             color: var(--mut);
+            white-space: nowrap;
         }
 
-        .inv-page .inv-btn-primary {
+        .inv-page .inv-toolbar-actions {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        /* bulk buttons group (shown by JS when rows are selected) */
+        .inv-page .inv-bulk-group {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .inv-page .inv-bulk-group form { display: none; }
+
+        .inv-page .inv-bulk-btn {
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
-            height: 42px;
-            padding: 0 20px;
-            border: 0;
-            border-radius: 12px;
-            font-size: 14px;
+            height: 40px;
+            padding: 0 16px;
+            border-radius: 10px;
+            border: 1px solid var(--bd);
+            background: #fff;
+            font-size: 13px;
             font-weight: 600;
-            color: #fff;
+            color: var(--text);
             text-decoration: none;
+            box-shadow: 0 1px 2px rgba(15, 23, 42, .05);
+            transition: .18s;
             white-space: nowrap;
-            background: linear-gradient(135deg, #4f46e5, #7c3aed);
-            box-shadow: 0 8px 18px -8px rgba(79, 70, 229, .65);
-            transition: transform .18s ease, box-shadow .18s ease;
         }
 
-        .inv-page .inv-btn-primary svg,
-        .inv-page .inv-btn-primary i { width: 16px; height: 16px; }
+        .inv-page .inv-bulk-btn svg,
+        .inv-page .inv-bulk-btn i { width: 15px; height: 15px; }
 
-        .inv-page .inv-btn-primary:hover {
-            color: #fff;
-            transform: translateY(-1px);
-            box-shadow: 0 12px 22px -8px rgba(79, 70, 229, .75);
-        }
+        .inv-page .inv-bulk-btn:hover { border-color: #c7d2fe; color: var(--i1); transform: translateY(-1px); }
+        .inv-page .inv-bulk-btn.danger { color: #be123c; }
+        .inv-page .inv-bulk-btn.danger:hover { border-color: #fecdd3; background: #fff1f2; color: #be123c; }
 
-        @media (max-width: 575.98px) {
-            .inv-page .inv-toolbar { flex-wrap: wrap; }
-            .inv-page .inv-toolbar .inv-btn-primary { width: 100%; }
+        /* Mobile: Add New upar full width, uske niche bulk buttons; title left + total right sabse neeche */
+        @media (max-width: 767.98px) {
+            .inv-page .inv-toolbar {
+                flex-direction: column-reverse;
+                align-items: stretch;
+                gap: 14px;
+            }
+
+            .inv-page .inv-count {
+                width: 100%;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .inv-page .inv-toolbar-actions {
+                width: 100%;
+                margin-left: 0;
+            }
+
+            /* Add New button (last child) full width, first row */
+            .inv-page .inv-toolbar-actions > *:last-child {
+                flex: 1 1 100%;
+                order: -1;
+                justify-content: center;
+            }
+
+            .inv-page .inv-bulk-group { flex: 1 1 100%; }
+            .inv-page .inv-bulk-group .inv-bulk-btn { flex: 1; padding: 0 8px; }
         }
 
         /* ---------- list container ---------- */
@@ -424,52 +465,6 @@
         .inv-page .inv-empty h4 { margin: 0; font-size: 17px; font-weight: 700; color: var(--ink); }
         .inv-page .inv-empty p { margin: 0 0 14px; max-width: 360px; font-size: 13.5px; color: var(--mut); }
 
-        /* ---------- bulk action bar (toggled by JS via d-none) ---------- */
-        .inv-page .inv-bulk {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 8px;
-            padding: 10px;
-            margin-bottom: 14px;
-            border-radius: 16px;
-            border: 1px solid #c7d2fe;
-            background: linear-gradient(135deg, #eef2ff, #f5f3ff);
-        }
-
-        .inv-page .inv-bulk form { display: none; }
-
-        .inv-page .inv-bulk-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            height: 38px;
-            padding: 0 16px;
-            border-radius: 10px;
-            border: 1px solid var(--bd);
-            background: #fff;
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--text);
-            text-decoration: none;
-            box-shadow: 0 1px 2px rgba(15, 23, 42, .05);
-            transition: .18s;
-        }
-
-        .inv-page .inv-bulk-btn svg,
-        .inv-page .inv-bulk-btn i { width: 15px; height: 15px; }
-
-        .inv-page .inv-bulk-btn:hover { border-color: #c7d2fe; color: var(--i1); transform: translateY(-1px); }
-        .inv-page .inv-bulk-btn.danger { color: #be123c; }
-        .inv-page .inv-bulk-btn.danger:hover { border-color: #fecdd3; background: #fff1f2; color: #be123c; }
-
-        @media (max-width: 575.98px) {
-            .inv-page .inv-bulk { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); }
-            .inv-page .inv-bulk.d-none { display: none; }
-            .inv-page .inv-bulk-btn { padding: 0 8px; }
-        }
-
         /* ---------- pagination ---------- */
         .inv-page .inv-pager {
             display: flex;
@@ -653,24 +648,24 @@
                 @endif
             </div>
 
-            <a class="inv-btn-primary" id="add-action" href="{{ route('bill.add') }}">
-                <i data-lucide="plus-circle"></i> Add New Bill
-            </a>
-        </div>
+            <div class="inv-toolbar-actions">
+                {{-- Bulk actions: sirf tab dikhenge jab bill select ho --}}
+                <div id="bulk-action-section" class="inv-bulk-group d-none">
+                    <a href="#" id="bulk-delete" title="Delete Selected Bills" class="inv-bulk-btn danger">
+                        <i data-lucide="trash-2"></i> Delete <span id="bulkCount"></span>
+                    </a>
 
-        {{-- Bulk Action Section (shown by JS when rows are selected) --}}
-        <div id="bulk-action-section" class="d-none d-flex inv-bulk">
-            <a href="#" id="bulk-delete" title="Delete Bill" class="inv-bulk-btn danger">
-                <i data-lucide="trash-2"></i> Delete
-            </a>
+                    <a href="#" id="bulk-bill-download" title="Download Selected Bills" class="inv-bulk-btn">
+                        <i data-lucide="download"></i> Download
+                    </a>
 
-            <a href="#" id="bulk-bill-download" title="Download Bill" class="inv-bulk-btn">
-                <i data-lucide="download"></i> Download
-            </a>
+                    <form id="download-form" method="POST" action="{{ route('bill.bulk_download') }}">
+                        @csrf
+                    </form>
+                </div>
 
-            <form id="download-form" method="POST" action="{{ route('bill.bulk_download') }}">
-                @csrf
-            </form>
+                <x-invoice.saas-button :href="route('bill.add')" id="add-action" icon="plus-circle"> Add New</x-invoice.saas-button>
+            </div>
         </div>
 
         @if ($hasBills)
@@ -790,9 +785,7 @@
             <div class="inv-empty-ic"><i class="bi bi-receipt"></i></div>
             <h4>No bills found</h4>
             <p>Record your first purchase bill to start tracking GST, ITC and payments.</p>
-            <a class="inv-btn-primary" href="{{ route('bill.add') }}">
-                <i data-lucide="plus-circle"></i> Add New Bill
-            </a>
+            <x-invoice.saas-button :href="route('bill.add')" icon="plus-circle"> Add New</x-invoice.saas-button>
         </div>
         @endif
 
@@ -1017,12 +1010,13 @@
     <script>
         $(function() {
 
-            // ---- Selection + bulk action bar ----
+            // ---- Selection + bulk buttons (show only when selected, with count) ----
             function updateBulkBar() {
                 const total = $('.selected').length;
                 const count = $('.selected:checked').length;
 
                 $('#bulk-action-section').toggleClass('d-none', count === 0);
+                $('#bulkCount').text(count > 0 ? '(' + count + ')' : '');
                 $('.bill_code').prop('checked', total > 0 && count === total);
             }
 
@@ -1042,6 +1036,7 @@
                 $('.selected:checked').each(function() {
                     bills_code.push(this.value);
                 });
+                if (bills_code.length === 0) return;
                 $('#multiDeleteModal').modal('show');
             });
 

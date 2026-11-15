@@ -843,6 +843,19 @@
                 transform: none;
             }
         }
+
+        .inv-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.inv-count{display:flex;align-items:center;gap:10px;min-width:0}
+.inv-count h3{margin:0}
+.inv-count span{white-space:nowrap}
+
+/* Mobile: Add New upar (full width), niche title left + total right */
+@media (max-width:767px){
+    .inv-toolbar{flex-direction:column-reverse;align-items:stretch;gap:14px}
+    .inv-count{width:100%;justify-content:space-between}
+    .inv-add,
+    .inv-toolbar > a{width:100%;justify-content:center}
+}
     </style>
 
     <x-page-heading
@@ -882,16 +895,16 @@
     <div class="inv-page">
 
         <!-- Toolbar -->
-        <div class="inv-toolbar">
-            <div class="inv-count">
-                <h3>All invoices</h3>
-                @if (!empty($data['totalRecords']))
-                <span>{{ number_format($data['totalRecords']) }} total</span>
-                @endif
-            </div>
+      <div class="inv-toolbar">
+    <div class="inv-count">
+        <h3>All invoices</h3>
+        @if (!empty($data['totalRecords']))
+        <span>{{ number_format($data['totalRecords']) }} total</span>
+        @endif
+    </div>
 
-            <x-invoice.saas-button :href="route('invoice.add')" icon="plus-circle"> Add New</x-invoice.saas-button>
-        </div>
+    <x-invoice.saas-button :href="route('invoice.add')" icon="plus-circle" class="inv-add"> Add New</x-invoice.saas-button>
+</div>
 
         <!-- Bulk Action Section (shown by existing JS when rows are selected) -->
         <div id="bulk-action-section" class="d-none d-flex inv-bulk">

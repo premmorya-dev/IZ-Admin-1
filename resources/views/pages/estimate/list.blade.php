@@ -607,6 +607,19 @@
         }
 
         .inv-page .convert-invoice-btn:hover .arrow { transform: translateX(3px); }
+
+        .inv-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px}
+.inv-count{display:flex;align-items:center;gap:10px;min-width:0}
+.inv-count h3{margin:0}
+.inv-count span{white-space:nowrap}
+
+/* Mobile: Add New upar (full width), niche title left + total right */
+@media (max-width:767px){
+    .inv-toolbar{flex-direction:column-reverse;align-items:stretch;gap:14px}
+    .inv-count{width:100%;justify-content:space-between}
+    .inv-add,
+    .inv-toolbar > a{width:100%;justify-content:center}
+}
     </style>
 
     <x-page-heading
