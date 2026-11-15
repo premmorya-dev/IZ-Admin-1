@@ -300,6 +300,41 @@
             .dz-kpi,.dz-qa,.dz-btn,.dz-ico{transition:none}
             .dz-kpi:hover,.dz-qa:hover,.dz-btn:hover{transform:none}
         }
+
+
+        /* ---------- Install App button ---------- */
+.dz-install[hidden]{display:none!important}
+.dz-install{position:relative;overflow:hidden;gap:12px;height:auto;padding:9px 20px 9px 10px;border:0;cursor:pointer;color:#fff;text-align:left;
+    background:linear-gradient(135deg,#f59e0b 0%,#ef4444 55%,#db2777 100%);
+    box-shadow:0 16px 30px -12px rgba(239,68,68,.65),inset 0 1px 0 rgba(255,255,255,.35)}
+.dz-install:hover{transform:translateY(-2px);box-shadow:0 22px 36px -14px rgba(239,68,68,.75),inset 0 1px 0 rgba(255,255,255,.35);color:#fff}
+.dz-install::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;
+    background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);animation:dzShine 3.2s ease-in-out infinite}
+@keyframes dzShine{0%,60%{left:-60%}100%{left:130%}}
+.dz-install-ico{flex:none;width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.35)}
+.dz-install-ico i{font-size:17px;color:#fff!important;animation:dzBob 1.6s ease-in-out infinite}
+@keyframes dzBob{0%,100%{transform:translateY(-1px)}50%{transform:translateY(2px)}}
+.dz-install-tx{display:flex;flex-direction:column;line-height:1.2}
+.dz-install-tx b{font-size:14px;font-weight:800;color:#fff}
+.dz-install-tx small{font-size:11px;font-weight:500;color:rgba(255,255,255,.85)}
+
+/* iOS modal */
+.dz-ios[hidden]{display:none!important}
+.dz-ios{position:fixed;inset:0;z-index:2000;display:grid;place-items:center;padding:20px;background:rgba(15,23,42,.6);backdrop-filter:blur(4px)}
+.dz-ios-box{position:relative;width:100%;max-width:380px;padding:28px 24px 22px;border-radius:24px;background:#fff;text-align:center;box-shadow:0 30px 60px -20px rgba(0,0,0,.5)}
+.dz-ios-x{position:absolute;top:10px;right:14px;border:0;background:none;font-size:26px;color:#94a3b8;cursor:pointer}
+.dz-ios-logo{width:56px;height:56px;margin:0 auto 12px;border-radius:16px;display:grid;place-items:center;font-size:24px;background:linear-gradient(135deg,#4f46e5,#7c3aed)}
+.dz-ios-logo i{color:#fff!important}
+.dz-ios-box h5{font-family:'Outfit',sans-serif;font-weight:700;margin:0 0 4px}
+.dz-ios-box p{font-size:13.5px;color:#64748b;margin-bottom:14px}
+.dz-ios-box ol{list-style:none;padding:0;margin:0 0 18px;text-align:left}
+.dz-ios-box li{display:flex;align-items:center;gap:10px;padding:11px 12px;margin-bottom:8px;border-radius:12px;background:#f8fafc;border:1px solid #e8ebf3;font-size:13.5px;color:#0f172a}
+.dz-ios-box li span{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;background:#4f46e5;color:#fff}
+.dz-ios-box li i{color:#4f46e5}
+@media (max-width:767px){.dz-install{flex:1;justify-content:center}}
+@media (prefers-reduced-motion:reduce){.dz-install::after,.dz-install-ico i{animation:none}}
+
+
     </style>
 
     <div class="dz-wrap container-fluid {{ $data['registration'] ?? '' }}">
@@ -311,6 +346,7 @@
                     <span class="dz-chip"><span class="dot"></span> Live overview</span>
                     <span class="dz-chip"><i class="bi bi-calendar3"></i> {{ now()->format('D, d M Y') }}</span>
                     <span class="dz-chip" title="Dashboard data refreshes every 10 minutes via backend process"><i class="bi bi-arrow-repeat"></i> Auto-sync every 10 min</span>
+              
                 </div>
                 <h2>{{ $greeting }}, {{ $firstName  }} 👋</h2>
                 <p>Here's what's happening with your invoices today.</p>
@@ -325,6 +361,14 @@
                     New Estimate
                 </a>
             </div>
+
+            <button type="button" id="installAppBtn" class="dz-btn dz-install" hidden>
+        <span class="dz-install-ico"><i class="bi bi-download"></i></span>
+        <span class="dz-install-tx">
+            <b>Install InvoiceZy App</b>
+            <small>Android · iPhone · Desktop</small>
+        </span>
+    </button>
         </div>
 
         @if($overdueInv > 0)
@@ -635,7 +679,20 @@
                 </div>
             </div>
         </div>
-
+<div class="dz-ios" id="dzIosModal" hidden>
+    <div class="dz-ios-box" role="dialog" aria-modal="true">
+        <button type="button" class="dz-ios-x" id="dzIosClose" aria-label="Close">&times;</button>
+        <div class="dz-ios-logo"><i class="bi bi-phone"></i></div>
+        <h5>Install InvoiceZy</h5>
+        <p>Apne iPhone / iPad par app ki tarah add karo:</p>
+        <ol>
+            <li><span>1</span> Safari me neeche <b>Share</b> <i class="bi bi-box-arrow-up"></i> button dabao</li>
+            <li><span>2</span> <b>Add to Home Screen</b> <i class="bi bi-plus-square"></i> select karo</li>
+            <li><span>3</span> Upar <b>Add</b> dabao. Done! 🎉</li>
+        </ol>
+        <button type="button" class="dz-btn light" id="dzIosOk" style="width:100%;background:#4f46e5;color:#fff">Got it</button>
+    </div>
+</div>
     </div>
 
     <!-- ApexCharts -->
@@ -778,5 +835,53 @@
             }
         })();
     </script>
+<script>
+(function () {
+    var btn   = document.getElementById('installAppBtn');
+    var modal = document.getElementById('dzIosModal');
+    if (!btn) return;
 
+    var deferredPrompt = null;
+    var ua = navigator.userAgent || '';
+    var isIOS = /iphone|ipad|ipod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    var isStandalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+    function show(){ btn.hidden = false; }
+    function hide(){ btn.hidden = true; }
+
+    // Already installed -> button mat dikhao
+    if (isStandalone) { hide(); return; }
+
+    // iPhone / iPad: native prompt nahi hota, steps modal dikhao
+    if (isIOS) show();
+
+    // Android + Desktop (Chrome/Edge)
+    window.addEventListener('beforeinstallprompt', function (e) {
+        e.preventDefault();
+        deferredPrompt = e;
+        show();
+    });
+
+    btn.addEventListener('click', async function () {
+        if (deferredPrompt) {
+            deferredPrompt.prompt();
+            var choice = await deferredPrompt.userChoice;
+            deferredPrompt = null;
+            if (choice.outcome === 'accepted') hide();
+        } else if (isIOS && modal) {
+            modal.hidden = false;
+        }
+    });
+
+    window.addEventListener('appinstalled', function () { deferredPrompt = null; hide(); });
+
+    // modal close
+    function closeModal(){ if (modal) modal.hidden = true; }
+    ['dzIosClose','dzIosOk'].forEach(function (id) {
+        var el = document.getElementById(id);
+        if (el) el.addEventListener('click', closeModal);
+    });
+    if (modal) modal.addEventListener('click', function (e) { if (e.target === modal) closeModal(); });
+})();
+</script>
 </x-default-layout>
