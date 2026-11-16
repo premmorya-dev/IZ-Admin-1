@@ -44,9 +44,30 @@
             font-size: 13px;
             font-weight: 500;
             color: var(--mut);
+            white-space: nowrap;
         }
 
-        /* ---------- bulk action bar (toggled by existing JS via d-none) ---------- */
+        /* Mobile: Add New upar (full width), niche title left + total right */
+        @media (max-width: 767.98px) {
+            .inv-page .inv-toolbar {
+                flex-direction: column-reverse;
+                align-items: stretch;
+                gap: 14px;
+            }
+
+            .inv-page .inv-count {
+                width: 100%;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .inv-page .inv-toolbar > *:last-child:not(.inv-count) {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* ---------- bulk action bar (toggled via d-none) ---------- */
         .inv-page .inv-bulk {
             display: flex;
             flex-wrap: wrap;
@@ -298,7 +319,7 @@
             text-decoration: underline;
         }
 
-        /* quick action buttons (mobile: equal-width buttons with labels) */
+        /* quick action buttons */
         .inv-page .inv-quick {
             flex: none;
             display: inline-flex;
@@ -408,21 +429,10 @@
             cursor: help;
         }
 
-        .inv-page .inv-mail.m-pending {
-            color: #d97706;
-        }
-
-        .inv-page .inv-mail.m-submitted {
-            color: #0284c7;
-        }
-
-        .inv-page .inv-mail.m-sent {
-            color: #059669;
-        }
-
-        .inv-page .inv-mail.m-default {
-            color: var(--faint);
-        }
+        .inv-page .inv-mail.m-pending { color: #d97706; }
+        .inv-page .inv-mail.m-submitted { color: #0284c7; }
+        .inv-page .inv-mail.m-sent { color: #059669; }
+        .inv-page .inv-mail.m-default { color: var(--faint); }
 
         /* status badges */
         .inv-page .inv-status {
@@ -453,62 +463,18 @@
             background: currentColor;
         }
 
-        .inv-page .inv-badge.s-pending {
-            color: #b45309;
-            background: #fffbeb;
-            border-color: #fde68a;
-        }
+        .inv-page .inv-badge.s-pending { color: #b45309; background: #fffbeb; border-color: #fde68a; }
+        .inv-page .inv-badge.s-sent { color: #1d4ed8; background: #eff6ff; border-color: #bfdbfe; }
+        .inv-page .inv-badge.s-paid { color: #047857; background: #ecfdf5; border-color: #a7f3d0; }
+        .inv-page .inv-badge.s-cancelled { color: #475569; background: #f1f5f9; border-color: #e2e8f0; }
+        .inv-page .inv-badge.s-overdue { color: #be123c; background: #fff1f2; border-color: #fecdd3; }
+        .inv-page .inv-badge.s-default { color: #334155; background: #f1f5f9; border-color: #e2e8f0; }
 
-        .inv-page .inv-badge.s-sent {
-            color: #1d4ed8;
-            background: #eff6ff;
-            border-color: #bfdbfe;
-        }
-
-        .inv-page .inv-badge.s-paid {
-            color: #047857;
-            background: #ecfdf5;
-            border-color: #a7f3d0;
-        }
-
-        .inv-page .inv-badge.s-cancelled {
-            color: #475569;
-            background: #f1f5f9;
-            border-color: #e2e8f0;
-        }
-
-        .inv-page .inv-badge.s-overdue {
-            color: #be123c;
-            background: #fff1f2;
-            border-color: #fecdd3;
-        }
-
-        .inv-page .inv-badge.s-default {
-            color: #334155;
-            background: #f1f5f9;
-            border-color: #e2e8f0;
-        }
-
-        .inv-page .inv-duetxt {
-            font-size: 12px;
-            font-weight: 600;
-        }
-
-        .inv-page .inv-duetxt.d-overdue {
-            color: #e11d48;
-        }
-
-        .inv-page .inv-duetxt.d-upcoming {
-            color: #d97706;
-        }
-
-        .inv-page .inv-duetxt.d-today {
-            color: var(--i1);
-        }
-
-        .inv-page .inv-duetxt.d-default {
-            color: var(--mut);
-        }
+        .inv-page .inv-duetxt { font-size: 12px; font-weight: 600; }
+        .inv-page .inv-duetxt.d-overdue { color: #e11d48; }
+        .inv-page .inv-duetxt.d-upcoming { color: #d97706; }
+        .inv-page .inv-duetxt.d-today { color: var(--i1); }
+        .inv-page .inv-duetxt.d-default { color: var(--mut); }
 
         /* amount */
         .inv-page .inv-total {
@@ -549,10 +515,7 @@
             color: var(--faint);
         }
 
-        .inv-page .inv-datev.is-overdue {
-            color: #e11d48;
-        }
-
+        .inv-page .inv-datev.is-overdue,
         .inv-page .inv-datev.is-overdue i {
             color: #e11d48;
         }
@@ -722,42 +685,13 @@
                 color: var(--mut);
             }
 
-            .inv-page .inv-hcell.inv-hcheck {
-                padding: 0;
-            }
-
-            .inv-page .inv-hcell.inv-hactions {
-                display: inline-flex;
-                justify-content: flex-end;
-            }
-
-            .inv-page .inv-selall {
-                display: none;
-            }
-
-            .inv-page .inv-hcell.h-main {
-                grid-area: main;
-            }
-
-            .inv-page .inv-hcell.h-status {
-                grid-area: status;
-            }
-
-            .inv-page .inv-hcell.h-amount {
-                grid-area: amount;
-            }
-
-            .inv-page .inv-hcell.h-date {
-                grid-area: date;
-            }
-
-            .inv-page .inv-hcell.inv-hcheck {
-                grid-area: check;
-            }
-
-            .inv-page .inv-hcell.inv-hactions {
-                grid-area: actions;
-            }
+            .inv-page .inv-hcell.inv-hcheck { padding: 0; grid-area: check; }
+            .inv-page .inv-hcell.inv-hactions { display: inline-flex; justify-content: flex-end; grid-area: actions; }
+            .inv-page .inv-selall { display: none; }
+            .inv-page .inv-hcell.h-main { grid-area: main; }
+            .inv-page .inv-hcell.h-status { grid-area: status; }
+            .inv-page .inv-hcell.h-amount { grid-area: amount; }
+            .inv-page .inv-hcell.h-date { grid-area: date; }
 
             /* rows */
             .inv-page .inv-row {
@@ -787,23 +721,10 @@
                 box-shadow: inset 3px 0 0 var(--i1);
             }
 
-            .inv-page .inv-check {
-                padding: 0;
-            }
-
-            .inv-page .inv-label {
-                display: none;
-            }
-
-            .inv-page .inv-status {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 5px;
-            }
-
-            .inv-page .inv-date {
-                text-align: left;
-            }
+            .inv-page .inv-check { padding: 0; }
+            .inv-page .inv-label { display: none; }
+            .inv-page .inv-status { flex-direction: column; align-items: flex-start; gap: 5px; }
+            .inv-page .inv-date { text-align: left; }
 
             /* actions: compact icon buttons on desktop */
             .inv-page .inv-actions {
@@ -833,10 +754,6 @@
                 color: var(--faint);
             }
 
-            .inv-page .inv-qbtn .inv-qtxt {
-                display: none;
-            }
-
             .inv-page .inv-qbtn:hover,
             .inv-page .inv-qbtn:focus-visible {
                 box-shadow: none;
@@ -844,18 +761,24 @@
             }
         }
 
-        .inv-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.inv-count{display:flex;align-items:center;gap:10px;min-width:0}
-.inv-count h3{margin:0}
-.inv-count span{white-space:nowrap}
+        /* ---------- View Invoice modal: mobile pe invoice ko fit karna ---------- */
+        #view-record-form-body {
+            overflow: hidden;
+        }
 
-/* Mobile: Add New upar (full width), niche title left + total right */
-@media (max-width:767px){
-    .inv-toolbar{flex-direction:column-reverse;align-items:stretch;gap:14px}
-    .inv-count{width:100%;justify-content:space-between}
-    .inv-add,
-    .inv-toolbar > a{width:100%;justify-content:center}
-}
+        #view-record-form-body .inv-fit-outer {
+            margin: 0 auto;
+        }
+
+        #view-record-form-body .inv-fit-inner {
+            transform-origin: top left;
+        }
+
+        @media (max-width: 767.98px) {
+            #viewModal .modal-dialog {
+                margin: 10px;
+            }
+        }
     </style>
 
     <x-page-heading
@@ -863,7 +786,6 @@
         description=""
         :breadcrumbs="[
         ['label' => 'Invoices', 'url' => route('invoice.list')],
-       
     ]" />
 
     @include('pages/invoice.filter')
@@ -895,21 +817,20 @@
     <div class="inv-page">
 
         <!-- Toolbar -->
-      <div class="inv-toolbar">
-    <div class="inv-count">
-        <h3>All invoices</h3>
-        @if (!empty($data['totalRecords']))
-        <span>{{ number_format($data['totalRecords']) }} total</span>
-        @endif
-    </div>
+        <div class="inv-toolbar">
+            <div class="inv-count">
+                <h3>All invoices</h3>
+                @if (!empty($data['totalRecords']))
+                <span>{{ number_format($data['totalRecords']) }} total</span>
+                @endif
+            </div>
 
-    <x-invoice.saas-button :href="route('invoice.add')" icon="plus-circle" class="inv-add"> Add New</x-invoice.saas-button>
-</div>
+            <x-invoice.saas-button :href="route('invoice.add')" icon="plus-circle" class="inv-add"> Add New</x-invoice.saas-button>
+        </div>
 
-        <!-- Bulk Action Section (shown by existing JS when rows are selected) -->
-        <div id="bulk-action-section" class="d-none d-flex inv-bulk">
-            <a href="#" id="bulk-delete" title="Delete Invoice" data-bs-toggle="modal" data-bs-target="#deleteModal"
-                class="inv-bulk-btn danger">
+        <!-- Bulk Action Section (shown by JS when rows are selected) -->
+        <div id="bulk-action-section" class="d-none inv-bulk">
+            <a href="#" id="bulk-delete" title="Delete Invoice" class="inv-bulk-btn danger">
                 <i data-lucide="trash-2"></i> Delete
             </a>
 
@@ -934,8 +855,8 @@
             <!-- Header (sort chips on mobile, column header on desktop) -->
             <div class="inv-head">
                 <div class="inv-hcell inv-hcheck">
-                    <input class="form-check-input invoice_code checkbox-border-color" name="selected" type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', this.checked);" value="" id="flexCheckDefault">
-                    <span class="inv-selall"> Select All </span>
+                    <input class="form-check-input checkbox-border-color" type="checkbox" value="" id="selectAllInvoices">
+                    <label for="selectAllInvoices" class="inv-selall mb-0"> Select All </label>
                 </div>
 
                 <div class="inv-hcell h-main sortable"><i data-lucide="file-text"></i> @sortablelink('invoice_number','Invoice #') </div>
@@ -964,7 +885,7 @@
             <div class="inv-row">
 
                 <div class="inv-cell inv-check">
-                    <input class="form-check-input selected checkbox-border-color" name="selected[]" type="checkbox" value="{{ $invoice->invoice_code }}" id="flexCheckDefault">
+                    <input class="form-check-input selected checkbox-border-color" name="selected[]" type="checkbox" value="{{ $invoice->invoice_code }}">
                 </div>
 
                 <!-- Invoice number + client -->
@@ -1078,36 +999,36 @@
 
                     {{-- Page Number Links (Only 5 around the current page) --}}
                     @for ($i = max(1, $data['page'] - 2); $i <= min($data['totalPages'], $data['page'] + 2); $i++)
-                        <li class="page-item {{ $i == $data['page'] ? 'active' : '' }}">
+                    <li class="page-item {{ $i == $data['page'] ? 'active' : '' }}">
                         <a href="{{ $data['pagination_url']}}{{ $i }}" class="page-link">{{ $i }}</a>
-                        </li>
-                        @endfor
+                    </li>
+                    @endfor
 
-                        {{-- Show "..." after middle pages if needed --}}
-                        @if ($data['page'] < $data['totalPages'] - 2)
-                            <li class="page-item disabled"><span class="page-link">...</span></li>
-                            @endif
+                    {{-- Show "..." after middle pages if needed --}}
+                    @if ($data['page'] < $data['totalPages'] - 2)
+                    <li class="page-item disabled"><span class="page-link">...</span></li>
+                    @endif
 
-                            {{-- Next & Last Buttons --}}
-                            @if ($data['page'] < $data['totalPages'])
-                                <li class="page-item">
-                                <a class="page-link" href="{{ $data['pagination_url']}}{{ $data['page'] + 1 }}" aria-label="Next">
-                                    <i class="bi bi-chevron-right"></i>
-                                </a>
-                                </li>
-                                <li class="page-item">
-                                    <a class="page-link" href="{{ $data['pagination_url']}}{{ $data['totalPages'] }}" aria-label="Last">
-                                        <i class="bi bi-chevron-double-right"></i>
-                                    </a>
-                                </li>
-                                @else
-                                <li class="page-item disabled">
-                                    <span class="page-link"><i class="bi bi-chevron-right"></i></span>
-                                </li>
-                                <li class="page-item disabled">
-                                    <span class="page-link"><i class="bi bi-chevron-double-right"></i></span>
-                                </li>
-                                @endif
+                    {{-- Next & Last Buttons --}}
+                    @if ($data['page'] < $data['totalPages'])
+                    <li class="page-item">
+                        <a class="page-link" href="{{ $data['pagination_url']}}{{ $data['page'] + 1 }}" aria-label="Next">
+                            <i class="bi bi-chevron-right"></i>
+                        </a>
+                    </li>
+                    <li class="page-item">
+                        <a class="page-link" href="{{ $data['pagination_url']}}{{ $data['totalPages'] }}" aria-label="Last">
+                            <i class="bi bi-chevron-double-right"></i>
+                        </a>
+                    </li>
+                    @else
+                    <li class="page-item disabled">
+                        <span class="page-link"><i class="bi bi-chevron-right"></i></span>
+                    </li>
+                    <li class="page-item disabled">
+                        <span class="page-link"><i class="bi bi-chevron-double-right"></i></span>
+                    </li>
+                    @endif
                 </ul>
             </nav>
         </div>
@@ -1240,6 +1161,7 @@
             </div>
         </div>
     </div>
+
     <!-- Payment Modal -->
     <div class="modal fade" id="paymentModal" tabindex="-1" aria-labelledby="paymentModalLabel" aria-hidden="true">
         <div class="modal-dialog modal-lg modal-dialog-centered">
@@ -1267,7 +1189,7 @@
                     </h5>
                     <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div id="view-record-form-body" class="px-5 mb-5">
+                <div id="view-record-form-body" class="px-2 px-md-5 mb-4 mb-md-5">
 
                 </div>
             </div>
@@ -1321,8 +1243,6 @@
 
             try {
 
-                var editors = {}; // store editors globally so they are not reinitialized
-
                 $.ajax({
                     url: "{{ route('client.edit') }}",
                     data: {
@@ -1332,15 +1252,12 @@
                     headers: {
                         'X-CSRF-TOKEN': '{{ csrf_token() }}'
                     },
-                    beforeSend: function() {
-
-                    },
                     success: function(response) {
 
                         $('.editClient-modal-body').html(response);
                         $('#editClient-modal').modal('show');
 
-                        $('#editClient-modal').on('shown.bs.modal', function() {
+                        $('#editClient-modal').one('shown.bs.modal', function() {
                             // Initialize Choices.js (always safe to re-init)
 
                             ['#id_country_id', '#id_state_id', '#id_currency_code', '#id_shipping_state_id', '#id_shipping_country_id'].forEach(function(selector) {
@@ -1348,7 +1265,6 @@
                                 if (!el) return; // skip if element not found
 
                                 if (!el.choices) {
-                                    // Only initialize if not already done
                                     el.choices = new Choices(el, {
                                         searchEnabled: true,
                                         itemSelectText: '',
@@ -1380,13 +1296,7 @@
                                 ]
                             });
 
-
-
                         });
-
-
-
-
 
                     }
                 });
@@ -1395,7 +1305,39 @@
                 console.error('Error:', error);
             }
 
+        });
+    </script>
 
+    <script>
+        // Invoice ko modal width me fit karta hai (mobile pe scale-down, desktop pe 1:1)
+        function fitInvoiceView() {
+            var $body = $('#view-record-form-body');
+            if (!$body.length) return;
+
+            var $outer = $body.children('.inv-fit-outer');
+            if (!$outer.length) {
+                $body.wrapInner('<div class="inv-fit-outer"><div class="inv-fit-inner"></div></div>');
+                $outer = $body.children('.inv-fit-outer');
+            }
+            var $inner = $outer.children('.inv-fit-inner');
+
+            var base = 720; // template ki design width (max-width 700 + margin)
+            var avail = $body.width();
+            if (!avail) return; // modal abhi hidden hai
+            var scale = Math.min(1, avail / base);
+
+            $inner.css({
+                width: base + 'px',
+                transform: 'scale(' + scale + ')'
+            });
+            $outer.css({
+                width: (base * scale) + 'px',
+                height: ($inner[0].offsetHeight * scale) + 'px'
+            });
+        }
+
+        $(window).on('resize', function() {
+            if ($('#viewModal').hasClass('show')) fitInvoiceView();
         });
     </script>
 
@@ -1407,24 +1349,23 @@
                 copyToClipboard($(this).attr('link'));
             });
 
-            $(document).on('change', '.selected, .invoice_code', function() {
-                let isChecked = $(this).is(':checked');
-                if (isChecked) {
-                    document.getElementById('bulk-action-section')?.classList.remove('d-none');
+            // ---- Selection + bulk bar ----
+            function syncBulk() {
+                var $rows = $('.inv-row .selected');
+                var count = $rows.filter(':checked').length;
 
+                $('#bulk-action-section').toggleClass('d-none', count === 0);
+                $('#selectAllInvoices').prop('checked', $rows.length > 0 && count === $rows.length);
+            }
 
-                } else {
+            $(document).on('change', '.inv-row .selected', syncBulk);
 
-                    console.log("Checkbox unchecked: ");
-                    var q_id = [];
-                    $(".selected:checked").each(function() {
-                        q_id.push($(this).val());
-                    });
-                    if (q_id === undefined || q_id === null || q_id === '' || q_id.length == 0) {
-                        document.getElementById('bulk-action-section')?.classList.add('d-none');
-                    }
-                }
+            $('#selectAllInvoices').on('change', function() {
+                $('.inv-row .selected').prop('checked', this.checked);
+                syncBulk();
             });
+
+            syncBulk();
 
 
             var invoices_code = [];
@@ -1434,6 +1375,7 @@
                 $('.selected:checked').each(function() {
                     invoices_code.push(this.value);
                 });
+                if (invoices_code.length === 0) return;
                 $('#multiDeleteModal').modal('show');
 
             });
@@ -1499,7 +1441,13 @@
                         // Close SweetAlert loader
                         Swal.close();
 
-                        // Open invoice modal after loading
+                        // Modal dikhne ke baad hi width milti hai, isliye shown event pe fit karo
+                        $('#viewModal').one('shown.bs.modal', function() {
+                            fitInvoiceView();
+                            setTimeout(fitInvoiceView, 300); // logo/QR/signature load hone ke baad height sahi ho
+                        });
+                        $('#view-record-form-body img').on('load', fitInvoiceView);
+
                         $('#viewModal').modal('show');
                     },
 
@@ -1656,12 +1604,7 @@
                 });
             });
 
-
-
-
-
             /*    bulk action end  */
-
 
         });
     </script>
@@ -1729,36 +1672,6 @@
                 },
                 complete: function() {
                     $btn.prop('disabled', false);
-                }
-            });
-        });
-
-        $('#confirmed-delete').on('click', function() {
-            let selected = $('.form-check-input.selected:checked').map(function() {
-                return this.value;
-            }).get();
-
-            if (selected.length === 0) {
-                alert("Please select at least one invoice.");
-                return;
-            }
-
-            $.ajax({
-                url: "{{ route('invoice.bulk_delete') }}",
-                method: 'POST',
-                data: {
-                    invoice_codes: selected,
-                    _token: $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function(res) {
-                    if (res.error === 0) {
-                        location.reload();
-                    } else {
-                        alert("Failed to delete invoices.");
-                    }
-                },
-                error: function() {
-                    alert("An error occurred while deleting invoices.");
                 }
             });
         });

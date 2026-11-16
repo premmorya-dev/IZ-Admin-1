@@ -618,6 +618,15 @@
             .inv-page .inv-qbtn:hover,
             .inv-page .inv-qbtn:focus-visible { box-shadow: none; transform: none; }
         }
+
+        /* ---------- View Bill modal: mobile pe bill ko fit karna ---------- */
+        #view-record-form-body { overflow: hidden; }
+        #view-record-form-body .inv-fit-outer { margin: 0 auto; }
+        #view-record-form-body .inv-fit-inner { transform-origin: top left; }
+
+        @media (max-width: 767.98px) {
+            #viewModal .modal-dialog { margin: 10px; }
+        }
     </style>
 
     <x-page-heading
@@ -930,7 +939,7 @@
                     <h5 class="modal-title" id="viewModalLabel">View Bill</h5>
                     <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div id="view-record-form-body" class="px-3 px-md-5 mb-5"></div>
+                <div id="view-record-form-body" class="px-2 px-md-5 mb-4 mb-md-5"></div>
             </div>
         </div>
     </div>
@@ -1004,6 +1013,36 @@
                     console.error('Error:', xhr.responseText);
                 }
             });
+        });
+    </script>
+
+    <script>
+        // Bill ko modal width me fit karta hai (mobile pe scale-down, desktop pe 1:1)
+        function fitBillView() {
+            var $body = $('#view-record-form-body');
+            if (!$body.length) return;
+
+            var $outer = $body.children('.inv-fit-outer');
+            if (!$outer.length) {
+                $body.wrapInner('<div class="inv-fit-outer"><div class="inv-fit-inner"></div></div>');
+                $outer = $body.children('.inv-fit-outer');
+            }
+            var $inner = $outer.children('.inv-fit-inner');
+
+            var base = 720; // template ki design width. Bill template alag width ka ho to yahan badlo
+            var avail = $body.width();
+            if (!avail) return; // modal abhi hidden hai
+            var scale = Math.min(1, avail / base);
+
+            $inner.css({ width: base + 'px', transform: 'scale(' + scale + ')' });
+            $outer.css({
+                width: (base * scale) + 'px',
+                height: ($inner[0].offsetHeight * scale) + 'px'
+            });
+        }
+
+        $(window).on('resize', function() {
+            if ($('#viewModal').hasClass('show')) fitBillView();
         });
     </script>
 
@@ -1120,6 +1159,14 @@
                     success: function(response) {
                         $('#view-record-form-body').html(response.html);
                         Swal.close();
+
+                        // Modal dikhne ke baad hi width milti hai, isliye shown event pe fit karo
+                        $('#viewModal').one('shown.bs.modal', function() {
+                            fitBillView();
+                            setTimeout(fitBillView, 300); // images load hone ke baad height sahi ho
+                        });
+                        $('#view-record-form-body img').on('load', fitBillView);
+
                         $('#viewModal').modal('show');
                     },
                     error: function(xhr) {

@@ -578,6 +578,27 @@
         .ie-page .ie-sum-words span { display: block; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #059669; }
         .ie-page .ie-sum-words b { display: block; margin-top: 2px; font-size: 13px; font-weight: 600; line-height: 1.45; color: #065f46; }
 
+        /* draft autosave indicator */
+        #draft-status {
+            display: inline-flex;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 500;
+            color: #64748b;
+            white-space: nowrap;
+        }
+
+        #draft-status:empty { display: none; }
+
+        #draft-status::before {
+            content: "";
+            width: 7px;
+            height: 7px;
+            margin-right: 6px;
+            border-radius: 50%;
+            background: #10b981;
+        }
+
         /* modals */
         .modal.fade .modal-content { border: 0; border-radius: 18px; overflow: hidden; }
         .modal-header.bg-primary { background: linear-gradient(135deg, #4f46e5, #7c3aed) !important; }
@@ -606,6 +627,10 @@
             </a>
 
             <div class="iz-bar-right">
+
+                {{-- Draft autosave indicator --}}
+                <small id="draft-status" class="me-2"></small>
+
                 <div class="iz-bar-primary">
                     <button type="button" id="save-bill" class="btn btn-primary save-bill">
                         <i class="bi bi-check2-circle"></i> Save Bill
@@ -1436,6 +1461,9 @@
                             }
 
                         } else if (response.error == 0) {
+                            // Bill saved successfully -> remove the autosaved draft
+                            if (typeof clearBillDraft === 'function') clearBillDraft();
+
                             Swal.fire({
                                 icon: "success",
                                 title: "Bill Saved Successfully!",
@@ -1861,6 +1889,294 @@
         function validateInputNumber(input) {
             if (input.value < 0) input.value = 0;
         }
+    </script>
+
+    {{-- ===== Bill draft autosave (localStorage) ===== --}}
+    <script>
+        // ======================================================================
+        // - saves the form automatically while the user types
+        // - on next visit asks: Restore Draft / Start Fresh
+        // - cleared automatically after the bill is saved successfully
+        // ======================================================================
+        (function() {
+            const DRAFT_KEY = 'invoicezy_add_bill_draft_v1_{{ auth()->id() }}';
+            const DRAFT_TTL = 7 * 24 * 60 * 60 * 1000; // draft expires after 7 days
+            let restoring = false;
+            let lastSaved = '';
+            let timer = null;
+
+            // summernote returns <p><br></p> when empty -> treat as empty string
+            const cleanHtml = (h) => (!h || h === '<p><br></p>' || h === '<br>') ? '' : h;
+
+            function collectItems() {
+                return $('#form-container [data-item-id]').map(function() {
+                    const $r = $(this);
+                    return {
+                        name: $r.find('.add-items').val() || '',
+                        hsn: $r.find('.hsn').val() || '',
+                        qty: $r.find('.quantity').val() || '',
+                        rate: $r.find('.rate').val() || '',
+                        discount: $r.find('.discount-select').val() || '0',
+                        discount_id: $r.find('.discount-select option:selected').attr('discount-id') || '',
+                        tax: $r.find('.tax-select').val() || '0',
+                        tax_id: $r.find('.tax-select option:selected').attr('tax-id') || '',
+                        description: cleanHtml($r.find('.id_description').summernote('code')),
+                        item_id: $r.find('input[type="hidden"][name$="[item_id]"]').val() || ''
+                    };
+                }).get();
+            }
+
+            function collectRecurring() {
+                const out = {};
+                $('#recurringOptions :input').each(function() {
+                    const key = this.name || this.id;
+                    if (!key) return;
+                    out[key] = (this.type === 'checkbox' || this.type === 'radio') ? this.checked : $(this).val();
+                });
+                return out;
+            }
+
+            function collectDraft() {
+                return {
+                    ts: Date.now(),
+                    vendor: {
+                        text: $('#vendor').val() || '',
+                        id: $('#vendor_id').val() || '',
+                        state_id: $('#vendor_state_id').val() || '',
+                        address_html: $('#vendorAddress').is(':visible') ? $('#vendorAddress').html() : ''
+                    },
+                    currency_code: $('#currency_code').val() || '',
+                    template_id: $('#template_id').val() || '',
+                    bill_date: $('#bill_date').val() || '',
+                    due_date: $('#due_date').val() || '',
+                    vendor_invoice_number: $('#vendor_invoice_number').val() || '',
+                    vendor_invoice_date: $('#vendor_invoice_date').val() || '',
+                    place_of_supply: $('#place_of_supply').val() || '',
+                    itc_eligibility: $('#itc_eligibility').val() || '',
+                    reverse_charge: $('#reverse_charge').is(':checked'),
+                    is_recurring: $('#is_recurring').is(':checked'),
+                    recurring: collectRecurring(),
+                    notes: cleanHtml($('#id_bill_notes').summernote('code')),
+                    items: collectItems()
+                };
+            }
+
+            // only save when the user has actually entered something meaningful
+            function isMeaningful(d) {
+                return !!(d.vendor && d.vendor.id) ||
+                    !!d.vendor_invoice_number ||
+                    (d.items || []).some(function(i) {
+                        return i.name || i.rate || i.qty || i.description;
+                    });
+            }
+
+            function setStatus(text) {
+                $('#draft-status').text(text);
+            }
+
+            function saveDraftNow() {
+                if (restoring) return;
+                try {
+                    const d = collectDraft();
+                    if (!isMeaningful(d)) {
+                        localStorage.removeItem(DRAFT_KEY);
+                        lastSaved = '';
+                        setStatus('');
+                        return;
+                    }
+                    const json = JSON.stringify(Object.assign({}, d, {
+                        ts: 0
+                    })); // compare without timestamp
+                    if (json === lastSaved) return; // nothing changed
+                    lastSaved = json;
+                    localStorage.setItem(DRAFT_KEY, JSON.stringify(d));
+                    setStatus('Draft saved ' + new Date().toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }));
+                } catch (e) {
+                    console.warn('Draft save failed', e); // storage full / private mode
+                }
+            }
+
+            function scheduleSave() {
+                clearTimeout(timer);
+                timer = setTimeout(saveDraftNow, 500);
+            }
+
+            // called after the bill is saved successfully
+            window.clearBillDraft = function() {
+                clearTimeout(timer);
+                restoring = true; // block any further autosave
+                try {
+                    localStorage.removeItem(DRAFT_KEY);
+                } catch (e) {}
+            };
+
+            function setDate(selector, value) {
+                const el = document.querySelector(selector);
+                if (!el || !value) return;
+                if (el._flatpickr) el._flatpickr.setDate(value, true);
+                else el.value = value;
+            }
+
+            function restoreDraft(d) {
+                restoring = true;
+                try {
+                    // vendor
+                    if (d.vendor && d.vendor.id) {
+                        $('#vendor').val(d.vendor.text);
+                        $('#vendor_id').val(d.vendor.id);
+                        $('#vendor_state_id').val(d.vendor.state_id);
+                        $('#vendorAddress').html(d.vendor.address_html).show();
+                        $('#vendorSearchBox').hide();
+                        $('.change-vendor').show();
+                        $('.new-vendor').hide();
+                    }
+
+                    if (d.currency_code) $('#currency_code').val(d.currency_code).trigger('change');
+                    if (d.template_id) $('#template_id').val(d.template_id).trigger('change');
+
+                    // dates
+                    setDate('#bill_date', d.bill_date);
+                    setDate('#due_date', d.due_date);
+                    setDate('#vendor_invoice_date', d.vendor_invoice_date);
+
+                    // GST & compliance
+                    $('#vendor_invoice_number').val(d.vendor_invoice_number || '');
+                    if (d.place_of_supply) $('#place_of_supply').val(d.place_of_supply).trigger('change');
+                    if (d.itc_eligibility) $('#itc_eligibility').val(d.itc_eligibility).trigger('change');
+                    $('#reverse_charge').prop('checked', !!d.reverse_charge);
+
+                    // recurring: set the fields first, then fire the change handlers
+                    if (d.recurring) {
+                        $('#recurringOptions :input').each(function() {
+                            const key = this.name || this.id;
+                            if (!key || !(key in d.recurring)) return;
+                            if (this.type === 'checkbox' || this.type === 'radio') this.checked = !!d.recurring[key];
+                            else $(this).val(d.recurring[key]);
+                        });
+                    }
+                    if (d.is_recurring) {
+                        $('#is_recurring').prop('checked', true).trigger('change');
+                        $('#frequency').trigger('change');
+                    }
+
+                    // notes
+                    if (d.notes) $('#id_bill_notes').summernote('code', d.notes);
+
+                    // items: replace the empty starter row with the saved rows
+                    $('#form-container').empty();
+                    (d.items || []).forEach(function(it) {
+                        addItemRow();
+                        const $r = $('#form-container [data-item-id]').last();
+
+                        $r.find('.add-items').val(it.name);
+                        $r.find('.hsn').val(it.hsn);
+                        $r.find('.quantity').val(it.qty);
+                        $r.find('.rate').val(it.rate);
+
+                        if (it.discount_id) $r.find('.discount-select option[discount-id="' + it.discount_id + '"]').prop('selected', true);
+                        else $r.find('.discount-select').val(it.discount);
+
+                        if (it.tax_id) $r.find('.tax-select option[tax-id="' + it.tax_id + '"]').prop('selected', true);
+                        else $r.find('.tax-select').val(it.tax);
+
+                        if (it.description) {
+                            $r.find('.id_description').summernote('code', it.description);
+                            $r.find('.ie-item-desc, .ie-desc-toggle').addClass('is-open');
+                        }
+
+                        // keep the inventory item link (hidden input already exists in each row)
+                        if (it.item_id) {
+                            $r.find('input[type="hidden"][name$="[item_id]"]').val(it.item_id);
+                        }
+                    });
+
+                    // always keep at least one row available
+                    if ($('#form-container [data-item-id]').length === 0) addItemRow();
+
+                    calculatebill();
+                } catch (e) {
+                    console.error('Draft restore failed', e);
+                } finally {
+                    setTimeout(function() {
+                        restoring = false;
+                        lastSaved = '';
+                        saveDraftNow();
+                    }, 900);
+                }
+            }
+
+            function loadDraft() {
+                let raw = null;
+                try {
+                    raw = localStorage.getItem(DRAFT_KEY);
+                } catch (e) {
+                    return null;
+                }
+                if (!raw) return null;
+                try {
+                    const d = JSON.parse(raw);
+                    if (!d.ts || Date.now() - d.ts > DRAFT_TTL || !isMeaningful(d)) {
+                        localStorage.removeItem(DRAFT_KEY);
+                        return null;
+                    }
+                    return d;
+                } catch (e) {
+                    localStorage.removeItem(DRAFT_KEY);
+                    return null;
+                }
+            }
+
+            $(window).on('load', function() {
+                const draft = loadDraft();
+
+                if (draft) {
+                    setTimeout(function() {
+                        const when = new Date(draft.ts).toLocaleString([], {
+                            day: '2-digit',
+                            month: 'short',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                        Swal.fire({
+                            icon: 'question',
+                            title: 'Unsaved Bill Found',
+                            text: 'You have an unfinished bill draft from ' + when + '. Do you want to restore it?',
+                            showDenyButton: true,
+                            confirmButtonText: 'Restore Draft',
+                            denyButtonText: 'Start Fresh',
+                            allowOutsideClick: false
+                        }).then(function(res) {
+                            if (res.isConfirmed) {
+                                restoreDraft(draft);
+                            } else {
+                                try {
+                                    localStorage.removeItem(DRAFT_KEY);
+                                } catch (e) {}
+                            }
+                        });
+                    }, 600);
+                }
+
+                // autosave triggers
+                $(document).on('input change keyup', '#bill-generate :input', scheduleSave);
+                $(document).on('summernote.change', '.id_description, #id_bill_notes', scheduleSave);
+                $(document).on('click', '#vendorList a, .change-vendor, .remove-item-btn, #add-item-btn, .select-item', function() {
+                    setTimeout(scheduleSave, 300);
+                });
+
+                // safety net: check every 4 sec (writes only if something changed)
+                setInterval(saveDraftNow, 4000);
+
+                // browser close / tab switch / mobile app going to background
+                document.addEventListener('visibilitychange', function() {
+                    if (document.visibilityState === 'hidden') saveDraftNow();
+                });
+                window.addEventListener('pagehide', saveDraftNow);
+            });
+        })();
     </script>
 
 </x-default-layout>

@@ -44,9 +44,30 @@
             font-size: 13px;
             font-weight: 500;
             color: var(--mut);
+            white-space: nowrap;
         }
 
-        /* ---------- bulk action bar (toggled by existing JS via d-none) ---------- */
+        /* Mobile: Add New upar (full width), niche title left + total right */
+        @media (max-width: 767.98px) {
+            .inv-page .inv-toolbar {
+                flex-direction: column-reverse;
+                align-items: stretch;
+                gap: 14px;
+            }
+
+            .inv-page .inv-count {
+                width: 100%;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            .inv-page .inv-toolbar > *:last-child:not(.inv-count) {
+                width: 100%;
+                justify-content: center;
+            }
+        }
+
+        /* ---------- bulk action bar (toggled via d-none) ---------- */
         .inv-page .inv-bulk {
             display: flex;
             flex-wrap: wrap;
@@ -475,15 +496,13 @@
                 color: var(--mut);
             }
 
-            .inv-page .inv-hcell.inv-hcheck { padding: 0; }
-            .inv-page .inv-hcell.inv-hactions { display: inline-flex; justify-content: flex-end; }
+            .inv-page .inv-hcell.inv-hcheck { padding: 0; grid-area: check; }
+            .inv-page .inv-hcell.inv-hactions { display: inline-flex; justify-content: flex-end; grid-area: actions; }
             .inv-page .inv-selall { display: none; }
             .inv-page .inv-hcell.h-main { grid-area: main; }
             .inv-page .inv-hcell.h-status { grid-area: status; }
             .inv-page .inv-hcell.h-amount { grid-area: amount; }
             .inv-page .inv-hcell.h-date { grid-area: date; }
-            .inv-page .inv-hcell.inv-hcheck { grid-area: check; }
-            .inv-page .inv-hcell.inv-hactions { grid-area: actions; }
 
             /* rows */
             .inv-page .inv-row {
@@ -608,18 +627,14 @@
 
         .inv-page .convert-invoice-btn:hover .arrow { transform: translateX(3px); }
 
-        .inv-toolbar{display:flex;align-items:center;justify-content:space-between;gap:12px}
-.inv-count{display:flex;align-items:center;gap:10px;min-width:0}
-.inv-count h3{margin:0}
-.inv-count span{white-space:nowrap}
+        /* ---------- View Estimate modal: mobile pe estimate ko fit karna ---------- */
+        #view-record-form-body { overflow: hidden; }
+        #view-record-form-body .inv-fit-outer { margin: 0 auto; }
+        #view-record-form-body .inv-fit-inner { transform-origin: top left; }
 
-/* Mobile: Add New upar (full width), niche title left + total right */
-@media (max-width:767px){
-    .inv-toolbar{flex-direction:column-reverse;align-items:stretch;gap:14px}
-    .inv-count{width:100%;justify-content:space-between}
-    .inv-add,
-    .inv-toolbar > a{width:100%;justify-content:center}
-}
+        @media (max-width: 767.98px) {
+            #viewModal .modal-dialog { margin: 10px; }
+        }
     </style>
 
     <x-page-heading
@@ -627,7 +642,6 @@
         description=""
         :breadcrumbs="[
         ['label' => 'Estimate', 'url' => route('estimate.list')]
-      
     ]" />
 
     @include('pages/estimate.filter')
@@ -669,13 +683,12 @@
             </div>
 
             <!-- Add Button -->
-            <x-invoice.saas-button :href="route('estimate.add')" icon="plus-circle"> Add New</x-invoice.saas-button>
+            <x-invoice.saas-button :href="route('estimate.add')" icon="plus-circle" class="inv-add"> Add New</x-invoice.saas-button>
         </div>
 
-        <!-- Bulk Action Section (shown by existing JS when rows are selected) -->
-        <div id="bulk-action-section" class="d-none d-flex inv-bulk">
-            <a href="#" id="bulk-delete" title="Delete estimate" data-bs-toggle="modal" data-bs-target="#deleteModal"
-                class="inv-bulk-btn danger">
+        <!-- Bulk Action Section (shown by JS when rows are selected) -->
+        <div id="bulk-action-section" class="d-none inv-bulk">
+            <a href="#" id="bulk-delete" title="Delete estimate" class="inv-bulk-btn danger">
                 <i data-lucide="trash-2"></i> Delete
             </a>
 
@@ -700,8 +713,8 @@
             <!-- Header (sort chips on mobile, column header on desktop) -->
             <div class="inv-head">
                 <div class="inv-hcell inv-hcheck">
-                    <input class="form-check-input estimate_code checkbox-border-color" name="selected" type="checkbox" onclick="$('input[name*=\'selected\']').prop('checked', this.checked);" value="" id="flexCheckDefault">
-                    <span class="inv-selall"> Select All </span>
+                    <input class="form-check-input checkbox-border-color" type="checkbox" value="" id="selectAllEstimates">
+                    <label for="selectAllEstimates" class="inv-selall mb-0"> Select All </label>
                 </div>
 
                 <div class="inv-hcell h-main sortable"><i data-lucide="file-text"></i> @sortablelink('estimate_number','Estimate #') </div>
@@ -722,7 +735,7 @@
             <div class="inv-row">
 
                 <div class="inv-cell inv-check">
-                    <input class="form-check-input selected checkbox-border-color" name="selected[]" type="checkbox" value="{{ $estimate->estimate_code }}" id="flexCheckDefault">
+                    <input class="form-check-input selected checkbox-border-color" name="selected[]" type="checkbox" value="{{ $estimate->estimate_code }}">
                 </div>
 
                 <!-- Estimate number + client + convert -->
@@ -1013,7 +1026,7 @@
                     </h5>
                     <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div id="view-record-form-body" class="px-5 mb-5">
+                <div id="view-record-form-body" class="px-2 px-md-5 mb-4 mb-md-5">
 
                 </div>
             </div>
@@ -1074,7 +1087,7 @@
                         $('.editClient-modal-body').html(response);
                         $('#editClient-modal').modal('show');
 
-                        $('#editClient-modal').on('shown.bs.modal', function() {
+                        $('#editClient-modal').one('shown.bs.modal', function() {
                             // Initialize Choices.js (always safe to re-init)
 
                             ['#id_country_id', '#id_state_id', '#id_currency_code', '#id_shipping_state_id', '#id_shipping_country_id'].forEach(function(selector) {
@@ -1082,7 +1095,6 @@
                                 if (!el) return; // skip if element not found
 
                                 if (!el.choices) {
-                                    // Only initialize if not already done
                                     el.choices = new Choices(el, {
                                         searchEnabled: true,
                                         itemSelectText: '',
@@ -1114,13 +1126,7 @@
                                 ]
                             });
 
-
-
                         });
-
-
-
-
 
                     }
                 });
@@ -1129,11 +1135,41 @@
                 console.error('Error:', error);
             }
 
-
         });
     </script>
 
+    <script>
+        // Estimate ko modal width me fit karta hai (mobile pe scale-down, desktop pe 1:1)
+        function fitEstimateView() {
+            var $body = $('#view-record-form-body');
+            if (!$body.length) return;
 
+            var $outer = $body.children('.inv-fit-outer');
+            if (!$outer.length) {
+                $body.wrapInner('<div class="inv-fit-outer"><div class="inv-fit-inner"></div></div>');
+                $outer = $body.children('.inv-fit-outer');
+            }
+            var $inner = $outer.children('.inv-fit-inner');
+
+            var base = 720; // template ki design width. Estimate template alag width ka ho to yahan badlo
+            var avail = $body.width();
+            if (!avail) return; // modal abhi hidden hai
+            var scale = Math.min(1, avail / base);
+
+            $inner.css({
+                width: base + 'px',
+                transform: 'scale(' + scale + ')'
+            });
+            $outer.css({
+                width: (base * scale) + 'px',
+                height: ($inner[0].offsetHeight * scale) + 'px'
+            });
+        }
+
+        $(window).on('resize', function() {
+            if ($('#viewModal').hasClass('show')) fitEstimateView();
+        });
+    </script>
 
     <script>
         $(document).ready(function() {
@@ -1143,24 +1179,23 @@
                 copyToClipboard($(this).attr('link'));
             });
 
-            $(document).on('change', '.selected, .estimate_code', function() {
-                let isChecked = $(this).is(':checked');
-                if (isChecked) {
-                    document.getElementById('bulk-action-section')?.classList.remove('d-none');
+            // ---- Selection + bulk bar ----
+            function syncBulk() {
+                var $rows = $('.inv-row .selected');
+                var count = $rows.filter(':checked').length;
 
+                $('#bulk-action-section').toggleClass('d-none', count === 0);
+                $('#selectAllEstimates').prop('checked', $rows.length > 0 && count === $rows.length);
+            }
 
-                } else {
+            $(document).on('change', '.inv-row .selected', syncBulk);
 
-                    console.log("Checkbox unchecked: ");
-                    var q_id = [];
-                    $(".selected:checked").each(function() {
-                        q_id.push($(this).val());
-                    });
-                    if (q_id === undefined || q_id === null || q_id === '' || q_id.length == 0) {
-                        document.getElementById('bulk-action-section')?.classList.add('d-none');
-                    }
-                }
+            $('#selectAllEstimates').on('change', function() {
+                $('.inv-row .selected').prop('checked', this.checked);
+                syncBulk();
             });
+
+            syncBulk();
 
 
             var estimates_code = [];
@@ -1170,6 +1205,7 @@
                 $('.selected:checked').each(function() {
                     estimates_code.push(this.value);
                 });
+                if (estimates_code.length === 0) return;
                 $('#multiDeleteModal').modal('show');
 
             });
@@ -1230,6 +1266,13 @@
 
                         // Close loader
                         Swal.close();
+
+                        // Modal dikhne ke baad hi width milti hai, isliye shown event pe fit karo
+                        $('#viewModal').one('shown.bs.modal', function() {
+                            fitEstimateView();
+                            setTimeout(fitEstimateView, 300); // logo/QR/signature load hone ke baad height sahi ho
+                        });
+                        $('#view-record-form-body img').on('load', fitEstimateView);
 
                         // Open modal after successful response
                         $('#viewModal').modal('show');
@@ -1347,10 +1390,7 @@
                 });
             });
 
-
-
             /*    bulk action end  */
-
 
         });
     </script>
@@ -1359,36 +1399,6 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
 
     <script>
-        $('#confirmed-delete').on('click', function() {
-            let selected = $('.form-check-input.selected:checked').map(function() {
-                return this.value;
-            }).get();
-
-            if (selected.length === 0) {
-                alert("Please select at least one estimate.");
-                return;
-            }
-
-            $.ajax({
-                url: "{{ route('estimate.bulk_delete') }}",
-                method: 'POST',
-                data: {
-                    estimate_codes: selected,
-                    _token: $('meta[name="csrf-token"]').attr('content')
-                },
-                success: function(res) {
-                    if (res.error === 0) {
-                        location.reload();
-                    } else {
-                        alert("Failed to delete estimates.");
-                    }
-                },
-                error: function() {
-                    alert("An error occurred while deleting estimates.");
-                }
-            });
-        });
-
         $('#confirmed-single-delete').on('click', function(e) {
             e.preventDefault();
             var estimate_code = $(this).attr('estimate-code');
@@ -1412,7 +1422,5 @@
             });
         });
     </script>
-
-
 
 </x-default-layout>

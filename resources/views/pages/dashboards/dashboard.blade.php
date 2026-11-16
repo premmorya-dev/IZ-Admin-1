@@ -118,6 +118,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <!-- Bootstrap Icons (agar layout me pehle se loaded hai to ye line hata sakte ho) -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
 
     <style>
         .dz-wrap{
@@ -128,10 +130,13 @@
             --dz-bad:#ef4444;--dz-bad-bg:#fff1f2;--dz-bad-ink:#be123c;
             --dz-info:#0ea5e9;--dz-info-bg:#f0f9ff;--dz-info-ink:#0369a1;
             font-family:'Inter',sans-serif;color:var(--dz-ink);
+            max-width:100%;overflow-x:clip;
         }
+        .dz-wrap,.dz-wrap *{box-sizing:border-box}
         .dz-wrap h1,.dz-wrap h2,.dz-wrap h3,.dz-wrap h4,.dz-wrap h5,.dz-wrap h6{font-family:'Outfit',sans-serif}
         .dz-wrap .tabular{font-variant-numeric:tabular-nums}
         .dz-wrap a{text-decoration:none}
+        .dz-wrap .row > *{min-width:0}
 
         /* ---------- registration tip ---------- */
         .dz-tip{display:flex;align-items:center;gap:14px;margin:18px 0 0;padding:14px 18px;border:1px solid #c7d2fe;border-left:4px solid #4f46e5;border-radius:16px;background:linear-gradient(135deg,#eef2ff,#f5f3ff);box-shadow:0 10px 30px -22px rgba(79,70,229,.5)}
@@ -140,7 +145,7 @@
         .dz-tip-body{flex:1;min-width:0;font-size:14px;color:#312e81}
         .dz-tip-url{margin-top:4px;display:flex;align-items:center;gap:8px;flex-wrap:wrap}
         .dz-tip-url code{padding:3px 9px;border-radius:8px;background:#fff;border:1px solid #e0e7ff;color:#4338ca;word-break:break-all}
-        .dz-tip .btn-close{position:static;padding:8px;margin:0}
+        .dz-tip .btn-close{position:static;padding:8px;margin:0;flex:none}
 
         /* ---------- hero ---------- */
         .dz-hero{position:relative;overflow:hidden;display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin:18px 0 22px;padding:30px 32px;border-radius:24px;color:#fff;
@@ -148,11 +153,12 @@
             box-shadow:0 26px 50px -28px rgba(79,70,229,.65)}
         .dz-hero::before{content:"";position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(rgba(255,255,255,.05) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.05) 1px,transparent 1px);background-size:34px 34px;-webkit-mask-image:radial-gradient(circle at 15% 25%,#000,transparent 75%);mask-image:radial-gradient(circle at 15% 25%,#000,transparent 75%)}
         .dz-hero > *{position:relative;z-index:1}
+        .dz-hero-main{min-width:0}
         .dz-hero-chips{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:14px}
-        .dz-chip{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:99px;font-size:12px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);color:#e0e7ff}
+        .dz-chip{display:inline-flex;align-items:center;gap:7px;padding:6px 12px;border-radius:99px;font-size:12px;font-weight:600;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.22);color:#e0e7ff;white-space:nowrap}
         .dz-chip i{color:inherit!important;font-size:12px}
         .dz-chip .dot{width:7px;height:7px;border-radius:50%;background:#34d399;box-shadow:0 0 0 3px rgba(52,211,153,.25)}
-        .dz-hero h2{margin:0 0 6px;color:#fff;font-size:30px;font-weight:700;letter-spacing:-.02em}
+        .dz-hero h2{margin:0 0 6px;color:#fff;font-size:30px;font-weight:700;letter-spacing:-.02em;word-break:break-word}
         .dz-hero p{margin:0;color:#c7d2fe;font-size:14.5px}
         .dz-hero-actions{display:flex;gap:10px;flex-wrap:wrap}
         .dz-btn{display:inline-flex;align-items:center;justify-content:center;gap:9px;height:46px;padding:0 22px;border-radius:13px;font-size:14px;font-weight:700;white-space:nowrap;transition:.2s}
@@ -176,6 +182,7 @@
         .dz-kpi{position:relative;height:100%;padding:22px;background:var(--dz-card);border:1px solid var(--dz-bd);border-radius:22px;box-shadow:0 10px 30px -22px rgba(15,23,42,.22);overflow:hidden;transition:transform .2s,box-shadow .2s,border-color .2s}
         .dz-kpi:hover{transform:translateY(-4px);box-shadow:0 22px 40px -24px rgba(79,70,229,.35);border-color:#c7d2fe}
         .dz-kpi-top{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:16px}
+        .dz-kpi-top > div:first-child{min-width:0}
         .dz-ico{flex:none;width:48px;height:48px;border-radius:14px;display:grid;place-items:center;font-size:20px;transition:transform .25s}
         .dz-ico,.dz-ico i{color:#fff!important}
         .dz-kpi:hover .dz-ico{transform:scale(1.07) rotate(-3deg)}
@@ -205,14 +212,15 @@
         .dz-qa .ico{flex:none;width:42px;height:42px;border-radius:13px;display:grid;place-items:center;font-size:17px}
         .dz-qa .ico,.dz-qa .ico i{color:#fff!important}
         .dz-qa .tx{flex:1;min-width:0}
-        .dz-qa .tx b{display:block;font-size:14px;font-weight:700;color:var(--dz-ink)}
-        .dz-qa .tx small{display:block;margin-top:1px;font-size:12px;color:var(--dz-mut)}
+        .dz-qa .tx b{display:block;font-size:14px;font-weight:700;color:var(--dz-ink);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+        .dz-qa .tx small{display:block;margin-top:1px;font-size:12px;color:var(--dz-mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
         .dz-qa .go{flex:none;color:#cbd5e1;font-size:14px;transition:.2s}
         .dz-qa:hover .go{color:var(--dz-i1);transform:translateX(3px)}
 
         /* ---------- cards ---------- */
-        .dz-card{height:100%;padding:24px;background:var(--dz-card);border:1px solid var(--dz-bd);border-radius:22px;box-shadow:0 10px 30px -22px rgba(15,23,42,.22)}
+        .dz-card{height:100%;padding:24px;background:var(--dz-card);border:1px solid var(--dz-bd);border-radius:22px;box-shadow:0 10px 30px -22px rgba(15,23,42,.22);min-width:0}
         .dz-card-h{display:flex;align-items:flex-start;justify-content:space-between;gap:12px;margin-bottom:18px}
+        .dz-card-h > div{min-width:0}
         .dz-card-h h5{margin:0 0 2px;font-size:16px;font-weight:700;letter-spacing:-.01em}
         .dz-card-h p{margin:0;font-size:12.5px;color:var(--dz-mut)}
         .dz-badge{display:inline-flex;align-items:center;gap:6px;padding:5px 11px;border-radius:99px;font-size:12px;font-weight:700;white-space:nowrap;background:#eef2ff;color:var(--dz-i1)}
@@ -224,19 +232,21 @@
         .dz-link i{color:inherit!important;font-size:12px}
         .dz-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:34px 10px;text-align:center;font-size:13.5px;color:var(--dz-mut)}
         .dz-empty i{font-size:30px;color:#cbd5e1!important}
+        .dz-chart{width:100%;min-height:300px}
 
         /* ---------- collection health ---------- */
         .dz-seg{display:flex;height:12px;border-radius:99px;overflow:hidden;background:#eef2f7;gap:3px}
         .dz-seg > span{display:block;height:100%;min-width:6px;border-radius:99px;transition:width .4s}
         .dz-legend{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:12px;margin-top:18px}
-        .dz-lg{padding:14px 16px;border-radius:16px;background:var(--dz-bg);border:1px solid var(--dz-bd)}
+        .dz-lg{padding:14px 16px;border-radius:16px;background:var(--dz-bg);border:1px solid var(--dz-bd);min-width:0}
         .dz-lg .k{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;color:var(--dz-mut);text-transform:uppercase;letter-spacing:.05em}
-        .dz-lg .k i{width:9px;height:9px;border-radius:50%;display:inline-block}
+        .dz-lg .k i{width:9px;height:9px;border-radius:50%;display:inline-block;flex:none}
         .dz-lg .v{margin-top:6px;font-family:'Outfit',sans-serif;font-size:24px;font-weight:700;color:var(--dz-ink)}
         .dz-lg .p{font-size:12px;color:var(--dz-mut)}
 
         /* ---------- insights ---------- */
         .dz-ins{display:flex;align-items:center;gap:12px;padding:12px 14px;border-radius:14px;border:1px solid transparent;font-size:13.5px}
+        .dz-ins > div{min-width:0}
         .dz-ins + .dz-ins{margin-top:10px}
         .dz-ins .i{flex:none;width:34px;height:34px;border-radius:10px;display:grid;place-items:center;background:#fff;font-size:15px}
         .dz-ins.danger{background:var(--dz-bad-bg);border-color:#fecdd3;color:#881337}
@@ -271,7 +281,8 @@
         /* ---------- dues ---------- */
         .dz-due{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px 4px;border-bottom:1px solid #f1f4f9}
         .dz-due:last-child{border-bottom:0}
-        .dz-due-l{display:flex;align-items:center;gap:12px;min-width:0}
+        .dz-due-l{display:flex;align-items:center;gap:12px;min-width:0;flex:1}
+        .dz-due-l > div{min-width:0;flex:1}
         .dz-due-l .ic{flex:none;width:38px;height:38px;border-radius:11px;display:grid;place-items:center;font-size:15px}
         .dz-due-l .ic.soon{background:var(--dz-bad-bg)}  .dz-due-l .ic.soon,.dz-due-l .ic.soon i{color:var(--dz-bad-ink)!important}
         .dz-due-l .ic.week{background:var(--dz-warn-bg)} .dz-due-l .ic.week,.dz-due-l .ic.week i{color:var(--dz-warn-ink)!important}
@@ -283,70 +294,163 @@
         .dz-due-pill.week{background:var(--dz-warn-bg);color:var(--dz-warn-ink)}
         .dz-due-pill.later{background:var(--dz-info-bg);color:var(--dz-info-ink)}
 
+        /* ---------- Install App button ---------- */
+        .dz-install[hidden]{display:none!important}
+        .dz-install{position:relative;overflow:hidden;gap:12px;height:auto;padding:9px 20px 9px 10px;border:0;cursor:pointer;color:#fff;text-align:left;
+            background:linear-gradient(135deg,#f59e0b 0%,#ef4444 55%,#db2777 100%);
+            box-shadow:0 16px 30px -12px rgba(239,68,68,.65),inset 0 1px 0 rgba(255,255,255,.35)}
+        .dz-install:hover{transform:translateY(-2px);box-shadow:0 22px 36px -14px rgba(239,68,68,.75),inset 0 1px 0 rgba(255,255,255,.35);color:#fff}
+        .dz-install::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;
+            background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);animation:dzShine 3.2s ease-in-out infinite}
+        @keyframes dzShine{0%,60%{left:-60%}100%{left:130%}}
+        .dz-install-ico{flex:none;width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.35)}
+        .dz-install-ico i{font-size:17px;color:#fff!important;animation:dzBob 1.6s ease-in-out infinite}
+        @keyframes dzBob{0%,100%{transform:translateY(-1px)}50%{transform:translateY(2px)}}
+        .dz-install-tx{display:flex;flex-direction:column;line-height:1.2}
+        .dz-install-tx b{font-size:14px;font-weight:800;color:#fff}
+        .dz-install-tx small{font-size:11px;font-weight:500;color:rgba(255,255,255,.85)}
+
+        /* iOS modal */
+        .dz-ios[hidden]{display:none!important}
+        .dz-ios{position:fixed;inset:0;z-index:2000;display:grid;place-items:center;padding:20px;background:rgba(15,23,42,.6);backdrop-filter:blur(4px);overflow-y:auto}
+        .dz-ios-box{position:relative;width:100%;max-width:380px;max-height:100%;overflow-y:auto;padding:28px 24px 22px;border-radius:24px;background:#fff;text-align:center;box-shadow:0 30px 60px -20px rgba(0,0,0,.5)}
+        .dz-ios-x{position:absolute;top:10px;right:14px;border:0;background:none;font-size:26px;color:#94a3b8;cursor:pointer}
+        .dz-ios-logo{width:56px;height:56px;margin:0 auto 12px;border-radius:16px;display:grid;place-items:center;font-size:24px;background:linear-gradient(135deg,#4f46e5,#7c3aed)}
+        .dz-ios-logo i{color:#fff!important}
+        .dz-ios-box h5{font-family:'Outfit',sans-serif;font-weight:700;margin:0 0 4px}
+        .dz-ios-box p{font-size:13.5px;color:#64748b;margin-bottom:14px}
+        .dz-ios-box ol{list-style:none;padding:0;margin:0 0 18px;text-align:left}
+        .dz-ios-box li{display:flex;align-items:center;gap:10px;padding:11px 12px;margin-bottom:8px;border-radius:12px;background:#f8fafc;border:1px solid #e8ebf3;font-size:13.5px;color:#0f172a}
+        .dz-ios-box li span{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;background:#4f46e5;color:#fff}
+        .dz-ios-box li i{color:#4f46e5}
+
+        /* =====================================================
+           RESPONSIVE
+           ===================================================== */
+
+        /* ---- Tablet (<= 991px) ---- */
         @media (max-width:991px){
             .dz-hero{padding:26px 22px}
+            .dz-hero h2{font-size:26px}
+            .dz-card{padding:20px}
         }
+
+        /* ---- Mobile landscape / large phone (<= 767px) ---- */
         @media (max-width:767px){
-            .dz-hero{padding:22px 18px;border-radius:20px}
+            .dz-hero{padding:22px 18px;border-radius:20px;margin:14px 0 18px;flex-direction:column;align-items:stretch;gap:16px}
             .dz-hero h2{font-size:23px}
+            .dz-hero p{font-size:13.5px}
+            .dz-hero-chips{margin-bottom:12px}
             .dz-hero-actions{width:100%}
-            .dz-hero-actions .dz-btn{flex:1}
-            .dz-kpi{padding:18px}
+            .dz-hero-actions .dz-btn{flex:1 1 0}
+            .dz-install{width:100%;justify-content:center}
+            .dz-kpi{padding:18px;border-radius:18px}
             .dz-kpi-value{font-size:26px}
-            .dz-card{padding:18px}
+            .dz-card{padding:18px;border-radius:18px}
             .dz-tip{align-items:flex-start;padding:12px 14px}
+        }
+
+        /* ---- Phones (<= 575px) ---- */
+        @media (max-width:575px){
+            .dz-hero{padding:20px 16px}
+            .dz-hero h2{font-size:21px}
+            .dz-hero-actions{flex-direction:column}
+            .dz-hero-actions .dz-btn{width:100%;flex:none}
+            .dz-chip{font-size:11px;padding:5px 10px}
+
+            .dz-alert{padding:12px 14px;gap:10px}
+            .dz-alert .tx{min-width:0;flex-basis:calc(100% - 54px);font-size:13px}
+            .dz-alert .go{width:100%;justify-content:center}
+
+            /* KPI */
+            .dz-kpi{padding:16px}
+            .dz-kpi-top{margin-bottom:12px;gap:8px}
+            .dz-kpi-label{font-size:11px;letter-spacing:.04em}
+            .dz-kpi-value{font-size:22px}
+            .dz-ico{width:40px;height:40px;border-radius:12px;font-size:17px}
+            .dz-kpi-foot{margin-top:10px;font-size:12px}
+
+            /* Section title */
+            .dz-sec{margin:4px 2px 12px}
+            .dz-sec span{display:none}
+
+            /* Quick actions: icon on top, label below (2 x 2 grid) */
+            .dz-qa{flex-direction:column;align-items:flex-start;justify-content:flex-start;gap:12px;padding:14px;border-radius:16px}
+            .dz-qa .ico{width:40px;height:40px;border-radius:12px;font-size:16px}
+            .dz-qa .tx{width:100%;flex:none}
+            .dz-qa .tx b{font-size:13.5px}
+            .dz-qa .tx small{font-size:11.5px}
+            .dz-qa .go{display:none}
+
+            /* Cards */
+            .dz-card{padding:16px;border-radius:16px}
+            .dz-card-h{flex-wrap:wrap;margin-bottom:14px;gap:8px}
+            .dz-chart{min-height:240px}
+
+            /* Collection health */
+            .dz-legend{grid-template-columns:repeat(auto-fit,minmax(96px,1fr));gap:8px;margin-top:14px}
+            .dz-lg{padding:10px 12px;border-radius:12px}
+            .dz-lg .k{font-size:11px;letter-spacing:.03em}
+            .dz-lg .v{font-size:20px}
+
+            /* Insights */
+            .dz-ins{padding:10px 12px;gap:10px;font-size:13px}
+            .dz-ins .i{width:30px;height:30px;font-size:14px}
+
+            /* Table */
+            .dz-table thead th{padding:9px 10px;font-size:10.5px}
+            .dz-table tbody td{padding:11px 10px;font-size:13px}
+            .dz-inv{gap:8px}
+            .dz-inv .ic{width:30px;height:30px;border-radius:9px;font-size:13px}
+            .dz-pill{padding:4px 10px;font-size:11px}
+
+            /* Dues */
+            .dz-due{padding:11px 0;gap:8px}
+            .dz-due-l{gap:10px}
+            .dz-due-l .ic{width:34px;height:34px;font-size:14px}
+            .dz-due-n{font-size:13.5px}
+            .dz-due-s{font-size:11.5px}
+            .dz-due-pill{padding:4px 9px;font-size:11px}
+
+            /* Tip */
+            .dz-tip{gap:10px;border-radius:14px}
+            .dz-tip-ico{width:36px;height:36px;border-radius:11px}
+            .dz-tip-body{font-size:13px}
+
+            /* iOS modal */
+            .dz-ios{padding:14px}
+            .dz-ios-box{padding:24px 18px 18px;border-radius:20px}
+        }
+
+        /* ---- Very small phones (<= 359px) ---- */
+        @media (max-width:359px){
+            .dz-hero h2{font-size:19px}
+            .dz-kpi-value{font-size:20px}
+            .dz-qa{padding:12px}
+            .dz-qa .tx b{font-size:13px}
+        }
+
+        /* ---- Touch devices: hover lift band karo ---- */
+        @media (hover:none){
+            .dz-kpi:hover,.dz-qa:hover,.dz-btn:hover{transform:none}
+            .dz-kpi:hover .dz-ico{transform:none}
         }
         @media (prefers-reduced-motion:reduce){
             .dz-kpi,.dz-qa,.dz-btn,.dz-ico{transition:none}
             .dz-kpi:hover,.dz-qa:hover,.dz-btn:hover{transform:none}
+            .dz-install::after,.dz-install-ico i{animation:none}
         }
-
-
-        /* ---------- Install App button ---------- */
-.dz-install[hidden]{display:none!important}
-.dz-install{position:relative;overflow:hidden;gap:12px;height:auto;padding:9px 20px 9px 10px;border:0;cursor:pointer;color:#fff;text-align:left;
-    background:linear-gradient(135deg,#f59e0b 0%,#ef4444 55%,#db2777 100%);
-    box-shadow:0 16px 30px -12px rgba(239,68,68,.65),inset 0 1px 0 rgba(255,255,255,.35)}
-.dz-install:hover{transform:translateY(-2px);box-shadow:0 22px 36px -14px rgba(239,68,68,.75),inset 0 1px 0 rgba(255,255,255,.35);color:#fff}
-.dz-install::after{content:"";position:absolute;top:0;left:-60%;width:40%;height:100%;
-    background:linear-gradient(100deg,transparent,rgba(255,255,255,.55),transparent);transform:skewX(-20deg);animation:dzShine 3.2s ease-in-out infinite}
-@keyframes dzShine{0%,60%{left:-60%}100%{left:130%}}
-.dz-install-ico{flex:none;width:38px;height:38px;border-radius:11px;display:grid;place-items:center;background:rgba(255,255,255,.22);border:1px solid rgba(255,255,255,.35)}
-.dz-install-ico i{font-size:17px;color:#fff!important;animation:dzBob 1.6s ease-in-out infinite}
-@keyframes dzBob{0%,100%{transform:translateY(-1px)}50%{transform:translateY(2px)}}
-.dz-install-tx{display:flex;flex-direction:column;line-height:1.2}
-.dz-install-tx b{font-size:14px;font-weight:800;color:#fff}
-.dz-install-tx small{font-size:11px;font-weight:500;color:rgba(255,255,255,.85)}
-
-/* iOS modal */
-.dz-ios[hidden]{display:none!important}
-.dz-ios{position:fixed;inset:0;z-index:2000;display:grid;place-items:center;padding:20px;background:rgba(15,23,42,.6);backdrop-filter:blur(4px)}
-.dz-ios-box{position:relative;width:100%;max-width:380px;padding:28px 24px 22px;border-radius:24px;background:#fff;text-align:center;box-shadow:0 30px 60px -20px rgba(0,0,0,.5)}
-.dz-ios-x{position:absolute;top:10px;right:14px;border:0;background:none;font-size:26px;color:#94a3b8;cursor:pointer}
-.dz-ios-logo{width:56px;height:56px;margin:0 auto 12px;border-radius:16px;display:grid;place-items:center;font-size:24px;background:linear-gradient(135deg,#4f46e5,#7c3aed)}
-.dz-ios-logo i{color:#fff!important}
-.dz-ios-box h5{font-family:'Outfit',sans-serif;font-weight:700;margin:0 0 4px}
-.dz-ios-box p{font-size:13.5px;color:#64748b;margin-bottom:14px}
-.dz-ios-box ol{list-style:none;padding:0;margin:0 0 18px;text-align:left}
-.dz-ios-box li{display:flex;align-items:center;gap:10px;padding:11px 12px;margin-bottom:8px;border-radius:12px;background:#f8fafc;border:1px solid #e8ebf3;font-size:13.5px;color:#0f172a}
-.dz-ios-box li span{flex:none;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;font-size:12px;font-weight:700;background:#4f46e5;color:#fff}
-.dz-ios-box li i{color:#4f46e5}
-@media (max-width:767px){.dz-install{flex:1;justify-content:center}}
-@media (prefers-reduced-motion:reduce){.dz-install::after,.dz-install-ico i{animation:none}}
-
-
     </style>
 
     <div class="dz-wrap container-fluid {{ $data['registration'] ?? '' }}">
 
         <!-- ===================== Hero ===================== -->
         <div class="dz-hero">
-            <div>
+            <div class="dz-hero-main">
                 <div class="dz-hero-chips">
                     <span class="dz-chip"><span class="dot"></span> Live overview</span>
                     <span class="dz-chip"><i class="bi bi-calendar3"></i> {{ now()->format('D, d M Y') }}</span>
                     <span class="dz-chip" title="Dashboard data refreshes every 10 minutes via backend process"><i class="bi bi-arrow-repeat"></i> Auto-sync every 10 min</span>
-              
                 </div>
                 <h2>{{ $greeting }}, {{ $firstName  }} 👋</h2>
                 <p>Here's what's happening with your invoices today.</p>
@@ -363,12 +467,12 @@
             </div>
 
             <button type="button" id="installAppBtn" class="dz-btn dz-install" hidden>
-        <span class="dz-install-ico"><i class="bi bi-download"></i></span>
-        <span class="dz-install-tx">
-            <b>Install InvoiceZy App</b>
-            <small>Android · iPhone · Desktop</small>
-        </span>
-    </button>
+                <span class="dz-install-ico"><i class="bi bi-download"></i></span>
+                <span class="dz-install-tx">
+                    <b>Install InvoiceZy App</b>
+                    <small>Android · iPhone · Desktop</small>
+                </span>
+            </button>
         </div>
 
         @if($overdueInv > 0)
@@ -381,8 +485,9 @@
         @endif
 
         <!-- ===================== KPI cards ===================== -->
+        <!-- Mobile: Total + Revenue full width, Pending + Overdue side by side -->
         <div class="row g-3 mb-4">
-            <div class="col-xl-3 col-md-6">
+            <div class="col-12 col-md-6 col-xl-3">
                 <div class="dz-kpi">
                     <div class="dz-kpi-top">
                         <div>
@@ -403,7 +508,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-3 col-md-6">
+            <div class="col-12 col-md-6 col-xl-3">
                 <div class="dz-kpi">
                     <div class="dz-kpi-top">
                         <div>
@@ -422,7 +527,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-3 col-md-6">
+            <div class="col-6 col-md-6 col-xl-3">
                 <div class="dz-kpi">
                     <div class="dz-kpi-top">
                         <div>
@@ -437,7 +542,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-xl-3 col-md-6">
+            <div class="col-6 col-md-6 col-xl-3">
                 <div class="dz-kpi">
                     <div class="dz-kpi-top">
                         <div>
@@ -461,7 +566,7 @@
 
         <!-- ===================== Quick actions ===================== -->
         <div class="dz-sec"><h5>Quick actions</h5><span>Jump straight to common tasks</span></div>
-        <div class="row g-3 mb-4">
+        <div class="row g-2 g-sm-3 mb-4">
             <div class="col-6 col-lg-3">
                 <a href="{{ route('invoice.add') }}" class="dz-qa">
                     <span class="ico" style="background:linear-gradient(135deg,#6366f1,#4f46e5)"><i class="bi bi-receipt"></i></span>
@@ -494,7 +599,7 @@
 
         <!-- ===================== Charts ===================== -->
         <div class="row g-3 mb-4">
-            <div class="col-lg-8">
+            <div class="col-12 col-lg-8">
                 <div class="dz-card">
                     <div class="dz-card-h">
                         <div>
@@ -510,13 +615,13 @@
                         @endif
                     </div>
                     @if($hasMonthly)
-                    <div id="invoiceChart" style="height: 300px;"></div>
+                    <div id="invoiceChart" class="dz-chart"></div>
                     @else
                     <div class="dz-empty"><i class="bi bi-bar-chart"></i>No monthly data yet.<br>Your invoice trend will appear here.</div>
                     @endif
                 </div>
             </div>
-            <div class="col-lg-4">
+            <div class="col-12 col-lg-4">
                 <div class="dz-card">
                     <div class="dz-card-h">
                         <div>
@@ -525,7 +630,7 @@
                         </div>
                     </div>
                     @if($hasStatus)
-                    <div id="statusPieChart" style="height: 300px;"></div>
+                    <div id="statusPieChart" class="dz-chart"></div>
                     @else
                     <div class="dz-empty"><i class="bi bi-pie-chart"></i>No invoices to chart yet.</div>
                     @endif
@@ -535,7 +640,7 @@
 
         <!-- ===================== Collection health + Insights ===================== -->
         <div class="row g-3 mb-4">
-            <div class="col-lg-7">
+            <div class="col-12 col-lg-7">
                 <div class="dz-card">
                     <div class="dz-card-h">
                         <div>
@@ -570,7 +675,7 @@
                     @endif
                 </div>
             </div>
-            <div class="col-lg-5">
+            <div class="col-12 col-lg-5">
                 <div class="dz-card">
                     <div class="dz-card-h">
                         <div>
@@ -592,7 +697,7 @@
 
         <!-- ===================== Tables ===================== -->
         <div class="row g-3">
-            <div class="col-lg-7">
+            <div class="col-12 col-lg-7">
                 <div class="dz-card">
                     <div class="dz-card-h">
                         <div>
@@ -605,9 +710,9 @@
                         <table class="dz-table">
                             <thead>
                                 <tr>
-                                    <th>#</th>
+                                    <th class="d-none d-sm-table-cell">#</th>
                                     <th>Invoice</th>
-                                    <th>Date</th>
+                                    <th class="d-none d-sm-table-cell">Date</th>
                                     <th>Status</th>
                                     <th class="text-end">Amount</th>
                                 </tr>
@@ -616,11 +721,11 @@
                                 @if(!empty($data['recentInvoices']))
                                 @foreach ($data['recentInvoices'] as $index => $invoice)
                                 <tr>
-                                    <td class="text-muted">{{ $index + 1 }}</td>
+                                    <td class="text-muted d-none d-sm-table-cell">{{ $index + 1 }}</td>
                                     <td>
                                         <span class="dz-inv"><span class="ic"><i class="bi bi-file-earmark-text"></i></span>{{ $invoice['invoice_number'] }}</span>
                                     </td>
-                                    <td class="text-muted">{{ $invoice['date'] }}</td>
+                                    <td class="text-muted d-none d-sm-table-cell">{{ $invoice['date'] }}</td>
                                     <td>
                                         @php
                                         $status = strtolower($invoice['status']);
@@ -648,7 +753,7 @@
                     </div>
                 </div>
             </div>
-            <div class="col-lg-5">
+            <div class="col-12 col-lg-5">
                 <div class="dz-card">
                     <div class="dz-card-h">
                         <div>
@@ -665,7 +770,7 @@
                     <div class="dz-due">
                         <div class="dz-due-l">
                             <span class="ic {{ $due['class'] }}"><i class="bi bi-calendar-event"></i></span>
-                            <div style="min-width:0">
+                            <div>
                                 <div class="dz-due-n">{{ $due['number'] }}</div>
                                 <div class="dz-due-s">Due {{ $due['date']->format('d M, Y') }} · {{ $due['label'] }}</div>
                             </div>
@@ -679,20 +784,21 @@
                 </div>
             </div>
         </div>
-<div class="dz-ios" id="dzIosModal" hidden>
-    <div class="dz-ios-box" role="dialog" aria-modal="true">
-        <button type="button" class="dz-ios-x" id="dzIosClose" aria-label="Close">&times;</button>
-        <div class="dz-ios-logo"><i class="bi bi-phone"></i></div>
-        <h5>Install InvoiceZy</h5>
-        <p>Apne iPhone / iPad par app ki tarah add karo:</p>
-        <ol>
-            <li><span>1</span> Safari me neeche <b>Share</b> <i class="bi bi-box-arrow-up"></i> button dabao</li>
-            <li><span>2</span> <b>Add to Home Screen</b> <i class="bi bi-plus-square"></i> select karo</li>
-            <li><span>3</span> Upar <b>Add</b> dabao. Done! 🎉</li>
-        </ol>
-        <button type="button" class="dz-btn light" id="dzIosOk" style="width:100%;background:#4f46e5;color:#fff">Got it</button>
-    </div>
-</div>
+
+        <div class="dz-ios" id="dzIosModal" hidden>
+            <div class="dz-ios-box" role="dialog" aria-modal="true">
+                <button type="button" class="dz-ios-x" id="dzIosClose" aria-label="Close">&times;</button>
+                <div class="dz-ios-logo"><i class="bi bi-phone"></i></div>
+                <h5>Install InvoiceZy</h5>
+                <p>Apne iPhone / iPad par app ki tarah add karo:</p>
+                <ol>
+                    <li><span>1</span> Safari me neeche <b>Share</b> <i class="bi bi-box-arrow-up"></i> button dabao</li>
+                    <li><span>2</span> <b>Add to Home Screen</b> <i class="bi bi-plus-square"></i> select karo</li>
+                    <li><span>3</span> Upar <b>Add</b> dabao. Done! 🎉</li>
+                </ol>
+                <button type="button" class="dz-btn light" id="dzIosOk" style="width:100%;background:#4f46e5;color:#fff">Got it</button>
+            </div>
+        </div>
     </div>
 
     <!-- ApexCharts -->
@@ -721,13 +827,18 @@
                 overdue: '#ef4444'
             };
 
+            // chart height screen ke hisaab se
+            var isMobile = window.innerWidth < 576;
+            var chartH = isMobile ? 240 : 300;
+
             // Monthly Invoices Bar Chart
             var barEl = document.querySelector("#invoiceChart");
             if (barEl && monthlyVals.length) {
                 var options = {
                     chart: {
                         type: 'bar',
-                        height: 300,
+                        height: chartH,
+                        width: '100%',
                         toolbar: { show: false },
                         fontFamily: 'Inter, sans-serif',
                         animations: { easing: 'easeinout', speed: 500 }
@@ -778,7 +889,17 @@
                         theme: 'light',
                         y: { formatter: function(v) { return v + (v === 1 ? ' invoice' : ' invoices'); } }
                     },
-                    states: { hover: { filter: { type: 'lighten', value: 0.06 } } }
+                    states: { hover: { filter: { type: 'lighten', value: 0.06 } } },
+                    responsive: [{
+                        breakpoint: 576,
+                        options: {
+                            chart: { height: 240 },
+                            plotOptions: { bar: { borderRadius: 6, columnWidth: '60%' } },
+                            xaxis: { labels: { rotate: -45, rotateAlways: monthlyVals.length > 6, style: { fontSize: '11px' } } },
+                            yaxis: { labels: { style: { fontSize: '11px' } } },
+                            grid: { padding: { left: 0, right: 0 } }
+                        }
+                    }]
                 };
                 new ApexCharts(barEl, options).render();
             }
@@ -787,7 +908,7 @@
             var sparkEl = document.querySelector("#dzSpark");
             if (sparkEl && monthlyVals.length >= 2) {
                 new ApexCharts(sparkEl, {
-                    chart: { type: 'area', height: 48, sparkline: { enabled: true }, fontFamily: 'Inter, sans-serif' },
+                    chart: { type: 'area', height: 48, width: '100%', sparkline: { enabled: true }, fontFamily: 'Inter, sans-serif' },
                     series: [{ name: 'Invoices', data: monthlyVals }],
                     stroke: { curve: 'smooth', width: 2.5 },
                     colors: ['#4f46e5'],
@@ -803,7 +924,8 @@
                 var pieOptions = {
                     chart: {
                         type: 'donut',
-                        height: 300,
+                        height: chartH,
+                        width: '100%',
                         fontFamily: 'Inter, sans-serif'
                     },
                     series: statusVals.map(Number),
@@ -829,7 +951,15 @@
                                 }
                             }
                         }
-                    }
+                    },
+                    responsive: [{
+                        breakpoint: 576,
+                        options: {
+                            chart: { height: 260 },
+                            legend: { fontSize: '12px', itemMargin: { horizontal: 6 } },
+                            plotOptions: { pie: { donut: { labels: { value: { fontSize: '22px' } } } } }
+                        }
+                    }]
                 };
                 new ApexCharts(pieEl, pieOptions).render();
             }

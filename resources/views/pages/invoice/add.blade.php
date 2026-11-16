@@ -523,6 +523,27 @@
         .ie-page .ie-sum-words span { display: block; font-size: 11px; font-weight: 600; letter-spacing: .04em; text-transform: uppercase; color: #059669; }
         .ie-page .ie-sum-words b { display: block; margin-top: 2px; font-size: 13px; font-weight: 600; line-height: 1.45; color: #065f46; }
 
+        /* draft autosave indicator */
+        #draft-status {
+            display: inline-flex;
+            align-items: center;
+            font-size: 12px;
+            font-weight: 500;
+            color: #64748b;
+            white-space: nowrap;
+        }
+
+        #draft-status:empty { display: none; }
+
+        #draft-status::before {
+            content: "";
+            width: 7px;
+            height: 7px;
+            margin-right: 6px;
+            border-radius: 50%;
+            background: #10b981;
+        }
+
         /* modals */
         .modal.fade .modal-content { border: 0; border-radius: 18px; overflow: hidden; }
         .modal-header.bg-primary { background: linear-gradient(135deg, #4f46e5, #7c3aed) !important; }
@@ -551,6 +572,9 @@
             </a>
 
             <div class="iz-bar-right">
+
+                <!-- Draft autosave indicator -->
+                <small id="draft-status" class="me-2"></small>
 
                 <div class="iz-bar-primary">
                     @include('pages/invoice/actions.create_invoice_action')
@@ -1520,6 +1544,9 @@
 
 
                         } else if (response.error == 0) {
+                            // Invoice saved successfully -> remove the autosaved draft
+                            if (typeof clearInvoiceDraft === 'function') clearInvoiceDraft();
+
                             $('#invoice-download').show();
                             $('#invoice-download').attr('href', response.download_url);
 
@@ -2196,7 +2223,293 @@
     </script>
 
 
+    <script>
+        // ======================================================================
+        // Invoice draft autosave (localStorage)
+        // - saves the form automatically while the user types
+        // - on next visit asks: Restore Draft / Start Fresh
+        // - cleared automatically after the invoice is saved successfully
+        // ======================================================================
+        (function() {
+            const DRAFT_KEY = 'invoicezy_add_invoice_draft_v1_{{ auth()->id() }}';
+            const DRAFT_TTL = 7 * 24 * 60 * 60 * 1000; // draft expires after 7 days
+            let restoring = false;
+            let lastSaved = '';
+            let timer = null;
 
+            // summernote returns <p><br></p> when empty -> treat as empty string
+            const cleanHtml = (h) => (!h || h === '<p><br></p>' || h === '<br>') ? '' : h;
+
+            function collectItems() {
+                return $('#form-container [data-item-id]').map(function() {
+                    const $r = $(this);
+                    return {
+                        name: $r.find('.add-items').val() || '',
+                        hsn: $r.find('.hsn').val() || '',
+                        qty: $r.find('.quantity').val() || '',
+                        rate: $r.find('.rate').val() || '',
+                        discount: $r.find('.discount-select').val() || '0',
+                        discount_id: $r.find('.discount-select option:selected').attr('discount-id') || '',
+                        tax: $r.find('.tax-select').val() || '0',
+                        tax_id: $r.find('.tax-select option:selected').attr('tax-id') || '',
+                        description: cleanHtml($r.find('.id_description').summernote('code')),
+                        item_id: $r.find('input[type="hidden"][name$="[item_id]"]').val() || ''
+                    };
+                }).get();
+            }
+
+            function collectRecurring() {
+                const out = {};
+                $('#recurringOptions :input').each(function() {
+                    const key = this.name || this.id;
+                    if (!key) return;
+                    out[key] = (this.type === 'checkbox' || this.type === 'radio') ? this.checked : $(this).val();
+                });
+                return out;
+            }
+
+            function collectDraft() {
+                return {
+                    ts: Date.now(),
+                    client: {
+                        text: $('#client').val() || '',
+                        id: $('#client_id').val() || '',
+                        state_id: $('#client_state_id').val() || '',
+                        address_html: $('#clientAddress').is(':visible') ? $('#clientAddress').html() : ''
+                    },
+                    currency_code: $('#currency_code').val() || '',
+                    template_id: $('#template_id').val() || '',
+                    invoice_date: $('#invoice_date').val() || '',
+                    due_date: $('#due_date').val() || '',
+                    custom_mode: $('#invoiceModeSwitch').is(':checked'),
+                    invoice_number: $('#invoiceModeSwitch').is(':checked') ? ($('#invoice_number').val() || '') : '',
+                    use_upi: $('#useUpiToggle').is(':checked'),
+                    upi_id: $('#upi_id').val() || '',
+                    recurring: collectRecurring(),
+                    notes: cleanHtml($('#id_invoice_notes').summernote('code')),
+                    terms: cleanHtml($('#id_invoice_terms').summernote('code')),
+                    items: collectItems()
+                };
+            }
+
+            // only save when the user has actually entered something meaningful
+            function isMeaningful(d) {
+                return !!(d.client && d.client.id) ||
+                    (d.items || []).some(function(i) {
+                        return i.name || i.rate || i.qty || i.description;
+                    });
+            }
+
+            function setStatus(text) {
+                $('#draft-status').text(text);
+            }
+
+            function saveDraftNow() {
+                if (restoring) return;
+                try {
+                    const d = collectDraft();
+                    if (!isMeaningful(d)) {
+                        localStorage.removeItem(DRAFT_KEY);
+                        lastSaved = '';
+                        setStatus('');
+                        return;
+                    }
+                    const json = JSON.stringify(Object.assign({}, d, {
+                        ts: 0
+                    })); // compare without timestamp
+                    if (json === lastSaved) return; // nothing changed
+                    lastSaved = json;
+                    localStorage.setItem(DRAFT_KEY, JSON.stringify(d));
+                    setStatus('Draft saved ' + new Date().toLocaleTimeString([], {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    }));
+                } catch (e) {
+                    console.warn('Draft save failed', e); // storage full / private mode
+                }
+            }
+
+            function scheduleSave() {
+                clearTimeout(timer);
+                timer = setTimeout(saveDraftNow, 500);
+            }
+
+            // called after the invoice is saved successfully
+            window.clearInvoiceDraft = function() {
+                clearTimeout(timer);
+                restoring = true; // block any further autosave
+                try {
+                    localStorage.removeItem(DRAFT_KEY);
+                } catch (e) {}
+            };
+
+            function restoreDraft(d) {
+                restoring = true;
+                try {
+                    // client
+                    if (d.client && d.client.id) {
+                        $('#client').val(d.client.text);
+                        $('#client_id').val(d.client.id);
+                        $('#client_state_id').val(d.client.state_id);
+                        $('#clientAddress').html(d.client.address_html).show();
+                        $('#clientSearchBox').hide();
+                        $('.change-client').show();
+                        $('.new-client').hide();
+                    }
+
+                    if (d.currency_code) $('#currency_code').val(d.currency_code).trigger('change');
+                    if (d.template_id) $('#template_id').val(d.template_id).trigger('change');
+
+                    // dates (flatpickr)
+                    ['invoice_date', 'due_date'].forEach(function(id) {
+                        const el = document.getElementById(id);
+                        if (el && d[id]) {
+                            if (el._flatpickr) el._flatpickr.setDate(d[id], true);
+                            else el.value = d[id];
+                        }
+                    });
+
+                    // invoice number: auto number is NOT restored (it could be stale), only custom numbers
+                    if (d.custom_mode) {
+                        $('#invoiceModeSwitch').prop('checked', true).trigger('change');
+                        setTimeout(function() {
+                            $('#invoice_number').val(d.invoice_number);
+                        }, 650);
+                    }
+
+                    // UPI
+                    if (d.use_upi) {
+                        $('#useUpiToggle').prop('checked', true).trigger('change');
+                        if (d.upi_id) $('#upi_id').val(d.upi_id).trigger('change');
+                    }
+
+                    // recurring options
+                    if (d.recurring) {
+                        $('#recurringOptions :input').each(function() {
+                            const key = this.name || this.id;
+                            if (!key || !(key in d.recurring)) return;
+                            if (this.type === 'checkbox' || this.type === 'radio') this.checked = !!d.recurring[key];
+                            else $(this).val(d.recurring[key]);
+                        });
+                        if (d.recurring.is_recurring) $('#is_recurring').prop('checked', true).trigger('change');
+                        $('#frequency').trigger('change');
+                    }
+
+                    // notes / terms
+                    if (d.notes) $('#id_invoice_notes').summernote('code', d.notes);
+                    if (d.terms) $('#id_invoice_terms').summernote('code', d.terms);
+
+                    // items
+                    (d.items || []).forEach(function(it) {
+                        addItemRow();
+                        const $r = $('#form-container [data-item-id]').last();
+                        const idx = $r.attr('data-item-id');
+
+                        $r.find('.add-items').val(it.name);
+                        $r.find('.hsn').val(it.hsn);
+                        $r.find('.quantity').val(it.qty);
+                        $r.find('.rate').val(it.rate);
+
+                        if (it.discount_id) $r.find('.discount-select option[discount-id="' + it.discount_id + '"]').prop('selected', true);
+                        else $r.find('.discount-select').val(it.discount);
+
+                        if (it.tax_id) $r.find('.tax-select option[tax-id="' + it.tax_id + '"]').prop('selected', true);
+                        else $r.find('.tax-select').val(it.tax);
+
+                        if (it.description) {
+                            $r.find('.id_description').summernote('code', it.description);
+                            $r.find('.ie-item-desc, .ie-desc-toggle').addClass('is-open');
+                        }
+
+                        // keep the inventory item link (needed for stock check)
+                        if (it.item_id) {
+                            $('<input type="hidden" name="item[' + idx + '][item_id]" id="hidden-item-id-' + idx + '" value="' + it.item_id + '">').appendTo($r);
+                        }
+                    });
+
+                    calculateInvoice();
+                } catch (e) {
+                    console.error('Draft restore failed', e);
+                } finally {
+                    setTimeout(function() {
+                        restoring = false;
+                        lastSaved = '';
+                        saveDraftNow();
+                    }, 900);
+                }
+            }
+
+            function loadDraft() {
+                let raw = null;
+                try {
+                    raw = localStorage.getItem(DRAFT_KEY);
+                } catch (e) {
+                    return null;
+                }
+                if (!raw) return null;
+                try {
+                    const d = JSON.parse(raw);
+                    if (!d.ts || Date.now() - d.ts > DRAFT_TTL || !isMeaningful(d)) {
+                        localStorage.removeItem(DRAFT_KEY);
+                        return null;
+                    }
+                    return d;
+                } catch (e) {
+                    localStorage.removeItem(DRAFT_KEY);
+                    return null;
+                }
+            }
+
+            $(window).on('load', function() {
+                const draft = loadDraft();
+
+                // don't clash with the first-time onboarding popup
+                if (draft && onboarding_status != 'N') {
+                    setTimeout(function() {
+                        const when = new Date(draft.ts).toLocaleString([], {
+                            day: '2-digit',
+                            month: 'short',
+                            hour: '2-digit',
+                            minute: '2-digit'
+                        });
+                        Swal.fire({
+                            icon: 'question',
+                            title: 'Unsaved Invoice Found',
+                            text: 'You have an unfinished invoice draft from ' + when + '. Do you want to restore it?',
+                            showDenyButton: true,
+                            confirmButtonText: 'Restore Draft',
+                            denyButtonText: 'Start Fresh',
+                            allowOutsideClick: false
+                        }).then(function(res) {
+                            if (res.isConfirmed) {
+                                restoreDraft(draft);
+                            } else {
+                                try {
+                                    localStorage.removeItem(DRAFT_KEY);
+                                } catch (e) {}
+                            }
+                        });
+                    }, 600);
+                }
+
+                // autosave triggers
+                $(document).on('input change keyup', '#invoice-generate :input', scheduleSave);
+                $(document).on('summernote.change', '.id_description, #id_invoice_notes, #id_invoice_terms', scheduleSave);
+                $(document).on('click', '#clientList a, .change-client, .remove-item-btn, #add-item-btn, .select-item', function() {
+                    setTimeout(scheduleSave, 300);
+                });
+
+                // safety net: check every 4 sec (writes only if something changed)
+                setInterval(saveDraftNow, 4000);
+
+                // browser close / tab switch / mobile app going to background
+                document.addEventListener('visibilitychange', function() {
+                    if (document.visibilityState === 'hidden') saveDraftNow();
+                });
+                window.addEventListener('pagehide', saveDraftNow);
+            });
+        })();
+    </script>
 
 
 </x-default-layout>
