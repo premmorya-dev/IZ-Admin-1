@@ -198,63 +198,7 @@
             color: var(--c-warning) !important;
         }
 
-
-        .floating-help-btn {
-            position: fixed;
-            right: 22px;
-            bottom: 0px;
-            z-index: 999;
-
-            display: inline-flex;
-            align-items: center;
-            gap: 10px;
-
-            padding: 6px 16px;
-
-            border-radius: 999px;
-
-            background: rgba(20, 20, 20, 0.92);
-            backdrop-filter: blur(16px);
-
-            border: 1px solid rgba(255, 255, 255, .08);
-
-            text-decoration: none;
-
-            box-shadow: 0 12px 30px rgba(0, 0, 0, .18);
-
-            transition: all .3s ease;
-        }
-
-        .floating-help-btn:hover {
-            transform: translateY(-3px);
-            box-shadow: 0 16px 36px rgba(0, 0, 0, .25);
-        }
-
-        .help-icon {
-            width: 40px;
-            height: 40px;
-
-            border-radius: 50%;
-
-            display: flex;
-            align-items: center;
-            justify-content: center;
-
-            background: #25D366;
-            color: #fff;
-
-            font-size: 20px;
-
-            animation: pulse 2s infinite;
-        }
-
-        .help-text {
-            color: #fff;
-            font-size: 14px;
-            font-weight: 600;
-            white-space: nowrap;
-        }
-
+        /* NOTE: kept on purpose — other pages/components may still use this keyframe */
         @keyframes pulse {
             0% {
                 box-shadow: 0 0 0 0 rgba(37, 211, 102, .45);
@@ -269,51 +213,17 @@
             }
         }
 
-        @media(max-width:768px) {
-
-            .floating-help-btn {
-                padding: 10px;
-            }
-
-            .help-text {
-                display: none;
-            }
-
-            .help-icon {
-                width: 52px;
-                height: 52px;
-                font-size: 24px;
-            }
-
-        }
-
-
-    
         .modal-header.bg-primary { background: linear-gradient(135deg, #4f46e5, #7c3aed) !important; }
 
     </style>
 </head>
 <!--end::Head-->
-<!-- Modal -->
-<a href="https://wa.me/918750101087?text=Hi%20I%20need%20help%20with%20Invoicezy"
-    target="_blank"
-    class="floating-help-btn">
-
-    <span class="help-icon">
-        <i class="bi bi-whatsapp text-white"></i>
-    </span>
-
-    <span class="help-text">
-        Need Help?
-    </span>
-
-</a>
-
 
 <div class="spinner-border text-primary spinner-format" id="loader" style="display:none;" role="status">
     <span class="visually-hidden"></span>
 </div>
 
+<!-- Modal -->
 <div class="modal fade " id="copyModal" tabindex="-1" aria-labelledby="copyModalLabel" aria-hidden="true">
     <div class="modal-dialog modal-sm text-center">
         <div class="modal-content">

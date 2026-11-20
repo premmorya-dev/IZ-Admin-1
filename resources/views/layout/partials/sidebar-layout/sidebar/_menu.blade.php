@@ -1,5 +1,3 @@
-
-
 <style>
 
 /* ==========================================================================
@@ -209,10 +207,49 @@
 .app-sidebar .icon-inventory { --tone: 56, 189, 248; }
 .app-sidebar .icon-reports   { --tone: 192, 132, 252; }
 .app-sidebar .icon-settings  { --tone: 250, 204, 21; }
+.app-sidebar .icon-help      { --tone: 37, 211, 102; }
 
 .app-sidebar .menu-link:hover .menu-icon {
     background: rgba(var(--tone), .14);
     box-shadow: inset 0 0 0 1px rgba(var(--tone), .22);
+}
+
+
+/* ---------- Help Center (WhatsApp support) ---------- */
+.app-sidebar .help-link .menu-icon {
+    background: rgba(var(--tone), .12);
+    box-shadow: inset 0 0 0 1px rgba(var(--tone), .28);
+}
+
+.app-sidebar .help-link .help-badge {
+    margin-left: auto;
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 10.5px;
+    font-weight: 600;
+    line-height: 1.5;
+    color: #34D399;
+    background: rgba(37, 211, 102, .12);
+    border: 1px solid rgba(37, 211, 102, .25);
+}
+
+.app-sidebar .help-link .help-badge::before {
+    content: '';
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: #25D366;
+    box-shadow: 0 0 0 0 rgba(37, 211, 102, .55);
+    animation: sbHelpPulse 2s infinite;
+}
+
+@keyframes sbHelpPulse {
+    0%   { box-shadow: 0 0 0 0 rgba(37, 211, 102, .55); }
+    70%  { box-shadow: 0 0 0 6px rgba(37, 211, 102, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(37, 211, 102, 0); }
 }
 
 
@@ -319,10 +356,12 @@
 .app-sidebar-collapse .upgrade-text,
 .app-sidebar-collapse .upgrade-arrow,
 .app-sidebar-collapse .menu-arrow,
+.app-sidebar-collapse .help-badge,
 [data-kt-app-sidebar-minimize="on"] .app-sidebar:not(:hover) .menu-title,
 [data-kt-app-sidebar-minimize="on"] .app-sidebar:not(:hover) .menu-heading,
 [data-kt-app-sidebar-minimize="on"] .app-sidebar:not(:hover) .upgrade-text,
 [data-kt-app-sidebar-minimize="on"] .app-sidebar:not(:hover) .upgrade-arrow,
+[data-kt-app-sidebar-minimize="on"] .app-sidebar:not(:hover) .help-badge,
 [data-kt-app-sidebar-minimize="on"] .app-sidebar:not(:hover) .menu-arrow { display: none; }
 
 .app-sidebar-collapse .menu-link,
@@ -356,7 +395,7 @@
 
 @media (prefers-reduced-motion: reduce) {
     .app-sidebar *,
-    .app-sidebar *::before { transition: none !important; }
+    .app-sidebar *::before { transition: none !important; animation: none !important; }
 }
 
 </style>
@@ -531,6 +570,21 @@
                         </a>
                     </div>
                 </div>
+            </div>
+
+            <!-- Support -->
+            <div class="menu-item menu-section">
+                <div class="menu-content">
+                    <span class="menu-heading">Support</span>
+                </div>
+            </div>
+            <div class="menu-item">
+                <a href="https://wa.me/918750101087?text=Hi%20I%20need%20help%20with%20Invoicezy"
+                    target="_blank" rel="noopener noreferrer" class="menu-link help-link" id="help-center">
+                    <span class="menu-icon icon-help"><i data-lucide="life-buoy"></i></span>
+                    <span class="menu-title">Help Center</span>
+                    <span class="help-badge">WhatsApp</span>
+                </a>
             </div>
 
         </div>
