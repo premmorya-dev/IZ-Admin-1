@@ -580,6 +580,31 @@
         .modal.fade .modal-content { border: 0; border-radius: 18px; overflow: hidden; }
         .modal-header.bg-primary { background: linear-gradient(135deg, #4f46e5, #7c3aed) !important; }
 
+        /* ---------- View bill modal — mobile fix ----------
+           Bill HTML (loaded via AJAX) has a fixed/wide layout, so on small screens
+           it is auto-scaled to fit the modal width by fitBillView() (see script below). */
+        #viewModal .iv-body { padding: 0 32px 32px; }
+
+        #viewModal #view-record-form-body {
+            position: relative;
+            width: 100%;
+            overflow: hidden;
+        }
+
+        #viewModal #iv-scale {
+            width: max-content;
+            min-width: 100%;
+            transform-origin: top left;
+        }
+
+        #viewModal #iv-scale img { max-width: 100%; height: auto; }
+
+        @media (max-width: 767.98px) {
+            #viewModal .modal-content { border-radius: 0 !important; min-height: 100%; }
+            #viewModal .modal-header { margin-bottom: 8px !important; border-radius: 0 !important; padding: 12px 14px; }
+            #viewModal .iv-body { padding: 0 8px 16px; }
+        }
+
         @media (prefers-reduced-motion: reduce) {
             .ie-page * { transition: none !important; }
         }
@@ -1162,14 +1187,19 @@
     </form>
 
     {{-- ===== Modals ===== --}}
+    {{-- View Modal (fullscreen on mobile, bill auto-scaled to fit) --}}
     <div class="modal fade" id="viewModal" tabindex="-1" aria-labelledby="viewModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-centered">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-fullscreen-md-down">
             <div class="modal-content rounded-4 shadow">
                 <div class="modal-header bg-primary text-white rounded-top-4 mb-3">
                     <h5 class="modal-title" id="viewModalLabel">View Bill</h5>
                     <button type="button" class="btn-close bg-white" data-bs-dismiss="modal" aria-label="Close"></button>
                 </div>
-                <div id="view-record-form-body" class="px-3 px-md-5 mb-5"></div>
+                <div class="iv-body">
+                    <div id="view-record-form-body">
+                        <div id="iv-scale"></div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>
@@ -1710,6 +1740,31 @@
             });
         });
 
+        // ---- View bill modal: scale bill to fit screen width (mobile fix) ----
+        function fitBillView() {
+            const wrap = document.getElementById('view-record-form-body');
+            const inner = document.getElementById('iv-scale');
+            if (!wrap || !inner) return;
+
+            // reset before measuring
+            inner.style.transform = 'none';
+            wrap.style.height = 'auto';
+
+            const avail = wrap.clientWidth;
+            const natural = inner.scrollWidth;
+
+            if (avail > 0 && natural > avail + 1) {
+                const scale = avail / natural;
+                inner.style.transform = 'scale(' + scale + ')';
+                wrap.style.height = Math.ceil(inner.offsetHeight * scale) + 'px';
+            }
+        }
+
+        $('#viewModal').on('shown.bs.modal', fitBillView);
+        $(window).on('resize orientationchange', function() {
+            if ($('#viewModal').hasClass('show')) setTimeout(fitBillView, 120);
+        });
+
         $(document).on('click', '.bill-view-model', function(e) {
             e.preventDefault();
             var bill_code = $(this).attr('bill-code');
@@ -1728,9 +1783,14 @@
                 data: { bill_code: bill_code },
                 headers: { 'X-CSRF-TOKEN': '{{ csrf_token() }}' },
                 success: function(response) {
-                    $('#view-record-form-body').html(response.html);
+                    $('#iv-scale').html(response.html);
+
+                    // re-fit when images (logo, signature, QR) finish loading
+                    $('#iv-scale img').on('load', fitBillView);
+
                     Swal.close();
                     $('#viewModal').modal('show');
+                    setTimeout(fitBillView, 350);
                 },
                 error: function(xhr) {
                     Swal.fire({

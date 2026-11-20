@@ -13,7 +13,7 @@
 <!-- Header with logo -->
 <tr>
 <td style="background-color:#0A0E1A;padding:32px;text-align:center;">
-<img src="{{ config('app.url') logo.png" alt="InvoiceZy" width="140" style="display:block;margin:0 auto;border:0;">
+<img src="{{ config('app.url') }}logo.png" alt="InvoiceZy" width="140" style="display:block;margin:0 auto;border:0;">
 </td>
 </tr>
 
