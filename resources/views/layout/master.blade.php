@@ -3,22 +3,22 @@
 <!--begin::Head-->
 
 <head>
-<link rel="manifest" href="/manifest.json">
+    <link rel="manifest" href="/manifest.json">
 
-<meta name="theme-color" content="#0A0E1A">
+    <meta name="theme-color" content="#0A0E1A">
 
-<meta name="mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
 
-<meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
 
-<meta name="apple-mobile-web-app-status-bar-style"
-      content="black-translucent">
+    <meta name="apple-mobile-web-app-status-bar-style"
+        content="black-translucent">
 
-<meta name="apple-mobile-web-app-title"
-      content="InvoiceZy">
+    <meta name="apple-mobile-web-app-title"
+        content="InvoiceZy">
 
-<link rel="apple-touch-icon"
-      href="/icons/icon-192.png">
+    <link rel="apple-touch-icon"
+        href="/icons/icon-192.png">
 
     <script>
         (function() {
@@ -213,8 +213,46 @@
             }
         }
 
-        .modal-header.bg-primary { background: linear-gradient(135deg, #4f46e5, #7c3aed) !important; }
+        .modal-header.bg-primary {
+            background: linear-gradient(135deg, #4f46e5, #7c3aed) !important;
+        }
 
+        /* ===== Universal modal header: text/icons always white ===== */
+        .modal-header,
+        .modal-header .modal-title,
+        .modal-header h1,
+        .modal-header h2,
+        .modal-header h3,
+        .modal-header h4,
+        .modal-header h5,
+        .modal-header h6,
+        .modal-header p,
+        .modal-header span,
+        .modal-header small,
+        .modal-header i,
+        .modal-header svg,
+        .modal-header.text-dark,
+        .modal-header .text-dark {
+            color: #fff !important;
+        }
+
+        /* Close (X) button: always a white X on a transparent background,
+   even where the markup uses class="btn-close bg-white" */
+        .modal-header .btn-close {
+            background-color: transparent !important;
+            filter: brightness(0) invert(1);
+            opacity: .9;
+            box-shadow: none;
+        }
+
+        .modal-header .btn-close:hover {
+            opacity: 1;
+        }
+
+        /* Yellow header par white text unreadable hota hai, isliye warning ko darker amber gradient */
+        .modal-header.bg-warning {
+            background: linear-gradient(135deg, #d97706, #b45309) !important;
+        }
     </style>
 </head>
 <!--end::Head-->
@@ -386,17 +424,17 @@
     <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script src="{{ asset('assets/js/invoice.bundle.js') }}"></script>
 
-<script>
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function () {
-        navigator.serviceWorker.register('/sw.js', {
-            scope: '/'
-        }).catch(function (error) {
-            console.error('Service Worker Error:', error);
-        });
-    });
-}
-</script>
+    <script>
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', function() {
+                navigator.serviceWorker.register('/sw.js', {
+                    scope: '/'
+                }).catch(function(error) {
+                    console.error('Service Worker Error:', error);
+                });
+            });
+        }
+    </script>
 </body>
 <!--end::Body-->
 
